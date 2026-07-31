@@ -39,14 +39,28 @@ travel-diary/
 ├── next.html         # 下一次旅行预告 + 倒计时
 ├── notes.html        # 旅行笔记 + 学习笔记
 ├── about.html        # 自我介绍
+├── upload.html       # 📤 照片导入页（压缩 + GPS 读取 + 打包下载）
 ├── css/style.css     # 全局样式
-├── js/               # 页面逻辑（main/index/next/notes/about）
+├── js/               # 页面逻辑（main/index/next/notes/about/upload）
 ├── data/             # 数据（JSON）
 │   ├── trips.json    # 旅行数据：位置/心情/想法/照片
 │   ├── notes.json    # 笔记数据
 │   └── profile.json  # 自我介绍 + 下一次旅行
 └── photos/           # 📷 照片目录（放置你的旅行照片）
 ```
+
+## 📤 照片导入（upload.html）
+
+**导入标准**（自动压缩到达标）：
+
+| 指标 | 限制 |
+|------|------|
+| 单张大小 | ≤ 1MB |
+| 最长边 | ≤ 2048px |
+| 格式 | JPG / PNG（HEIC 浏览器无法解码，需先转换） |
+| 压缩策略 | 长边 2048 + 质量 85% 起步，超限自动降质量/缩尺寸 |
+
+**流程**：导入页选照片 → 自动压缩 + 读取 EXIF GPS → 打包下载 zip（放入 `photos/`）→ 生成 JSON 条目模板（发给助理合并进 `data/trips.json`）。
 
 ## ✏️ 如何更新内容
 

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>照片导入 · 旅行日记</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* 导入页专用样式 */
+    .drop-zone {
+      border: 2px dashed var(--accent);
+      border-radius: var(--radius);
+      background: var(--card);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 24px;
+    }
+    .drop-zone:hover, .drop-zone.drag {
+      background: var(--bg-alt);
+      border-color: var(--accent-dark);
+    }
+    .drop-zone .dz-icon { font-size: 48px; margin-bottom: 12px; }
+    .drop-zone p { color: var(--ink-soft); font-size: 14px; }
+    .drop-zone input[type="file"] { display: none; }
+
+    .limit-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .limit-item {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+    .limit-item .num { font-size: 22px; font-weight: 800; color: var(--accent); }
+    .limit-item .desc { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
+
+    .photo-item {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+    }
+    .photo-item .thumb {
+      width: 72px; height: 72px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--bg-alt);
+    }
+    .photo-item .pi-name { font-weight: 600; font-size: 14px; word-break: break-all; }
+    .photo-item .pi-meta { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
+    .photo-item .pi-size { font-size: 12px; white-space: nowrap; }
+    .photo-item .pi-size.ok { color: #2e8b57; font-weight: 700; }
+    .photo-item .pi-size.warn { color: #c96f4a; font-weight: 700; }
+    .photo-item .pi-gps { font-size: 12px; color: var(--ocean); margin-top: 2px; }
+    .photo-item .pi-warn { font-size: 12px; color: #c96f4a; margin-top: 2px; }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-ghost { background: var(--bg-alt); color: var(--ink); }
+    .btn-ghost:hover { background: var(--line); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .json-box {
+      margin-top: 20px;
+      background: #1d3f4d;
+      color: #d7ecef;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      display: none;
+      max-height: 260px;
+      overflow: auto;
+    }
+    .hint { font-size: 13px; color: var(--ink-soft); margin-top: 16px; line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="index.html">🗺️ 旅行<span>日记</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="next.html">下次旅行</a></li>
+        <li><a href="notes.html">笔记</a></li>
+        <li><a href="about.html">关于我</a></li>
+        <li><a href="upload.html">导入</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container" style="max-width:860px">
+    <section class="page-hero" style="padding-bottom:20px">
+      <h1>📤 照片导入</h1>
+      <p>选择照片 → 自动压缩达标 → 下载 + 生成条目模板</p>
+    </section>
+
+    <!-- 限制标准 -->
+    <div class="limit-grid">
+      <div class="limit-item"><div class="num">≤ 1MB</div><div class="desc">单张压缩后上限</div></div>
+      <div class="limit-item"><div class="num">≤ 2048px</div><div class="desc">最长边限制</div></div>
+      <div class="limit-item"><div class="num">JPG / PNG</div><div class="desc">支持格式（HEIC 需先转换）</div></div>
+      <div class="limit-item"><div class="num">85%</div><div class="desc">初始压缩质量，自动降级</div></div>
+    </div>
+
+    <!-- 拖拽区 -->
+    <div class="drop-zone" id="drop-zone">
+      <div class="dz-icon">📷</div>
+      <p><strong>点击选择</strong> 或 <strong>拖拽照片</strong> 到此处</p>
+      <p style="margin-top:6px;font-size:12.5px">可多选 · GPS 坐标将自动从照片 EXIF 读取</p>
+      <input type="file" id="file-input" accept="image/*" multiple />
+    </div>
+
+    <div id="result-list"></div>
+
+    <div class="actions" id="actions" style="display:none">
+      <button class="btn btn-primary" id="btn-zip">📦 打包下载全部（zip）</button>
+      <button class="btn btn-ghost" id="btn-json">📋 生成 JSON 条目模板</button>
+      <button class="btn btn-ghost" id="btn-clear">🗑️ 清空</button>
+    </div>
+
+    <div class="json-box" id="json-box"></div>
+
+    <p class="hint">
+      💡 <strong>使用流程：</strong><br />
+      1. 选择照片，页面自动压缩到 ≤1MB 并读取 GPS<br />
+      2. 打包下载 → 解压后把照片放入项目 <code>photos/</code> 目录<br />
+      3. 生成 JSON 模板 → 把内容（或截图）发给助理<br />
+      4. 助理帮你合并进 <code>data/trips.json</code> 并推送上线 🚀
+    </p>
+  </main>
+
+  <footer class="site-footer">
+    <p>🗺️ 旅行日记 · 纯静态 · 零依赖 · 由一人公司 GIS/工程部协力构建</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/upload.js"></script>
+</body>
+</html>
