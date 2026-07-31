@@ -15,7 +15,6 @@ function renderNext(t) {
   document.querySelector("#next-title").textContent = t.destination;
   document.querySelector("#next-date").textContent = `${t.date} · ${t.duration}`;
   document.querySelector("#next-plan").textContent = t.plan;
-  document.querySelector("#next-cover").textContent = t.cover ? "" : t.country;
 
   const pills = document.querySelector("#next-highlights");
   pills.innerHTML = t.highlights.map((h) => `<span>${h}</span>`).join("");

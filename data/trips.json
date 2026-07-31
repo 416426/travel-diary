@@ -1,6 +1,30 @@
 {
   "trips": [
     {
+      "id": "tianjin-2026",
+      "title": "天津 · 东疆海岸",
+      "date": "2026-07-19",
+      "duration": "7.19 - 7.26",
+      "location": "中国 天津 · 滨海新区",
+      "lat": 39.0054,
+      "lng": 117.6627,
+      "photos": [
+        "photos/IMG_1967.jpg",
+        "photos/dji_export_20260726_202716_1785068836433_framed.jpg",
+        "photos/36d5709feb10bf4933f092afc084c41a_livephoto.jpg",
+        "photos/035fa0b54341ff52dce15f6211a25e67.jpg",
+        "photos/864e00ff46746a890b3bec2617ad7ce9.jpg"
+      ],
+      "mood": "🌊 待补充",
+      "moodEmoji": "🌊",
+      "thoughts": "（心情与想法待补充 —— 编辑 data/trips.json 中 tianjin-2026 条目的 mood / thoughts 即可）",
+      "tags": ["天津", "海岸", "航拍"],
+      "highlights": [
+        {"name": "东疆港海岸", "lat": 39.001286, "lng": 117.671600, "note": "iPhone 拍摄点（照片 EXIF 精确坐标）"},
+        {"name": "近海航拍点", "lat": 39.009553, "lng": 117.653713, "note": "大疆无人机航拍（照片 EXIF 精确坐标）"}
+      ]
+    },
+    {
       "id": "tokyo-2025",
       "title": "东京 · 春日物语",
       "date": "2025-04-05",
