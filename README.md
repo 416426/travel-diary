@@ -3,7 +3,7 @@
 > 记录每一次旅行的足迹、照片、心情和思考。
 
 **项目仓库**：https://github.com/416426/travel-diary
-**在线访问**：https://416426.github.io/travel-diary/ （GitHub Pages 部署后生效）
+**在线访问**：https://blog.hubai.top/travel-diary/ （自定义域名，已部署）
 
 ---
 
