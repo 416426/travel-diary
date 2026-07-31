@@ -1,6 +1,23 @@
 {
   "trips": [
     {
+      "id": "datong-2026",
+      "title": "大同之旅",
+      "date": "待补充",
+      "duration": "待补充",
+      "location": "中国 山西 大同",
+      "lat": 40.0768,
+      "lng": 113.3001,
+      "photos": [
+        "photos/live_photo_paired_photo_19BC2A46-86E4-4398-BABF-C6F0273C2EA0.jpg"
+      ],
+      "mood": "🏯 待补充",
+      "moodEmoji": "🏯",
+      "thoughts": "（心情与想法待补充 —— 编辑 data/trips.json 中 datong-2026 条目的 mood / thoughts 即可）",
+      "tags": ["大同", "山西"],
+      "highlights": []
+    },
+    {
       "id": "tianjin-2026",
       "title": "天津 · 东疆海岸",
       "date": "2026-07-19",
