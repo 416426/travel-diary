@@ -1,0 +1,26 @@
+{
+  "profile": {
+    "name": "Traveler",
+    "tagline": "在路上，记录世界与我",
+    "avatar": "photos/avatar.jpg",
+    "bio": "这里是旅行日记的主人公。热爱探索未知的角落，记录每一次出发、每一段风景和每一个念头。",
+    "hobbies": ["摄影", "徒步", "美食探索", "地图收集"],
+    "contact": {
+      "email": "hello@example.com",
+      "github": "https://github.com/416426"
+    }
+  },
+  "nextTrip": {
+    "title": "下一次旅行预告",
+    "destination": "冰岛 · 环岛自驾",
+    "country": "IS",
+    "lat": 64.1466,
+    "lng": -21.9426,
+    "date": "2026-10-01",
+    "duration": "14 天",
+    "cover": "photos/next-iceland.jpg",
+    "highlights": ["黄金圈", "蓝湖温泉", "黑沙滩", "极光追逐"],
+    "plan": "从雷克雅未克出发，沿 1 号公路环岛，逆时针方向自驾 14 天，全程约 1800 公里。",
+    "status": "planning"
+  }
+}

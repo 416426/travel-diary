@@ -2,28 +2,82 @@
 
 > 记录每一次旅行的足迹、照片、心情和思考。
 
+**项目仓库**：https://github.com/416426/travel-diary
+**在线访问**：https://416426.github.io/travel-diary/ （GitHub Pages 部署后生效）
+
 ---
 
 ## 📋 需求清单
 
-- [ ] **📸 展示旅行照片** — 在页面/应用中展示旅途中的照片
-- [ ] **📍 精确地理位置** — 记录每次旅行的精确坐标
-- [ ] **❤️ 旅行心情及想法** — 记录每段旅程的心情与随想
-- [ ] **🔮 下一次旅行预告** — 预告和规划下一次旅行
-- [ ] **📝 分享和记录旅行笔记** — 记录旅行攻略、见闻
-- [ ] **📚 学习笔记** — 记录旅途中学习的知识
-- [ ] **👋 简单自我介绍** — 个人简介页面
-
----
+| 需求 | 状态 |
+|------|:----:|
+| 📸 展示旅行照片 | ✅ 照片墙 + 旅行卡片 |
+| 📍 精确地理位置 | ✅ Leaflet + OpenStreetMap 精确坐标 |
+| ❤️ 旅行心情及想法 | ✅ 心情标签 + 随想卡片 |
+| 🔮 下一次旅行预告 | ✅ 预告页 + 实时倒计时 |
+| 📝 旅行笔记 | ✅ 攻略/见闻 |
+| 📚 学习笔记 | ✅ 分类展示 |
+| 👋 自我介绍 | ✅ 关于我页面 |
 
 ## 🏗️ 技术栈
 
-_待定_
+**纯静态零依赖方案**（2026-07-31 确认）
 
-## 🚀 开始
+| 组件 | 技术 |
+|------|------|
+| 页面 | 原生 HTML5 + CSS3 + JavaScript |
+| 地图 | Leaflet 1.9.4（CDN）+ OpenStreetMap 瓦片 |
+| 数据 | JSON 文件（`data/` 目录，无需数据库） |
+| 部署 | GitHub Pages（免费） |
+| 依赖 | 无（零安装，无需 npm/pip） |
 
-_克隆后安装依赖..._
+## 📁 目录结构
+
+```
+travel-diary/
+├── index.html        # 首页：地图 + 旅行卡片 + 照片墙
+├── next.html         # 下一次旅行预告 + 倒计时
+├── notes.html        # 旅行笔记 + 学习笔记
+├── about.html        # 自我介绍
+├── css/style.css     # 全局样式
+├── js/               # 页面逻辑（main/index/next/notes/about）
+├── data/             # 数据（JSON）
+│   ├── trips.json    # 旅行数据：位置/心情/想法/照片
+│   ├── notes.json    # 笔记数据
+│   └── profile.json  # 自我介绍 + 下一次旅行
+└── photos/           # 📷 照片目录（放置你的旅行照片）
+```
+
+## ✏️ 如何更新内容
+
+**添加一次旅行**：编辑 `data/trips.json`，按现有格式追加对象（title/date/lat/lng/mood/thoughts/photos...）。
+
+**更换照片**：把照片放入 `photos/`，在 JSON 中更新路径。照片缺失时自动显示心情 emoji 占位，不会报错。
+
+**修改预告**：编辑 `data/profile.json` 的 `nextTrip`，倒计时自动计算。
+
+## 🚀 本地运行
+
+无需安装任何依赖，任选其一：
 
 ```bash
-# 待补充
+python3 -m http.server 8080        # Python 内置服务器
+npx serve .                        # 或 Node 的 serve（如已安装）
 ```
+
+浏览器访问 `http://localhost:8080`
+
+## ✅ 测试
+
+- [x] 7 项需求全部实现
+- [x] 照片缺失时 emoji 占位降级
+- [x] 响应式布局（移动端可用）
+- [x] Lightbox 照片查看 + ESC 关闭
+
+---
+
+## 🏭 项目运作
+
+- 采用一人公司架构推进：开发方向（工程部/设计部）→ APINebula，分析方向 → DeepSeek
+- 精确地理位置需求 → GIS 部（13 人）
+- 进度跟踪 → hermes-daily 仓库 `projects/travel-diary/progress.md`

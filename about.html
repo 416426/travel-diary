@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>关于我 · 旅行日记</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="index.html">🗺️ 旅行<span>日记</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="next.html">下次旅行</a></li>
+        <li><a href="notes.html">笔记</a></li>
+        <li><a href="about.html">关于我</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="page-hero">
+      <h1>👋 你好，我是 <span id="about-name">Traveler</span></h1>
+      <p id="about-tagline"></p>
+    </section>
+
+    <div id="about-wrap" class="about-wrap">
+      <div class="card" style="padding:24px">
+        <div id="avatar-box" class="avatar-box">🧑‍✈️</div>
+        <div class="tags" style="margin-top:18px;justify-content:center">
+          <span class="tag">✈️ 旅行者</span>
+          <span class="tag">📷 摄影爱好者</span>
+          <span class="tag">🗺️ 地图收集者</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h3>关于我</h3>
+          <p class="about-bio" id="about-bio"></p>
+          <h3 style="margin-top:24px">✨ 爱好</h3>
+          <ul id="about-hobbies" class="hobby-list"></ul>
+          <h3 style="margin-top:24px">📮 联系</h3>
+          <p class="about-bio" style="margin-top:8px">
+            ✉️ <span id="about-contact"></span><br />
+            🔗 <a id="about-github" href="#" target="_blank"></a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>🗺️ 旅行日记 · 纯静态 · 零依赖 · 由一人公司 GIS/工程部协力构建</p>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/about.js"></script>
+</body>
+</html>

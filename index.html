@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>旅行日记 · 在路上</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="index.html">🗺️ 旅行<span>日记</span></a>
+      <ul class="nav-links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="next.html">下次旅行</a></li>
+        <li><a href="notes.html">笔记</a></li>
+        <li><a href="about.html">关于我</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="page-hero">
+    <h1>📸 每一次出发，都值得被记住</h1>
+    <p>照片 · 足迹 · 心情 · 想法 — 我的旅行日记</p>
+  </section>
+
+  <main class="container">
+    <!-- 精确地理位置：地图 -->
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="map-note">📍 精确位置标记：主标 = 旅行城市 · 圆点 = 高亮地点（点击查看）</div>
+    </div>
+
+    <!-- 旅行卡片：照片 + 心情 + 想法 -->
+    <h2 class="section-title">🧳 旅行记录</h2>
+    <div id="trips-grid" class="grid grid-2"></div>
+
+    <!-- 照片墙 -->
+    <h2 class="section-title">🖼️ 照片墙</h2>
+    <div id="photo-wall" class="photo-wall"></div>
+    <p class="placeholder-note">照片放入 <code>photos/</code> 目录并更新 <code>data/trips.json</code> 即可显示</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>🗺️ 旅行日记 · 纯静态 · 零依赖 · 由一人公司 GIS/工程部协力构建</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>
