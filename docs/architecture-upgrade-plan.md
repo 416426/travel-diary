@@ -12,7 +12,7 @@
 | 架构 | 纯静态：HTML + JS + JSON，Leaflet CDN 地图 |
 | 托管 | GitHub Pages（自定义域名 blog.hubai.top） |
 | 数据 | `data/*.json` 文件，手动编辑 |
-| 照片 | `photos/` 目录 + 导入页压缩（≤1MB/2048px） |
+| 照片 | `photos/` 目录 + 照片压缩（≤1MB/2048px） |
 | 成本 | ¥0（除模型 API 消耗） |
 | 优势 | 零依赖、零运维、秒级更新、免费 |
 | 瓶颈 | 无后端能力（上传/评论/管理后台/搜索/用户系统均不可做）；照片无对象存储 |
@@ -71,7 +71,7 @@ R2 对象存储 —— 照片原图（免费 10GB）
 1. 数据 `trips.json/notes.json/profile.json` → 导入 D1 表结构
 2. 前端 fetch 改为调用 API（保留 JSON 直读作为降级回退）
 3. 照片墙 → R2 签名 URL；旧照片批量上传 R2
-4. 导入页 → 改为直传 R2（保留本地压缩逻辑）
+4. 照片上传 → 改为直传 R2（保留本地压缩逻辑）
 5. 地图/倒计时/笔记逻辑不变
 
 ## 4. 阶段 B：容器化部署（远期）
@@ -176,7 +176,7 @@ JSON 文件 → D1（阶段 A）→ PostgreSQL（阶段 B）
 - [ ] 阶段 A-3：JSON 数据迁移到 D1（脚本）
 - [ ] 阶段 A-4：API 层（trips/notes/profile/photos CRUD）
 - [ ] 阶段 A-5：前端接入 API（保留静态降级）
-- [ ] 阶段 A-6：照片直传 R2（改造导入页）
+- [ ] 阶段 A-6：照片直传 R2（改造上传功能）
 - [ ] 阶段 A-7：管理后台（可选）
 - [ ] 阶段 B-1：用户批准安装 Docker + 购买 VPS
 - [ ] 阶段 B-2：Docker Compose 编排（nginx/api/postgres/minio）

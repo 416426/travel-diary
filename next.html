@@ -16,14 +16,13 @@
         <li><a href="next.html">下次旅行</a></li>
         <li><a href="notes.html">笔记</a></li>
         <li><a href="about.html">关于我</a></li>
-        <li><a href="upload.html">导入</a></li>
       </ul>
     </nav>
   </header>
 
   <main class="container" id="next-wrap">
     <section class="next-hero">
-      <h2 id="next-title">🌍 下一次旅行预告</h2>
+      <h1 id="next-title">🌍 腾格里沙漠</h1>
       <p class="next-sub" id="next-date"></p>
       <div class="countdown">
         <div class="unit"><div class="num" id="cd-days">--</div><div class="label">天</div></div>
@@ -34,15 +33,71 @@
     </section>
 
     <div class="next-body">
-      <div class="card">
-        <div class="card-body">
-          <h3>🗺️ 目的地地图</h3>
-          <div id="next-map" style="height:340px;border-radius:12px;margin-top:12px"></div>
-        </div>
+
+      <div class="tab-nav" role="tablist" aria-label="行前推荐">
+        <button class="tab-btn active" role="tab" aria-selected="true" data-panel="panel-weather">☀️ 天气预览</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-panel="panel-route">🧭 行程路线</button>
+        <button class="tab-btn" role="tab" aria-selected="false" data-panel="panel-packing">🧥 穿衣指南</button>
+        <span class="tab-indicator" aria-hidden="true"></span>
       </div>
-      <div class="card">
+
+      <div class="tab-panels">
+
+        <section class="tab-panel active" id="panel-weather" role="tabpanel">
+          <div class="panel-grid">
+            <div class="panel-side weather-big">
+              <div class="weather-temp big"><span id="weather-day">--</span><small>白天</small></div>
+              <div class="weather-temp big alt"><span id="weather-night">--</span><small>夜间</small></div>
+            </div>
+            <div class="panel-main">
+              <div class="weather-grid">
+                <div class="w-item"><span class="w-ico">💧</span><b id="weather-rain">--</b><small>降水</small></div>
+                <div class="w-item"><span class="w-ico">🌬️</span><b id="weather-wind">--</b><small>风沙</small></div>
+                <div class="w-item"><span class="w-ico">📅</span><b>10月</b><small>典型</small></div>
+              </div>
+              <p class="rec-summary" id="weather-summary"></p>
+              <p class="rec-source" id="weather-source"></p>
+              <p class="rec-note" id="weather-note"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="panel-route" role="tabpanel">
+          <div class="panel-grid">
+            <div class="panel-main">
+              <div id="route-map" class="route-map" aria-label="腾格里沙漠建议路线地图"></div>
+            </div>
+            <div class="panel-side">
+              <h3 class="panel-sub">📍 途经站点</h3>
+              <div class="timeline" id="route-list"></div>
+              <p class="rec-note" id="route-note"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="panel-packing" role="tabpanel">
+          <div class="panel-grid">
+            <div class="panel-side">
+              <div class="packing-blocks">
+                <div class="p-block"><span class="p-time">🌅 早晨</span><p id="packing-morning"></p></div>
+                <div class="p-block"><span class="p-time">☀️ 白天</span><p id="packing-day"></p></div>
+                <div class="p-block"><span class="p-time">🌙 夜间</span><p id="packing-night"></p></div>
+              </div>
+            </div>
+            <div class="panel-main">
+              <h3 class="panel-sub">🧰 必备装备</h3>
+              <div class="tag-list" id="packing-gear"></div>
+              <p class="rec-summary" id="packing-summary" style="margin-top:14px"></p>
+              <p class="rec-note" id="packing-note"></p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="card plan-card">
         <div class="card-body">
-          <h3>📝 旅行计划</h3>
+          <h2>📝 旅行计划</h2>
           <p id="next-plan" style="margin-top:12px"></p>
           <h3 style="margin-top:20px">✨ 亮点清单</h3>
           <div id="next-highlights" class="highlight-pills"></div>
