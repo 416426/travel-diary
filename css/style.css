@@ -584,3 +584,176 @@ a:focus-visible, button:focus-visible, .nav-links a:focus-visible {
   .nav-links a { padding: 6px 10px; font-size: 13px; }
   #route-map { height: 240px !important; }
 }
+
+
+/* ================================================================
+   UI 升级 · 温暖胶片旅行手账（2026-08-20 设计系统）
+   方案 A：陶土 #B85432 · 海蓝 #285866 · 米纸 #F8F3EA
+   ================================================================ */
+:root {
+  --bg: #F8F3EA;
+  --surface: #FFFCF7;
+  --surface-muted: #EFE6D8;
+  --ink: #272521;
+  --ink-muted: #625D55;
+  --accent: #B85432;
+  --accent-dark: #913B20;
+  --ocean: #285866;
+  --line: #D8CCBC;
+  --shadow: 0 8px 28px rgb(39 37 33 / 10%);
+  --radius: 14px;
+  --motion: 220ms cubic-bezier(.2,.8,.2,1);
+  --font-display: "Songti SC", "STSong", "SimSun", serif;
+  --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+body { font-family: var(--font-body); }
+
+h1, h2, h3, .brand { font-family: var(--font-display); letter-spacing: 0.5px; }
+
+/* ---- 导航：半透明米纸 + 陶土下划线动画 ---- */
+.site-header { background: rgba(248, 243, 234, 0.85); }
+.nav-links a {
+  position: relative;
+  padding: 10px 14px;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 14px; right: 14px; bottom: 3px;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 180ms var(--motion);
+}
+.nav-links a:hover::after,
+.nav-links a.active::after { transform: scaleX(1); }
+.nav-links a.active { color: var(--accent-dark); background: transparent; }
+
+/* ---- Hero：左对齐 + 细胶片纹理 + 标题字体 ---- */
+.page-hero { text-align: left; padding: 48px 0 36px; max-width: 1120px; margin: 0 auto; }
+.page-hero h1 { font-size: 40px; line-height: 1.25; position: relative; }
+.page-hero h1::after {
+  content: "";
+  display: block;
+  width: 56px; height: 3px;
+  margin-top: 14px;
+  background: linear-gradient(90deg, var(--accent), var(--ocean));
+  border-radius: 2px;
+}
+.page-hero p { color: var(--ink-muted); }
+
+/* ---- 内容淡入动效（stagger）---- */
+.page-hero, .section-title, .card, .rec-grid, .plan-card {
+  animation: fadeUp 240ms var(--motion) both;
+}
+.grid > *:nth-child(2), .photo-wall > *:nth-child(2) { animation-delay: 60ms; }
+.grid > *:nth-child(3), .photo-wall > *:nth-child(3) { animation-delay: 120ms; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- 卡片：相纸质感（统一边框/轻阴影/悬停上浮）---- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: transform 180ms var(--motion), box-shadow 180ms var(--motion);
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 12px 34px rgb(39 37 33 / 14%); }
+
+/* ---- 按钮：最小触控区 44px ---- */
+button, .btn { min-height: 44px; }
+
+/* ---- 倒计时：等宽数字 + 深海 Hero ---- */
+.countdown .num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
+.countdown .label { color: var(--ink-muted); }
+
+/* ---- 照片墙：错落相纸 + 悬停微放大 ---- */
+.photo-wall .ph img {
+  transition: transform 220ms var(--motion), box-shadow 220ms var(--motion);
+}
+.photo-wall .ph:hover img { transform: scale(1.03); box-shadow: 0 10px 26px rgb(39 37 33 / 16%); }
+.photo-wall .ph { border-radius: var(--radius); overflow: hidden; background: var(--surface-muted); }
+
+/* ---- 地图：纸张边框 ---- */
+.route-map {
+  border: 4px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--line), var(--shadow);
+}
+
+/* ---- 页脚：沙面背景，弱化 ---- */
+.site-footer { background: var(--surface-muted); color: var(--ink-muted); font-size: 13px; }
+
+/* ---- Tab：沙面底板 + 陶土滑块 ---- */
+.tab-nav { background: var(--surface-muted); border-color: var(--line); }
+.tab-indicator { background: linear-gradient(135deg, var(--accent), #cf7a55); }
+
+/* ---- 行程卡日期戳 ---- */
+.trip-meta { color: var(--ink-muted); }
+.trip-card .card-media { background: var(--surface-muted); }
+
+/* ---- 推荐卡（next 页）微调 ---- */
+.rec-card h2 { font-family: var(--font-body); font-weight: 700; }
+.w-item { background: var(--surface-muted); }
+.p-block { border-left-color: var(--ocean); }
+.tag { background: #e3ebee; color: var(--ocean); }
+.weather-temp { background: linear-gradient(135deg, #f8e8d6, #f2d8bb); }
+.weather-temp.alt { background: linear-gradient(135deg, #e2ebee, #cfdde2); }
+
+/* ---- 响应式：窄屏 ---- */
+@media (max-width: 767px) {
+  .page-hero { text-align: center; padding: 36px 16px 28px; }
+  .page-hero h1::after { margin: 12px auto 0; }
+  .nav-links a { padding: 8px 10px; min-height: 44px; display: inline-flex; align-items: center; }
+}
+
+/* ---- 减少动态 ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ---- 深海 Hero（next 页）---- */
+.ocean-hero {
+  text-align: center;
+  background: linear-gradient(150deg, var(--ocean), #193C47);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 48px 24px 40px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+}
+.ocean-hero h1 { color: #fff; }
+.ocean-hero h1::after {
+  background: linear-gradient(90deg, #D69A45, #fff);
+  margin: 14px auto 0;
+}
+.ocean-hero .next-sub { color: rgba(255, 255, 255, 0.8); }
+.ocean-hero .countdown .num { color: #fff; }
+.ocean-hero .countdown .label { color: rgba(255, 255, 255, 0.7); }
+
+/* ---- 路线日期戳 ---- */
+.route-stamp {
+  display: inline-block;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-dark);
+  margin-bottom: 10px;
+}
