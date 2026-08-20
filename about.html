@@ -2,56 +2,93 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="关于旅行日记的记录者、旅行原则与联系方式。" />
   <title>关于我 · 旅行日记</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header class="site-header">
-    <nav class="nav">
-      <a class="brand" href="index.html">🗺️ 旅行<span>日记</span></a>
-      <ul class="nav-links">
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <header class="site-header" id="siteHeader">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="index.html" aria-label="旅行日记首页">旅行<span>日记</span></a>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="打开导航菜单" aria-controls="navLinks" aria-expanded="false">菜单</button>
+      <ul class="nav-links" id="navLinks">
         <li><a href="index.html">首页</a></li>
         <li><a href="next.html">下次旅行</a></li>
         <li><a href="notes.html">笔记</a></li>
-        <li><a href="about.html">关于我</a></li>
+        <li><a href="about.html" aria-current="page">关于我</a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="container">
-    <section class="page-hero">
-      <h1>👋 你好，我是 <span id="about-name">Traveler</span></h1>
-      <p id="about-tagline"></p>
-    </section>
+  <main class="container" id="main-content">
+    <header class="page-hero portrait-hero">
+      <p class="hero-eyebrow">THE TRAVELER BEHIND THE JOURNAL</p>
+      <h1>你好，我是 <span id="about-name">Traveler</span></h1>
+      <p id="about-tagline">在城市与荒野之间，收集真实的抵达。</p>
+    </header>
 
-    <div id="about-wrap" class="about-wrap">
-      <div class="card" style="padding:24px">
-        <div id="avatar-box" class="avatar-box">🧑‍✈️</div>
-        <div class="tags" style="margin-top:18px;justify-content:center">
-          <span class="tag">✈️ 旅行者</span>
-          <span class="tag">📷 摄影爱好者</span>
-          <span class="tag">🗺️ 地图收集者</span>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-body">
-          <h3>关于我</h3>
-          <p class="about-bio" id="about-bio"></p>
-          <h3 style="margin-top:24px">✨ 爱好</h3>
-          <ul id="about-hobbies" class="hobby-list"></ul>
-          <h3 style="margin-top:24px">📮 联系</h3>
-          <p class="about-bio" style="margin-top:8px">
-            ✉️ <span id="about-contact"></span><br />
-            🔗 <a id="about-github" href="#" target="_blank"></a>
-          </p>
-        </div>
+    <div class="about-wrap" id="about-wrap">
+      <aside class="profile-card card" aria-label="旅行者档案">
+        <div class="avatar-box" id="avatar-box" role="img" aria-label="旅行者头像">旅行者</div>
+        <p class="profile-kicker">TRAVEL PROFILE</p>
+        <dl class="profile-facts">
+          <div><dt>偏爱的风景</dt><dd>海岸、古城与荒野</dd></div>
+          <div><dt>记录方式</dt><dd>摄影、地图与文字</dd></div>
+          <div><dt>旅行节奏</dt><dd>慢一点，看深一点</dd></div>
+        </dl>
+      </aside>
+
+      <div class="about-content">
+        <section class="card" aria-labelledby="bio-title">
+          <div class="card-body">
+            <p class="section-eyebrow">ABOUT</p>
+            <h2 id="bio-title">关于这本旅行日记</h2>
+            <p class="about-bio" id="about-bio"></p>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="interests-title">
+          <div class="card-body">
+            <p class="section-eyebrow">INTERESTS</p>
+            <h2 id="interests-title">一路关注的事物</h2>
+            <div class="hobby-list" id="about-hobbies" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="card principles-card" aria-labelledby="principles-title">
+          <div class="card-body">
+            <p class="section-eyebrow">TRAVEL PRINCIPLES</p>
+            <h2 id="principles-title">我的旅行原则</h2>
+            <ol class="principle-list">
+              <li><strong>尊重地方。</strong>先理解当地生活，再举起相机。</li>
+              <li><strong>保留空白。</strong>不把行程塞满，让偶遇有发生的空间。</li>
+              <li><strong>真实记录。</strong>保留天气、疲惫和计划之外的变化。</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="contact-card" aria-labelledby="contact-title">
+          <div>
+            <p class="section-eyebrow">SAY HELLO</p>
+            <h2 id="contact-title">分享你的下一站</h2>
+            <p>如果你也喜欢旅行、摄影或地图，欢迎来打个招呼。</p>
+          </div>
+          <address class="contact-links">
+            <span id="about-contact"></span>
+            <a id="about-github" href="#" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </address>
+        </section>
       </div>
     </div>
   </main>
 
   <footer class="site-footer">
-    <p>🗺️ 旅行日记 · 纯静态 · 零依赖 · 由一人公司 GIS/工程部协力构建</p>
+    <p>旅行日记 · 世界很大，慢慢抵达</p>
+    <a href="index.html">返回首页</a>
   </footer>
 
   <script src="js/main.js"></script>

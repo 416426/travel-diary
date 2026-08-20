@@ -2,17 +2,25 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>旅行日记 · 在路上</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="记录旅程、照片、足迹与下一次出发的旅行日记。" />
+  <title>旅行日记 · 把世界装进旅途相册</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+    crossorigin="" />
 </head>
 <body>
-  <header class="site-header">
-    <nav class="nav">
-      <a class="brand" href="index.html">🗺️ 旅行<span>日记</span></a>
-      <ul class="nav-links">
-        <li><a href="index.html">首页</a></li>
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <header class="site-header" id="siteHeader">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="index.html" aria-label="旅行日记首页">旅行<span>日记</span></a>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="打开导航菜单" aria-controls="navLinks" aria-expanded="false">菜单</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" aria-current="page">首页</a></li>
         <li><a href="next.html">下次旅行</a></li>
         <li><a href="notes.html">笔记</a></li>
         <li><a href="about.html">关于我</a></li>
@@ -20,33 +28,76 @@
     </nav>
   </header>
 
-  <section class="page-hero">
-    <h1>📸 每一次出发，都值得被记住</h1>
-    <p>照片 · 足迹 · 心情 · 想法 — 我的旅行日记</p>
-  </section>
+  <main id="main-content">
+    <section class="hero" aria-labelledby="home-title">
+      <div class="hero-content">
+        <p class="hero-eyebrow">TRAVEL DIARY · SINCE 2026</p>
+        <h1 id="home-title">向远方走去，<br />把沿途写成故事</h1>
+        <p class="hero-sub">记录照片、足迹与心情，收藏每一次真实抵达。</p>
+        <div class="hero-stats" id="heroStats" aria-label="旅行统计">
+          <div class="stat"><b id="stat-trips">--</b><small>次旅程</small></div>
+          <div class="stat"><b id="stat-photos">--</b><small>张照片</small></div>
+          <div class="stat"><b id="stat-cities">--</b><small>座城市</small></div>
+        </div>
+        <a class="hero-cta" href="#journeys">翻开旅途相册 <span aria-hidden="true">→</span></a>
+      </div>
+      <a class="scroll-hint" href="#journeys" aria-label="向下浏览旅行记录">
+        SCROLL <span aria-hidden="true">↓</span>
+      </a>
+    </section>
 
-  <main class="container">
-    <!-- 精确地理位置：地图 -->
-    <div class="map-wrap">
-      <div id="map"></div>
-      <div class="map-note">📍 精确位置标记：主标 = 旅行城市 · 圆点 = 高亮地点（点击查看）</div>
+    <nav class="anchor-nav" aria-label="首页内容导航">
+      <a href="#journeys">旅程</a>
+      <a href="#photos">照片</a>
+      <a href="#footprints">地图</a>
+      <a href="#next-trip">下一站</a>
+    </nav>
+
+    <div class="container">
+      <section class="section" id="journeys" aria-labelledby="journeys-title">
+        <p class="section-eyebrow">JOURNEYS</p>
+        <h2 class="section-title" id="journeys-title">旅行记录</h2>
+        <p class="section-sub">每一段旅程，都是相册里无法替代的一页。</p>
+        <div class="trip-grid" id="trips-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="section" id="photos" aria-labelledby="photos-title">
+        <p class="section-eyebrow">PHOTOGRAPHS</p>
+        <h2 class="section-title" id="photos-title">途中光影</h2>
+        <p class="section-sub">那些没有被语言说完的风景，留在照片里。</p>
+        <div class="photo-wall" id="photo-wall" aria-live="polite"></div>
+      </section>
+
+      <section class="section" id="footprints" aria-labelledby="map-title">
+        <p class="section-eyebrow">FOOTPRINTS</p>
+        <h2 class="section-title" id="map-title">足迹地图</h2>
+        <p class="section-sub">从海岸到古城，每一个坐标都有自己的故事。</p>
+        <div class="card map-wrap">
+          <div id="map" role="region" aria-label="旅行足迹交互地图"></div>
+          <p class="map-note">选择地图标记，可以查看对应旅程。</p>
+          <noscript><p class="map-fallback">地图需要启用 JavaScript；旅行记录仍可在上方浏览。</p></noscript>
+        </div>
+      </section>
+
+      <section class="next-cta" id="next-trip" aria-labelledby="next-trip-title">
+        <div>
+          <p class="cta-eyebrow">NEXT TRIP · 2026.10.01</p>
+          <h2 id="next-trip-title">下一站，腾格里沙漠</h2>
+          <p>十四天，越过沙海，等待一场没有城市灯光的星空。</p>
+        </div>
+        <a class="button button-secondary" href="next.html">查看出发计划 <span aria-hidden="true">→</span></a>
+      </section>
     </div>
-
-    <!-- 旅行卡片：照片 + 心情 + 想法 -->
-    <h2 class="section-title">🧳 旅行记录</h2>
-    <div id="trips-grid" class="grid grid-2"></div>
-
-    <!-- 照片墙 -->
-    <h2 class="section-title">🖼️ 照片墙</h2>
-    <div id="photo-wall" class="photo-wall"></div>
-    <p class="placeholder-note">照片放入 <code>photos/</code> 目录并更新 <code>data/trips.json</code> 即可显示</p>
   </main>
 
   <footer class="site-footer">
-    <p>🗺️ 旅行日记 · 纯静态 · 零依赖 · 由一人公司 GIS/工程部协力构建</p>
+    <p>旅行日记 · 照片、足迹与路上的故事</p>
+    <a href="#main-content">返回顶部</a>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
   <script src="js/main.js"></script>
   <script src="js/index.js"></script>
 </body>

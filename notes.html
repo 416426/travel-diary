@@ -2,38 +2,75 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="旅行攻略、途中见闻与持续学习的个人笔记。" />
   <title>笔记 · 旅行日记</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header class="site-header">
-    <nav class="nav">
-      <a class="brand" href="index.html">🗺️ 旅行<span>日记</span></a>
-      <ul class="nav-links">
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+  <header class="site-header" id="siteHeader">
+    <nav class="nav" aria-label="主导航">
+      <a class="brand" href="index.html" aria-label="旅行日记首页">旅行<span>日记</span></a>
+      <button class="nav-toggle" id="navToggle" type="button"
+        aria-label="打开导航菜单" aria-controls="navLinks" aria-expanded="false">菜单</button>
+      <ul class="nav-links" id="navLinks">
         <li><a href="index.html">首页</a></li>
         <li><a href="next.html">下次旅行</a></li>
-        <li><a href="notes.html">笔记</a></li>
+        <li><a href="notes.html" aria-current="page">笔记</a></li>
         <li><a href="about.html">关于我</a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="container" id="notes-wrap">
-    <section class="page-hero">
-      <h1>📝 笔记</h1>
-      <p>旅行攻略与见闻 · 旅途中的学习笔记</p>
-    </section>
+  <main class="container" id="main-content">
+    <div id="notes-wrap">
+      <header class="page-hero editorial-hero">
+        <p class="hero-eyebrow">FIELD NOTES · ON THE ROAD</p>
+        <h1>把路上的答案，<br />写进随身笔记</h1>
+        <p>这里既有目的地攻略，也有旅途中重新理解的生活与知识。</p>
+      </header>
 
-    <h2 class="section-title">🧭 旅行笔记</h2>
-    <div id="travel-notes" class="grid grid-2"></div>
+      <nav class="anchor-nav" aria-label="笔记分类">
+        <a href="#travel-journal">旅行笔记</a>
+        <a href="#study-journal">学习笔记</a>
+        <a href="#note-topics">主题索引</a>
+      </nav>
 
-    <h2 class="section-title">📚 学习笔记</h2>
-    <div id="study-notes" class="grid grid-2"></div>
+      <section class="section" id="travel-journal" aria-labelledby="travel-notes-title">
+        <p class="section-eyebrow">TRAVEL JOURNAL</p>
+        <h2 class="section-title" id="travel-notes-title">旅行笔记</h2>
+        <p class="section-sub">路线、目的地和那些只有抵达之后才知道的细节。</p>
+        <div class="grid grid-2" id="travel-notes" aria-live="polite"></div>
+      </section>
+
+      <section class="section" id="study-journal" aria-labelledby="study-notes-title">
+        <p class="section-eyebrow">STUDY JOURNAL</p>
+        <h2 class="section-title" id="study-notes-title">学习笔记</h2>
+        <p class="section-sub">关于摄影、地图、写作，以及持续观察世界的方法。</p>
+        <div class="grid grid-2" id="study-notes" aria-live="polite"></div>
+      </section>
+
+      <section class="note-index card" id="note-topics" aria-labelledby="topics-title">
+        <div class="card-body">
+          <p class="section-eyebrow">INDEX</p>
+          <h2 id="topics-title">沿着主题继续读</h2>
+          <div class="tags" aria-label="笔记主题">
+            <a class="tag" href="#travel-journal">目的地</a>
+            <a class="tag" href="#travel-journal">路线规划</a>
+            <a class="tag" href="#study-journal">旅行摄影</a>
+            <a class="tag" href="#study-journal">地图与记录</a>
+          </div>
+          <a class="button button-secondary" href="index.html">回到旅程首页</a>
+        </div>
+      </section>
+    </div>
   </main>
 
   <footer class="site-footer">
-    <p>🗺️ 旅行日记 · 纯静态 · 零依赖 · 由一人公司 GIS/工程部协力构建</p>
+    <p>旅行日记 · 写下抵达，也写下理解</p>
+    <a href="index.html">返回首页</a>
   </footer>
 
   <script src="js/main.js"></script>
