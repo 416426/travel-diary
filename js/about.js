@@ -71,7 +71,6 @@ function renderHobbies(hobbies) {
   hobbies.forEach((hobby) => {
     const tag = document.createElement("span");
     tag.className = "tag";
-    tag.setAttribute("data-cursor", "hover");
     tag.textContent = String(hobby);
     fragment.appendChild(tag);
   });

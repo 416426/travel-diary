@@ -3,7 +3,7 @@
    暗夜星空 × 极光渐变 × 玻璃拟态 × 强交互动效
    ============================================================ */
 
-/* ---------- 1. Tokens ---------- */
+/* ---------- 01. Tokens ---------- */
 :root {
   color-scheme: dark;
 
@@ -55,7 +55,7 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* ---------- 2. Reset & Base ---------- */
+/* ---------- 02. Reset & Base ---------- */
 *,
 *::before,
 *::after { box-sizing: border-box; }
@@ -106,9 +106,6 @@ h3 { font-size: 1.28rem; }
   border-radius: 4px;
 }
 
-/* 自定义光标激活时隐藏系统光标（仅精确指针设备） */
-html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
-
 /* 细滚动条 */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--bg-0); }
@@ -118,7 +115,7 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
   border: 2px solid var(--bg-0);
 }
 
-/* ---------- 3. Utilities ---------- */
+/* ---------- 03. Utilities ---------- */
 .container { width: min(calc(100% - 48px), var(--container)); margin-inline: auto; }
 
 .sr-only {
@@ -195,7 +192,7 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
   80% { transform: translate(3%, 3%); }
 }
 
-/* ---------- 4. Reveal 动效体系 ---------- */
+/* ---------- 04. Reveal 动效体系 ---------- */
 [data-reveal] {
   opacity: 0;
   transform: translateY(30px);
@@ -209,7 +206,7 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
 [data-reveal="zoom"]  { transform: scale(0.92); }
 [data-reveal].in { opacity: 1; transform: none; }
 
-/* ---------- 5. Preloader ---------- */
+/* ---------- 05. Preloader ---------- */
 .preloader {
   position: fixed; inset: 0; z-index: 10000;
   display: grid; place-items: center;
@@ -250,44 +247,7 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
   font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
 }
 
-/* ---------- 6. 自定义光标 ---------- */
-.cursor-dot, .cursor-ring {
-  position: fixed; top: 0; left: 0; z-index: 9999;
-  pointer-events: none;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-}
-html.has-cursor .cursor-dot, html.has-cursor .cursor-ring { opacity: 1; }
-.cursor-dot {
-  width: 7px; height: 7px;
-  background: var(--cyan);
-  box-shadow: var(--glow-cyan);
-}
-.cursor-ring {
-  display: grid; place-items: center;
-  width: 38px; height: 38px;
-  border: 1.5px solid rgba(103, 232, 249, 0.55);
-  transition: width 0.28s var(--ease-spring), height 0.28s var(--ease-spring),
-    background 0.28s, border-color 0.28s;
-}
-.cursor-ring .cursor-label {
-  color: #05070f;
-  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em;
-  opacity: 0; transform: scale(0.6);
-  transition: opacity 0.2s, transform 0.2s var(--ease-spring);
-  white-space: nowrap;
-}
-.cursor-ring.is-active {
-  width: 58px; height: 58px;
-  background: rgba(103, 232, 249, 0.92);
-  border-color: transparent;
-}
-.cursor-ring.is-active .cursor-label { opacity: 1; transform: scale(1); }
-.cursor-ring.is-press { transform: translate(-50%, -50%) scale(0.82); }
-.cursor-dot.hidden, .cursor-ring.hidden { opacity: 0; }
-
-/* ---------- 7. 滚动进度 & 回到顶部 ---------- */
+/* ---------- 06. 滚动进度 & 回到顶部 ---------- */
 .scroll-progress {
   position: fixed; top: 0; left: 0; right: 0; z-index: 1500;
   height: 3px; pointer-events: none;
@@ -328,7 +288,7 @@ html.has-cursor .cursor-dot, html.has-cursor .cursor-ring { opacity: 1; }
 }
 .to-top .arrow { font-size: 1rem; line-height: 1; }
 
-/* ---------- 8. 导航 ---------- */
+/* ---------- 07. 导航 ---------- */
 .site-header {
   position: fixed; inset: 0 0 auto; z-index: 1000;
   height: var(--header-height);
@@ -403,7 +363,7 @@ html.has-cursor .cursor-dot, html.has-cursor .cursor-ring { opacity: 1; }
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* ---------- 9. Hero（首页） ---------- */
+/* ---------- 08. Hero（首页） ---------- */
 .hero {
   position: relative;
   isolation: isolate;
@@ -549,7 +509,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   100% { transform: scaleY(0); transform-origin: bottom; }
 }
 
-/* ---------- 10. Ticker 跑马灯 ---------- */
+/* ---------- 09. Ticker 跑马灯 ---------- */
 .ticker {
   position: relative;
   overflow: hidden;
@@ -580,7 +540,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 @keyframes ticker-roll { to { transform: translateX(-50%); } }
 
-/* ---------- 11. 锚点导航 ---------- */
+/* ---------- 10. 锚点导航 ---------- */
 .anchor-nav {
   position: sticky; top: var(--header-height); z-index: 900;
   display: flex; justify-content: center; gap: 6px;
@@ -611,7 +571,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.35);
 }
 
-/* ---------- 12. 卡片（旅程） ---------- */
+/* ---------- 11. 卡片（旅程） ---------- */
 .trip-grid { display: grid; gap: 30px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .trip-grid > :nth-child(even) { transform: translateY(34px); }
 @media (max-width: 767px) { .trip-grid > :nth-child(even) { transform: none; } }
@@ -733,7 +693,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .trip-link .arr { transition: transform var(--dur-fast) var(--ease-spring); }
 .trip-link:hover .arr { transform: translateX(6px); }
 
-/* ---------- 13. 照片墙 & Lightbox ---------- */
+/* ---------- 12. 照片墙 & Lightbox ---------- */
 .photo-wall { columns: 3 260px; column-gap: 20px; }
 .photo-wall > * {
   width: 100%;
@@ -834,7 +794,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .lb-next { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); }
 .lb-prev:active, .lb-next:active { transform: translateY(-50%) scale(0.94); }
 
-/* ---------- 14. 地图 ---------- */
+/* ---------- 13. 地图 ---------- */
 .map-wrap { padding: 12px; }
 #map, .route-map {
   width: 100%;
@@ -916,7 +876,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 @keyframes route-dash { to { stroke-dashoffset: -44; } }
 
-/* ---------- 15. CTA 区块 ---------- */
+/* ---------- 14. CTA 区块 ---------- */
 .next-cta, .contact-card {
   position: relative;
   display: flex; align-items: center; justify-content: space-between; gap: 32px;
@@ -951,7 +911,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   font-size: 0.72rem; letter-spacing: 0.24em; text-transform: uppercase;
 }
 
-/* ---------- 16. 内页 Hero ---------- */
+/* ---------- 15. 内页 Hero ---------- */
 .page-hero {
   position: relative;
   isolation: isolate;
@@ -997,7 +957,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   animation: blink-dot 2.2s ease-in-out infinite;
 }
 
-/* ---------- 17. 倒计时 ---------- */
+/* ---------- 16. 倒计时 ---------- */
 .countdown {
   display: flex; width: fit-content;
   margin: 36px 0;
@@ -1033,7 +993,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .countdown-done { color: var(--amber); font-weight: 700; }
 
-/* ---------- 18. Tabs ---------- */
+/* ---------- 17. Tabs ---------- */
 .next-body { padding-block: var(--space-section); }
 .tab-nav {
   position: relative;
@@ -1165,7 +1125,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .plan-card { margin-top: 34px; }
 .plan-card h3 { margin: 22px 0 12px; }
 
-/* ---------- 19. 笔记页 ---------- */
+/* ---------- 18. 笔记页 ---------- */
 .filter-bar {
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
   margin: -12px 0 clamp(30px, 4vw, 44px);
@@ -1235,7 +1195,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   border-radius: var(--radius-card);
 }
 
-/* ---------- 20. 关于页 ---------- */
+/* ---------- 19. 关于页 ---------- */
 .about-wrap {
   display: grid; gap: 30px;
   grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.7fr);
@@ -1319,7 +1279,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .contact-links a:hover { border-color: rgba(103, 232, 249, 0.6); box-shadow: var(--glow-cyan); transform: translateY(-2px); }
 
-/* ---------- 21. 页脚 ---------- */
+/* ---------- 20. 页脚 ---------- */
 .site-footer {
   position: relative;
   overflow: hidden;
@@ -1354,7 +1314,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .site-footer p { margin: 0; }
 
-/* ---------- 22. file:// 提示 ---------- */
+/* ---------- 21. file:// 提示 ---------- */
 .proto-hint {
   position: fixed; left: 50%; bottom: 20px; z-index: 1600;
   max-width: min(92vw, 520px);
@@ -1374,7 +1334,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   font-size: 0.8rem;
 }
 
-/* ---------- 23. Keyframes 共享 ---------- */
+/* ---------- 22. Keyframes 共享 ---------- */
 @keyframes spin { to { transform: rotate(1turn); }
 }
 .button.loading::after {
@@ -1386,7 +1346,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   animation: spin 0.7s linear infinite;
 }
 
-/* ---------- 24. 响应式 ---------- */
+/* ---------- 23. 响应式 ---------- */
 @media (min-width: 1440px) {
   :root { --container: 1280px; }
 }
@@ -1446,7 +1406,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .stat + .stat { border-left: 1px solid var(--stroke); }
 }
 
-/* ---------- 25. 降低动效偏好 ---------- */
+/* ---------- 24. 降低动效偏好 ---------- */
 /* 跨文档平滑转场：页面切换淡入淡出，消除切换白闪（不支持的浏览器自动忽略） */
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation: vt-fade-out 220ms ease both; }
@@ -1465,7 +1425,5 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .hero-title .line > span { transform: none; }
   .grain { display: none; }
   .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
-  .cursor-dot, .cursor-ring { display: none; }
-  html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: auto; }
   ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }

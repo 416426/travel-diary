@@ -388,7 +388,6 @@ function photoEl(path, emoji, caption) {
 
   photo.className = "ph";
   photo.dataset.caption = safeCaption;
-  photo.dataset.cursor = "preview";
 
   const fallback = document.createElement("span");
   fallback.className = "ph-fallback";

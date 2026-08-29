@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initBackToTop();
   initTiltCards();
   initCountUp();
-  initCursor();
 });
 
 /* ===== 预加载 ===== */
@@ -203,71 +202,6 @@ function initCountUp() {
   );
 
   counters.forEach((el) => observer.observe(el));
-}
-
-/* ===== 自定义光标（精确指针 + 允许动效时启用） ===== */
-function initCursor() {
-  if (!FINE_POINTER || REDUCED_MOTION || WEBDRIVER) return;
-
-  const dot = document.createElement("div");
-  const ring = document.createElement("div");
-
-  dot.className = "cursor-dot";
-  ring.className = "cursor-ring";
-  ring.innerHTML = `<span class="cursor-label"></span>`;
-
-  document.body.append(dot, ring);
-  document.documentElement.classList.add("has-cursor");
-
-  const label = ring.querySelector(".cursor-label");
-  const pos = { x: -100, y: -100 };
-  const ringPos = { x: -100, y: -100 };
-  let visible = false;
-
-  window.addEventListener(
-    "pointermove",
-    (event) => {
-      pos.x = event.clientX;
-      pos.y = event.clientY;
-
-      if (!visible) {
-        visible = true;
-        ringPos.x = pos.x;
-        ringPos.y = pos.y;
-        dot.classList.remove("hidden");
-        ring.classList.remove("hidden");
-      }
-
-      dot.style.left = `${pos.x}px`;
-      dot.style.top = `${pos.y}px`;
-
-      const target = event.target instanceof Element ? event.target : null;
-      const interactive = target?.closest(
-        "a, button, [role='button'], input, textarea, select, [data-cursor]"
-      );
-      const photo = target?.closest(".ph[data-cursor='preview']");
-
-      ring.classList.toggle("is-active", Boolean(interactive));
-      label.textContent = photo ? "预览" : "";
-    },
-    { passive: true }
-  );
-
-  window.addEventListener("pointerdown", () => ring.classList.add("is-press"));
-  window.addEventListener("pointerup", () => ring.classList.remove("is-press"));
-  document.documentElement.addEventListener("pointerleave", () => {
-    visible = false;
-    dot.classList.add("hidden");
-    ring.classList.add("hidden");
-  });
-
-  (function follow() {
-    ringPos.x += (pos.x - ringPos.x) * 0.16;
-    ringPos.y += (pos.y - ringPos.y) * 0.16;
-    ring.style.left = `${ringPos.x}px`;
-    ring.style.top = `${ringPos.y}px`;
-    window.requestAnimationFrame(follow);
-  })();
 }
 
 /* ===== 星空画布（首页 Hero） ===== */
