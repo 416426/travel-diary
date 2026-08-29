@@ -5,6 +5,8 @@
 
 /* ---------- 1. Tokens ---------- */
 :root {
+  color-scheme: dark;
+
   /* 色板 */
   --bg-0: #05070f;
   --bg-1: #0a0f1e;
@@ -1445,6 +1447,13 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 
 /* ---------- 25. 降低动效偏好 ---------- */
+/* 跨文档平滑转场：页面切换淡入淡出，消除切换白闪（不支持的浏览器自动忽略） */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: vt-fade-out 220ms ease both; }
+::view-transition-new(root) { animation: vt-fade-in 300ms ease both; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -1458,4 +1467,5 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
   .cursor-dot, .cursor-ring { display: none; }
   html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }
