@@ -3,20 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#05070f" />
   <meta name="description" content="记录旅程、照片、足迹与下一次出发的旅行日记。" />
+  <meta property="og:title" content="旅行日记 · Aurora Explorer" />
+  <meta property="og:description" content="把世界装进旅途相册：照片、足迹、心情与下一次出发。" />
+  <meta property="og:type" content="website" />
   <title>旅行日记 · 把世界装进旅途相册</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-    crossorigin="" />
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="assets/leaflet/leaflet.css" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
 
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-inner">
+      <div class="preloader-logo">旅行<span>日记</span></div>
+      <div class="preloader-bar"><i></i></div>
+      <p class="preloader-tip">PACKING STARDUST</p>
+    </div>
+  </div>
+
+  <div class="scroll-progress" aria-hidden="true">
+    <span class="scroll-progress-bar" id="scrollProgressBar"></span>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
   <header class="site-header" id="siteHeader">
     <nav class="nav" aria-label="主导航">
-      <a class="brand" href="index.html" aria-label="旅行日记首页">旅行<span>日记</span></a>
+      <a class="brand" href="index.html" aria-label="旅行日记首页">旅行日记</a>
       <button class="nav-toggle" id="navToggle" type="button"
         aria-label="打开导航菜单" aria-controls="navLinks" aria-expanded="false">菜单</button>
       <ul class="nav-links" id="navLinks">
@@ -30,21 +49,42 @@
 
   <main id="main-content">
     <section class="hero" aria-labelledby="home-title">
+      <canvas id="starfield" aria-hidden="true"></canvas>
+      <div class="hero-orb o1" aria-hidden="true"></div>
+      <div class="hero-orb o2" aria-hidden="true"></div>
+      <div class="hero-orb o3" aria-hidden="true"></div>
+
       <div class="hero-content">
-        <p class="hero-eyebrow">TRAVEL DIARY · SINCE 2026</p>
-        <h1 id="home-title">向远方走去，<br />把沿途写成故事</h1>
+        <p class="hero-eyebrow"><i aria-hidden="true"></i>TRAVEL DIARY · SINCE 2026</p>
+        <h1 class="hero-title" id="home-title">
+          <span class="line"><span>向远方走去，</span></span>
+          <span class="line"><span>把沿途写成<span class="grad">故事</span></span></span>
+        </h1>
         <p class="hero-sub">记录照片、足迹与心情，收藏每一次真实抵达。</p>
-        <div class="hero-stats" id="heroStats" aria-label="旅行统计">
-          <div class="stat"><b id="stat-trips">--</b><small>次旅程</small></div>
-          <div class="stat"><b id="stat-photos">--</b><small>张照片</small></div>
-          <div class="stat"><b id="stat-cities">--</b><small>座城市</small></div>
+
+        <div class="hero-stats" aria-label="旅行统计">
+          <div class="stat"><b id="stat-trips">0</b><small>次旅程</small></div>
+          <div class="stat"><b id="stat-photos">0</b><small>张照片</small></div>
+          <div class="stat"><b id="stat-cities">0</b><small>座城市</small></div>
         </div>
-        <a class="hero-cta" href="#journeys">翻开旅途相册 <span aria-hidden="true">→</span></a>
+
+        <div class="hero-actions">
+          <a class="button" href="#journeys">翻开旅途相册 <span aria-hidden="true">↓</span></a>
+          <a class="button button-secondary" href="next.html">下一站 · 腾格里沙漠 <span aria-hidden="true">→</span></a>
+        </div>
       </div>
-      <a class="scroll-hint" href="#journeys" aria-label="向下浏览旅行记录">
-        SCROLL <span aria-hidden="true">↓</span>
-      </a>
+
+      <a class="scroll-hint" href="#journeys" aria-label="向下浏览旅行记录">SCROLL</a>
     </section>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track" id="tickerTrack">
+        <div class="ticker-list">
+          <span class="ticker-item">KEEP EXPLORING</span>
+          <span class="ticker-item">PHOTOGRAPHS &amp; FOOTPRINTS</span>
+        </div>
+      </div>
+    </div>
 
     <nav class="anchor-nav" aria-label="首页内容导航">
       <a href="#journeys">旅程</a>
@@ -55,31 +95,37 @@
 
     <div class="container">
       <section class="section" id="journeys" aria-labelledby="journeys-title">
-        <p class="section-eyebrow">JOURNEYS</p>
-        <h2 class="section-title" id="journeys-title">旅行记录</h2>
-        <p class="section-sub">每一段旅程，都是相册里无法替代的一页。</p>
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">JOURNEYS</p>
+          <h2 class="section-title" id="journeys-title">旅行记录</h2>
+          <p class="section-sub">每一段旅程，都是相册里无法替代的一页。</p>
+        </header>
         <div class="trip-grid" id="trips-grid" aria-live="polite"></div>
       </section>
 
       <section class="section" id="photos" aria-labelledby="photos-title">
-        <p class="section-eyebrow">PHOTOGRAPHS</p>
-        <h2 class="section-title" id="photos-title">途中光影</h2>
-        <p class="section-sub">那些没有被语言说完的风景，留在照片里。</p>
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">PHOTOGRAPHS</p>
+          <h2 class="section-title" id="photos-title">途中光影</h2>
+          <p class="section-sub">那些没有被语言说完的风景，留在照片里。点击可放大浏览。</p>
+        </header>
         <div class="photo-wall" id="photo-wall" aria-live="polite"></div>
       </section>
 
       <section class="section" id="footprints" aria-labelledby="map-title">
-        <p class="section-eyebrow">FOOTPRINTS</p>
-        <h2 class="section-title" id="map-title">足迹地图</h2>
-        <p class="section-sub">从海岸到古城，每一个坐标都有自己的故事。</p>
-        <div class="card map-wrap">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">FOOTPRINTS</p>
+          <h2 class="section-title" id="map-title">足迹地图</h2>
+          <p class="section-sub">从海岸到古城，每一个坐标都有自己的故事。</p>
+        </header>
+        <div class="card map-wrap" data-reveal>
           <div id="map" role="region" aria-label="旅行足迹交互地图"></div>
-          <p class="map-note">选择地图标记，可以查看对应旅程。</p>
+          <p class="map-note">点击发光标记查看旅程；在旅行卡片中选择「在地图上查看足迹」可飞行定位。</p>
           <noscript><p class="map-fallback">地图需要启用 JavaScript；旅行记录仍可在上方浏览。</p></noscript>
         </div>
       </section>
 
-      <section class="next-cta" id="next-trip" aria-labelledby="next-trip-title">
+      <section class="next-cta" id="next-trip" aria-labelledby="next-trip-title" data-reveal>
         <div>
           <p class="cta-eyebrow">NEXT TRIP · 2026.10.01</p>
           <h2 id="next-trip-title">下一站，腾格里沙漠</h2>
@@ -91,14 +137,38 @@
   </main>
 
   <footer class="site-footer">
-    <p>旅行日记 · 照片、足迹与路上的故事</p>
-    <a href="#main-content">返回顶部</a>
+    <div class="footer-top">
+      <p class="footer-brand">旅行<span>日记</span></p>
+      <nav class="footer-nav" aria-label="页脚导航">
+        <a href="index.html">首页</a>
+        <a href="next.html">下次旅行</a>
+        <a href="notes.html">笔记</a>
+        <a href="about.html">关于我</a>
+      </nav>
+    </div>
+    <div class="footer-base">
+      <p>© 2026 旅行日记 · 照片、足迹与路上的故事</p>
+      <p>BUILT WITH STARDUST &amp; CURIOSITY</p>
+    </div>
   </footer>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""></script>
+  <button class="to-top" id="toTop" type="button" aria-label="回到顶部">
+    <svg viewBox="0 0 52 52" aria-hidden="true">
+      <defs>
+        <linearGradient id="totop-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#67e8f9" />
+          <stop offset="1" stop-color="#818cf8" />
+        </linearGradient>
+      </defs>
+      <circle class="ring-bg" cx="26" cy="26" r="22" />
+      <circle class="ring-fg" cx="26" cy="26" r="22" />
+    </svg>
+    <span class="arrow" aria-hidden="true">↑</span>
+  </button>
+
+  <script src="assets/leaflet/leaflet.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/effects.js"></script>
   <script src="js/index.js"></script>
 </body>
 </html>

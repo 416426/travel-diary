@@ -3,16 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#05070f" />
   <meta name="description" content="旅行攻略、途中见闻与持续学习的个人笔记。" />
+  <meta property="og:title" content="笔记 · 旅行日记" />
+  <meta property="og:description" content="旅行攻略、途中见闻与持续学习的个人笔记。" />
+  <meta property="og:type" content="website" />
   <title>笔记 · 旅行日记</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
 
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-inner">
+      <div class="preloader-logo">旅行<span>日记</span></div>
+      <div class="preloader-bar"><i></i></div>
+      <p class="preloader-tip">FIELD NOTES</p>
+    </div>
+  </div>
+
+  <div class="scroll-progress" aria-hidden="true">
+    <span class="scroll-progress-bar" id="scrollProgressBar"></span>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
   <header class="site-header" id="siteHeader">
     <nav class="nav" aria-label="主导航">
-      <a class="brand" href="index.html" aria-label="旅行日记首页">旅行<span>日记</span></a>
+      <a class="brand" href="index.html" aria-label="旅行日记首页">旅行日记</a>
       <button class="nav-toggle" id="navToggle" type="button"
         aria-label="打开导航菜单" aria-controls="navLinks" aria-expanded="false">菜单</button>
       <ul class="nav-links" id="navLinks">
@@ -24,56 +46,88 @@
     </nav>
   </header>
 
-  <main class="container" id="main-content">
+  <main id="main-content">
     <div id="notes-wrap">
-      <header class="page-hero editorial-hero">
-        <p class="hero-eyebrow">FIELD NOTES · ON THE ROAD</p>
-        <h1>把路上的答案，<br />写进随身笔记</h1>
-        <p>这里既有目的地攻略，也有旅途中重新理解的生活与知识。</p>
+      <header class="page-hero p-mint" aria-labelledby="notes-title">
+        <div class="grid-bg" aria-hidden="true"></div>
+        <div class="hero-orb o1" aria-hidden="true"></div>
+        <div class="hero-orb o2" aria-hidden="true"></div>
+
+        <div class="page-hero-inner">
+          <p class="hero-eyebrow pill">FIELD NOTES · ON THE ROAD</p>
+          <h1 id="notes-title">把路上的答案，<br />写进随身笔记</h1>
+          <p class="page-sub">这里既有目的地攻略，也有旅途中重新理解的生活与知识。</p>
+        </div>
       </header>
 
-      <nav class="anchor-nav" aria-label="笔记分类">
-        <a href="#travel-journal">旅行笔记</a>
-        <a href="#study-journal">学习笔记</a>
-        <a href="#note-topics">主题索引</a>
-      </nav>
+      <div class="container">
+        <section class="section" id="travel-journal" aria-labelledby="travel-notes-title">
+          <header class="section-head" data-reveal>
+            <p class="eyebrow">TRAVEL JOURNAL</p>
+            <h2 class="section-title" id="travel-notes-title">旅行笔记</h2>
+            <p class="section-sub">路线、目的地和那些只有抵达之后才知道的细节。</p>
+          </header>
+          <div class="grid grid-2" id="travel-notes" aria-live="polite"></div>
+        </section>
 
-      <section class="section" id="travel-journal" aria-labelledby="travel-notes-title">
-        <p class="section-eyebrow">TRAVEL JOURNAL</p>
-        <h2 class="section-title" id="travel-notes-title">旅行笔记</h2>
-        <p class="section-sub">路线、目的地和那些只有抵达之后才知道的细节。</p>
-        <div class="grid grid-2" id="travel-notes" aria-live="polite"></div>
-      </section>
+        <section class="section" id="study-journal" aria-labelledby="study-notes-title">
+          <header class="section-head" data-reveal>
+            <p class="eyebrow">STUDY JOURNAL</p>
+            <h2 class="section-title" id="study-notes-title">学习笔记</h2>
+            <p class="section-sub">关于摄影、地图、写作，以及持续观察世界的方法。</p>
+          </header>
+          <div class="grid grid-2" id="study-notes" aria-live="polite"></div>
+        </section>
 
-      <section class="section" id="study-journal" aria-labelledby="study-notes-title">
-        <p class="section-eyebrow">STUDY JOURNAL</p>
-        <h2 class="section-title" id="study-notes-title">学习笔记</h2>
-        <p class="section-sub">关于摄影、地图、写作，以及持续观察世界的方法。</p>
-        <div class="grid grid-2" id="study-notes" aria-live="polite"></div>
-      </section>
-
-      <section class="note-index card" id="note-topics" aria-labelledby="topics-title">
-        <div class="card-body">
-          <p class="section-eyebrow">INDEX</p>
-          <h2 id="topics-title">沿着主题继续读</h2>
-          <div class="tags" aria-label="笔记主题">
-            <a class="tag" href="#travel-journal">目的地</a>
-            <a class="tag" href="#travel-journal">路线规划</a>
-            <a class="tag" href="#study-journal">旅行摄影</a>
-            <a class="tag" href="#study-journal">地图与记录</a>
+        <section class="card note-index" id="note-topics" aria-labelledby="topics-title" data-reveal>
+          <div class="card-body">
+            <p class="eyebrow">INDEX</p>
+            <h2 id="topics-title">沿着主题继续读</h2>
+            <div class="tags" style="margin-block:22px" aria-label="笔记主题">
+              <a class="tag" href="#travel-journal">目的地</a>
+              <a class="tag" href="#travel-journal">路线规划</a>
+              <a class="tag" href="#study-journal">旅行摄影</a>
+              <a class="tag" href="#study-journal">地图与记录</a>
+            </div>
+            <a class="button button-secondary" href="index.html">回到旅程首页</a>
           </div>
-          <a class="button button-secondary" href="index.html">回到旅程首页</a>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   </main>
 
   <footer class="site-footer">
-    <p>旅行日记 · 写下抵达，也写下理解</p>
-    <a href="index.html">返回首页</a>
+    <div class="footer-top">
+      <p class="footer-brand">旅行<span>日记</span></p>
+      <nav class="footer-nav" aria-label="页脚导航">
+        <a href="index.html">首页</a>
+        <a href="next.html">下次旅行</a>
+        <a href="notes.html">笔记</a>
+        <a href="about.html">关于我</a>
+      </nav>
+    </div>
+    <div class="footer-base">
+      <p>© 2026 旅行日记 · 写下抵达，也写下理解</p>
+      <p>BUILT WITH STARDUST &amp; CURIOSITY</p>
+    </div>
   </footer>
 
+  <button class="to-top" id="toTop" type="button" aria-label="回到顶部">
+    <svg viewBox="0 0 52 52" aria-hidden="true">
+      <defs>
+        <linearGradient id="totop-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#67e8f9" />
+          <stop offset="1" stop-color="#818cf8" />
+        </linearGradient>
+      </defs>
+      <circle class="ring-bg" cx="26" cy="26" r="22" />
+      <circle class="ring-fg" cx="26" cy="26" r="22" />
+    </svg>
+    <span class="arrow" aria-hidden="true">↑</span>
+  </button>
+
   <script src="js/main.js"></script>
+  <script src="js/effects.js"></script>
   <script src="js/notes.js"></script>
 </body>
 </html>

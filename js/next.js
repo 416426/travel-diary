@@ -1,4 +1,8 @@
-// next.js — 下一次旅行预告 + Tab 推荐卡（天气/路线/穿衣）
+"use strict";
+
+// next.js — 下一次旅行预告：翻牌倒计时、Tab 推荐卡（天气/路线/穿衣）、
+// 暗色路线地图（流动虚线动画）
+
 let routeData = null;
 let tripData = null;
 let routeMapInit = false;
@@ -20,13 +24,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     initTabs();
   } catch {
     console.error("下一次旅行数据加载失败");
+    showDataHint();
 
     const wrap = document.querySelector("#next-wrap");
     if (!wrap) return;
 
     const message = document.createElement("p");
+    message.className = "empty-state";
     message.textContent = "加载失败，请稍后重试。";
-    message.style.cssText = "padding:40px;text-align:center";
     wrap.replaceChildren(message);
   }
 });
@@ -54,7 +59,7 @@ function renderNext(t) {
   }
 }
 
-// ☀️ 天气预览
+/* ===== 天气预览 ===== */
 function renderWeather(weather) {
   if (!weather || typeof weather !== "object") return;
 
@@ -72,7 +77,7 @@ function renderWeather(weather) {
   setText("#weather-note", `⚠️ ${weather.note || "历史气候参考，非实时预报"}`);
 }
 
-// 🧭 行程路线（时间轴 + 延迟地图）
+/* ===== 行程路线 ===== */
 function renderRoute(route) {
   if (!route || typeof route !== "object") return;
 
@@ -124,9 +129,7 @@ function ensureRouteMap() {
     lng: Number(tripData?.lng),
   };
 
-  const center = stops.length
-    ? stops[Math.floor(stops.length / 2)]
-    : fallbackCenter;
+  const center = stops.length ? stops[Math.floor(stops.length / 2)] : fallbackCenter;
 
   if (!Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
     element.textContent = "🗺️ 暂无有效路线坐标。";
@@ -136,19 +139,20 @@ function ensureRouteMap() {
   try {
     routeMapInit = true;
 
-    const map = L.map(element, {
-      scrollWheelZoom: false,
-    }).setView([center.lat, center.lng], 9);
+    const map = L.map(element, { scrollWheelZoom: false }).setView(
+      [center.lat, center.lng],
+      9
+    );
 
     window._routeMap = map;
 
     const tiles = L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       {
-        maxZoom: 18,
+        maxZoom: 16,
         attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      },
+          "Tiles &copy; Esri — Source: Esri, HERE, Garmin, USGS, Intermap, iPC, NRCAN",
+      }
     ).addTo(map);
 
     tiles.on("tileerror", () => {
@@ -161,25 +165,26 @@ function ensureRouteMap() {
 
     if (points.length > 1) {
       L.polyline(points, {
-        color: "#c96f4a",
-        weight: 4,
-        opacity: 0.85,
+        color: "#fbbf24",
+        weight: 3.5,
+        opacity: 0.9,
+        className: "route-line",
       }).addTo(map);
     }
 
     points.forEach((point, index) => {
-      const popup = document.createElement("b");
-      popup.textContent = stops[index].name || "未命名地点";
+      const label = document.createElement("b");
+      label.textContent = stops[index].name || "未命名地点";
 
       L.circleMarker(point, {
         radius: 7,
-        color: "#fff",
+        color: "#fbbf24",
         weight: 2,
-        fillColor: "#2e5d6e",
+        fillColor: "#0a0f1e",
         fillOpacity: 1,
       })
         .addTo(map)
-        .bindPopup(popup);
+        .bindPopup(label);
     });
 
     if (points.length) {
@@ -192,7 +197,7 @@ function ensureRouteMap() {
   }
 }
 
-// 🧥 穿衣指南
+/* ===== 穿衣指南 ===== */
 function renderPacking(packing) {
   if (!packing || typeof packing !== "object") return;
 
@@ -205,10 +210,7 @@ function renderPacking(packing) {
   setText("#packing-day", packing.day);
   setText("#packing-night", packing.night);
   setText("#packing-summary", packing.summary);
-  setText(
-    "#packing-note",
-    `⚠️ ${packing.note || "出发前请查看实时天气"}`,
-  );
+  setText("#packing-note", `⚠️ ${packing.note || "出发前请查看实时天气"}`);
 
   const tags = document.querySelector("#packing-gear");
   if (tags) {
@@ -225,7 +227,7 @@ function renderPacking(packing) {
   }
 }
 
-// ===== Tab 切换（JS 驱动指示器 + 面板动画）=====
+/* ===== Tab 切换（药丸指示器 + 面板动画） ===== */
 function initTabs() {
   const tabList = document.querySelector(".tab-nav");
   const buttons = Array.from(document.querySelectorAll(".tab-btn"));
@@ -234,12 +236,16 @@ function initTabs() {
 
   if (!tabList || !buttons.length || !indicator) return;
 
+  function moveIndicator(button) {
+    indicator.style.left = `${button.offsetLeft}px`;
+    indicator.style.width = `${button.offsetWidth}px`;
+  }
+
   function syncTabState(activeButton) {
     const activePanelId = activeButton.dataset.panel;
 
     buttons.forEach((button) => {
       const isActive = button === activeButton;
-
       button.classList.toggle("active", isActive);
       button.setAttribute("aria-selected", String(isActive));
       button.tabIndex = isActive ? 0 : -1;
@@ -247,26 +253,20 @@ function initTabs() {
 
     panels.forEach((panel) => {
       const isActive = panel.id === activePanelId;
-
       panel.classList.toggle("active", isActive);
       panel.hidden = !isActive;
     });
 
     if (activePanelId === "panel-route") {
       ensureRouteMap();
-
-      window.setTimeout(() => {
-        window._routeMap?.invalidateSize();
-      }, 120);
+      window.setTimeout(() => window._routeMap?.invalidateSize(), 160);
     }
   }
 
   buttons.forEach((button, index) => {
     button.addEventListener("click", () => {
       syncTabState(button);
-
-      indicator.style.left = button.offsetLeft + "px";
-      indicator.style.width = button.offsetWidth + "px";
+      moveIndicator(button);
     });
 
     button.addEventListener("keydown", (event) => {
@@ -291,43 +291,33 @@ function initTabs() {
   });
 
   const initialButton =
-    buttons.find((button) => button.classList.contains("active")) ||
-    buttons[0];
+    buttons.find((button) => button.classList.contains("active")) || buttons[0];
 
   syncTabState(initialButton);
-  indicator.style.left = initialButton.offsetLeft + "px";
-  indicator.style.width = initialButton.offsetWidth + "px";
+  moveIndicator(initialButton);
 
   let resizeFrame = 0;
-
   window.addEventListener(
     "resize",
     () => {
       window.cancelAnimationFrame(resizeFrame);
-
       resizeFrame = window.requestAnimationFrame(() => {
         const activeButton =
-          buttons.find((button) => button.classList.contains("active")) ||
-          buttons[0];
-
-        indicator.style.left = activeButton.offsetLeft + "px";
-        indicator.style.width = activeButton.offsetWidth + "px";
+          buttons.find((button) => button.classList.contains("active")) || buttons[0];
+        moveIndicator(activeButton);
       });
     },
-    { passive: true },
+    { passive: true }
   );
 
   document.fonts?.ready.then(() => {
     const activeButton =
-      buttons.find((button) => button.classList.contains("active")) ||
-      buttons[0];
-
-    indicator.style.left = activeButton.offsetLeft + "px";
-    indicator.style.width = activeButton.offsetWidth + "px";
+      buttons.find((button) => button.classList.contains("active")) || buttons[0];
+    moveIndicator(activeButton);
   });
 }
 
-// 倒计时
+/* ===== 翻牌倒计时 ===== */
 function startCountdown(dateString) {
   const target = new Date(dateString).getTime();
   const days = document.querySelector("#cd-days");
@@ -335,56 +325,47 @@ function startCountdown(dateString) {
   const minutes = document.querySelector("#cd-min");
   const seconds = document.querySelector("#cd-sec");
 
-  if (
-    !Number.isFinite(target) ||
-    !days ||
-    !hours ||
-    !minutes ||
-    !seconds
-  ) {
+  if (!Number.isFinite(target) || !days || !hours || !minutes || !seconds) {
     return;
   }
 
   let timerId = 0;
 
+  function setNum(element, value) {
+    const text = String(value).padStart(2, "0");
+    if (element.textContent === text) return;
+
+    element.textContent = text;
+    element.classList.remove("tick");
+    void element.offsetWidth; // 重触发动画
+    element.classList.add("tick");
+  }
+
   function tick() {
     const difference = target - Date.now();
 
     if (difference <= 0) {
-      days.textContent = "0";
-      hours.textContent = "0";
-      minutes.textContent = "0";
-      seconds.textContent = "0";
+      setNum(days, 0);
+      setNum(hours, 0);
+      setNum(minutes, 0);
+      setNum(seconds, 0);
 
       if (timerId) window.clearInterval(timerId);
 
       const countdown = document.querySelector(".countdown");
-      if (countdown && !document.querySelector(".countdown-finished")) {
+      if (countdown && !document.querySelector(".countdown-done")) {
         const message = document.createElement("p");
-        message.className = "countdown-finished";
+        message.className = "countdown-done";
         message.textContent = "🎉 旅行已开始或已出发！";
-        message.style.cssText = "text-align:center;margin-top:14px";
         countdown.insertAdjacentElement("afterend", message);
       }
-
       return;
     }
 
-    days.textContent = String(
-      Math.floor(difference / 86400000),
-    ).padStart(2, "0");
-
-    hours.textContent = String(
-      Math.floor((difference % 86400000) / 3600000),
-    ).padStart(2, "0");
-
-    minutes.textContent = String(
-      Math.floor((difference % 3600000) / 60000),
-    ).padStart(2, "0");
-
-    seconds.textContent = String(
-      Math.floor((difference % 60000) / 1000),
-    ).padStart(2, "0");
+    setNum(days, Math.floor(difference / 86400000));
+    setNum(hours, Math.floor((difference % 86400000) / 3600000));
+    setNum(minutes, Math.floor((difference % 3600000) / 60000));
+    setNum(seconds, Math.floor((difference % 60000) / 1000));
   }
 
   tick();

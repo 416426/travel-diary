@@ -7,48 +7,60 @@
 
 ---
 
-## 📋 需求清单
+## 🎨 AURORA EXPLORER 设计系统（zcode-daily 分支 · 2026-08 重构）
 
-| 需求 | 状态 |
-|------|:----:|
-| 📸 展示旅行照片 | ✅ 照片墙 + 旅行卡片 |
-| 📍 精确地理位置 | ✅ Leaflet + OpenStreetMap 精确坐标 |
-| ❤️ 旅行心情及想法 | ✅ 心情标签 + 随想卡片 |
-| 🔮 下一次旅行预告 | ✅ 预告页 + 实时倒计时 |
-| 📝 旅行笔记 | ✅ 攻略/见闻 |
-| 📚 学习笔记 | ✅ 分类展示 |
-| 👋 自我介绍 | ✅ 关于我页面 |
+整站升级为「暗夜星空 × 极光渐变 × 玻璃拟态」的现代沉浸式设计，纯静态零构建。
 
-## 🏗️ 技术栈
+### 视觉
 
-**纯静态零依赖方案**（2026-07-31 确认）
-
-| 组件 | 技术 |
+| 元素 | 说明 |
 |------|------|
-| 页面 | 原生 HTML5 + CSS3 + JavaScript |
-| 地图 | Leaflet 1.9.4（CDN）+ OpenStreetMap 瓦片 |
-| 数据 | JSON 文件（`data/` 目录，无需数据库） |
-| 部署 | GitHub Pages（免费） |
-| 依赖 | 无（零安装，无需 npm/pip） |
+| 色板 | 深空底 `#05070f` + 极光渐变（青 `#67e8f9` → 靛 `#818cf8` → 品红 `#e879f9`）+ 落日琥珀 `#fbbf24`（行前指南页） |
+| 字体 | Space Grotesk（Google Fonts，离线自动降级系统字体）+ PingFang SC / Noto Sans SC |
+| 质感 | 玻璃拟态卡片、噪点颗粒层、极光光晕、网格纹理 |
+| 布局 | 全站响应式（1440 桌面 → 390 手机），`prefers-reduced-motion` 降级支持 |
+
+### 交互动效（js/effects.js）
+
+- **预加载动画**：品牌 Logo 呼吸 + 进度条，资源就绪后淡出
+- **自定义光标**：光点 + 延迟跟随圆环，悬停照片显示「预览」（仅精确指针设备）
+- **星空画布**：三层视差星星 + 闪烁 + 流星，鼠标视差，离开视口自动暂停省电
+- **滚动体系**：顶部极光进度条、scroll-spy 锚点高亮、reveal 入场动画（错峰延迟）
+- **3D tilt 卡片**：鼠标跟随透视 + 光泽高光（`:root --mx/--my`）
+- **数字滚动**：旅行统计（旅程/照片/城市）进入视口时 0 → N 缓动
+- **增强 Lightbox**：照片墙点击放大，支持 ←/→ 翻页、1/6 计数、Esc 关闭、焦点还原
+- **翻牌倒计时**：数字变化时弹出动画（下次旅行页）
+- **回到顶部**：悬浮按钮带滚动进度环
+- **地图联动**：旅程卡片点「在地图上查看足迹」→ 平滑滚动 + 地图飞行定位 + 弹窗
+- **笔记筛选**：分类 chips + 实时搜索（标题/标签/正文）
+- **药丸 Tab**：行前指南（天气/路线/穿衣）滑动指示器 + 流动虚线路线
+
+### 地图
+
+- Leaflet 1.9.4 **自托管**于 `assets/leaflet/`（不再依赖 unpkg CDN，本地离线可用）
+- 瓦片：Esri World Dark Gray（免费无 key），CSS 压暗 + 半透明融合深蓝主题
+- 自定义发光 marker（脉冲光环）+ 暗色弹窗/控件覆写
 
 ## 📁 目录结构
 
 ```
 travel-diary/
-├── index.html        # 首页：地图 + 旅行卡片 + 照片墙
-├── next.html         # 下一次旅行预告 + 倒计时
-├── notes.html        # 旅行笔记 + 学习笔记
-├── about.html        # 自我介绍
-├── css/style.css     # 全局样式
-├── js/               # 页面逻辑（main/index/next/notes/about）
-├── data/             # 数据（JSON）
-│   ├── trips.json    # 旅行数据：位置/心情/想法/照片
-│   ├── notes.json    # 笔记数据
-│   └── profile.json  # 自我介绍 + 下一次旅行
-└── photos/           # 📷 照片目录（放置你的旅行照片）
+├── index.html        # 首页：星空 Hero + 跑马灯 + 旅行卡片 + 照片墙 + 足迹地图
+├── next.html         # 下一次旅行：倒计时 + 天气/路线/穿衣 Tab
+├── notes.html        # 笔记：分类筛选 + 搜索
+├── about.html        # 关于我：档案卡 + 渐变头像环 + 旅行原则
+├── css/style.css     # AURORA 设计系统（tokens → 组件 → 动效 → 响应式）
+├── js/
+│   ├── effects.js    # 全站交互动效（光标/进度/reveal/tilt/计数/星空…）
+│   ├── main.js       # 导航 + Lightbox + 公共工具（安全 URL/DOM）
+│   ├── index.js      # 首页逻辑（地图/卡片/照片墙/统计/跑马灯）
+│   ├── next.js       # 倒计时 + Tab + 路线地图
+│   ├── notes.js      # 筛选 + 搜索
+│   └── about.js      # 档案渲染
+├── assets/leaflet/   # 自托管 Leaflet 1.9.4
+├── data/             # 数据（JSON）：trips / notes / profile
+└── photos/           # 📷 照片目录
 ```
-
-
 
 ## ✏️ 如何更新内容
 
@@ -57,6 +69,8 @@ travel-diary/
 **更换照片**：把照片放入 `photos/`，在 JSON 中更新路径。照片缺失时自动显示心情 emoji 占位，不会报错。
 
 **修改预告**：编辑 `data/profile.json` 的 `nextTrip`，倒计时自动计算。
+
+**新增笔记**：编辑 `data/notes.json`，分类会自动出现在筛选 chips 中。
 
 ## 🚀 本地运行
 
@@ -69,12 +83,16 @@ npx serve .                        # 或 Node 的 serve（如已安装）
 
 浏览器访问 `http://localhost:8080`
 
+> ⚠️ 数据通过 fetch 加载，直接双击 HTML（file://）会提示需要本地服务器。
+
 ## ✅ 测试
 
-- [x] 7 项需求全部实现
-- [x] 照片缺失时 emoji 占位降级
-- [x] 响应式布局（移动端可用）
-- [x] Lightbox 照片查看 + ESC 关闭
+- [x] 桌面（1440）+ 移动端（390）全页面截图验收
+- [x] 照片缺失 emoji 占位降级
+- [x] Lightbox 键盘导航（←/→/Esc）
+- [x] 筛选/搜索/Tab 交互
+- [x] `prefers-reduced-motion` 全站降级
+- [x] 自动化环境（`navigator.webdriver`）确定性渲染，便于截图回归
 
 ---
 
