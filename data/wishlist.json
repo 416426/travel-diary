@@ -1,0 +1,77 @@
+{
+  "wishlist": [
+    {
+      "id": "tenger-2026",
+      "name": "腾格里沙漠",
+      "region": "中国 · 内蒙古/宁夏",
+      "status": "planned",
+      "date": "2026-10-01",
+      "emoji": "🏜️",
+      "tags": ["沙漠露营", "星空", "越野"],
+      "note": "今年国庆已排期，等待一场没有城市灯光的星空。"
+    },
+    {
+      "id": "iceland",
+      "name": "冰岛环岛",
+      "region": "欧洲 · 冰岛",
+      "status": "dreaming",
+      "emoji": "🌋",
+      "tags": ["极光", "环岛自驾", "冰川"],
+      "note": "一号公路逆时针环岛，冬季追极光，夏季看午夜太阳。"
+    },
+    {
+      "id": "sahara",
+      "name": "撒哈拉沙漠",
+      "region": "非洲 · 摩洛哥",
+      "status": "dreaming",
+      "emoji": "🐪",
+      "tags": ["驼队", "沙丘", "柏柏尔文化"],
+      "note": "从马拉喀什出发，梅祖卡的红沙丘上看日出。"
+    },
+    {
+      "id": "kyoto",
+      "name": "京都赏枫",
+      "region": "亚洲 · 日本",
+      "status": "dreaming",
+      "emoji": "🍁",
+      "tags": ["古寺", "红叶", "町屋"],
+      "note": "十一月中下旬，东福寺的通天桥是第一站。"
+    },
+    {
+      "id": "machu-picchu",
+      "name": "马丘比丘",
+      "region": "南美 · 秘鲁",
+      "status": "dreaming",
+      "emoji": "⛰️",
+      "tags": ["印加古道", "高原", "遗迹"],
+      "note": "四天三夜印加古道徒步，在太阳门看晨雾中的遗迹。"
+    },
+    {
+      "id": "new-zealand",
+      "name": "新西兰南岛",
+      "region": "大洋洲 · 新西兰",
+      "status": "dreaming",
+      "emoji": "🏔️",
+      "tags": ["房车", "星空保护区", "峡湾"],
+      "note": "特卡波湖的星空保护区，是南半球最暗的夜空之一。"
+    },
+    {
+      "id": "silk-road",
+      "name": "河西走廊",
+      "region": "中国 · 甘肃",
+      "status": "dreaming",
+      "emoji": "🏜️",
+      "tags": ["敦煌", "石窟", "戈壁"],
+      "note": "兰州→张掖→嘉峪关→敦煌，莫高窟要提前预约特窟。"
+    },
+    {
+      "id": "norway-fjords",
+      "name": "挪威峡湾",
+      "region": "欧洲 · 挪威",
+      "status": "dreaming",
+      "emoji": "🛳️",
+      "tags": ["峡湾", "徒步", "午夜太阳"],
+      "note": "卑尔根进出，吕瑟峡湾的布道石是此生必看的悬崖。"
+    }
+  ]
+}

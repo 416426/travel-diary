@@ -34,6 +34,15 @@
 - **笔记筛选**：分类 chips + 实时搜索（标题/标签/正文）
 - **药丸 Tab**：行前指南（天气/路线/穿衣）滑动指示器 + 流动虚线路线
 
+### 旅程日志页（journey.html，2026-08 新增）
+
+参考 Polarsteps / Visited / Bucket List Journey 的功能设计：
+
+- **旅行统计**：累计旅程 / 快门次数 / 足迹城市 / 精确坐标 / 已排期行程，数字滚动动画
+- **旅程时间线**：按时间倒序的垂直时间轴，年份分组徽章，左右交错玻璃卡片，移动端自动切单侧
+- **目的地心愿清单**：`data/wishlist.json` 驱动，「计划中」琥珀高亮 /「梦想清单」玻璃款，
+  顶部极光进度条显示 `已解锁 / 总数`，计划中条目自动排前
+
 ### 地图
 
 - Leaflet 1.9.4 **自托管**于 `assets/leaflet/`（不再依赖 unpkg CDN，本地离线可用）
@@ -45,19 +54,21 @@
 ```
 travel-diary/
 ├── index.html        # 首页：星空 Hero + 跑马灯 + 旅行卡片 + 照片墙 + 足迹地图
+├── journey.html      # 旅程日志：旅行统计 + 旅程时间线 + 目的地心愿清单
 ├── next.html         # 下一次旅行：倒计时 + 天气/路线/穿衣 Tab
 ├── notes.html        # 笔记：分类筛选 + 搜索
 ├── about.html        # 关于我：档案卡 + 渐变头像环 + 旅行原则
 ├── css/style.css     # AURORA 设计系统（tokens → 组件 → 动效 → 响应式）
 ├── js/
-│   ├── effects.js    # 全站交互动效（光标/进度/reveal/tilt/计数/星空…）
+│   ├── effects.js    # 全站交互动效（进度/reveal/tilt/计数/星空…）
 │   ├── main.js       # 导航 + Lightbox + 公共工具（安全 URL/DOM）
 │   ├── index.js      # 首页逻辑（地图/卡片/照片墙/统计/跑马灯）
+│   ├── journey.js    # 旅程日志逻辑（统计/时间线/心愿清单）
 │   ├── next.js       # 倒计时 + Tab + 路线地图
 │   ├── notes.js      # 筛选 + 搜索
 │   └── about.js      # 档案渲染
 ├── assets/leaflet/   # 自托管 Leaflet 1.9.4
-├── data/             # 数据（JSON）：trips / notes / profile
+├── data/             # 数据（JSON）：trips / wishlist / notes / profile
 └── photos/           # 📷 照片目录
 ```
 
@@ -70,6 +81,8 @@ travel-diary/
 **修改预告**：编辑 `data/profile.json` 的 `nextTrip`，倒计时自动计算。
 
 **新增笔记**：编辑 `data/notes.json`，分类会自动出现在筛选 chips 中。
+
+**维护心愿清单**：编辑 `data/wishlist.json`，`status` 取 `planned`（计划中）或 `dreaming`（梦想清单），进度条与排序自动更新。
 
 ## 🚀 本地运行
 
