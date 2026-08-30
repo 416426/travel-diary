@@ -182,14 +182,6 @@ h3 { font-size: 1.28rem; }
   pointer-events: none;
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
-  animation: grain-shift 9s steps(6) infinite;
-}
-@keyframes grain-shift {
-  0%, 100% { transform: translate(0, 0); }
-  20% { transform: translate(-3%, 2%); }
-  40% { transform: translate(2%, -3%); }
-  60% { transform: translate(-2%, -2%); }
-  80% { transform: translate(3%, 3%); }
 }
 
 /* ---------- 04. Reveal 动效体系 ---------- */
@@ -2158,7 +2150,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }
 
-
 /* ---------- 27. 特效层（学习 21st.dev：Text Generate / Spotlight / Magnetic / Aurora） ---------- */
 /* 逐字文字生成（Aceternity Text Generate + Motion Blur Fade） */
 .split-words .w {
@@ -2234,7 +2225,6 @@ body > main, body > header, body > footer { position: relative; z-index: 1; }
   .bgblob { display: none; }
 }
 
-
 /* ---------- 28. 惊艳特效（Magic UI / Aceternity 招牌） ---------- */
 /* Border Beam：沿边框奔跑的流光（Magic UI Border Beam） */
 @property --beam-angle {
@@ -2278,21 +2268,6 @@ body > main, body > header, body > footer { position: relative; z-index: 1; }
 .beam-hover:hover::before { opacity: 1; animation-duration: 2.6s; }
 
 /* 全页鼠标聚光光晕（Aceternity Spotlight 暗色版） */
-.cursor-glow {
-  position: fixed; z-index: 2;
-  width: 620px; height: 620px;
-  border-radius: 50%;
-  pointer-events: none;
-  background: radial-gradient(
-    circle,
-    rgba(103, 232, 249, 0.075) 0%,
-    rgba(129, 140, 248, 0.05) 34%,
-    transparent 62%
-  );
-  transform: translate(-50%, -50%);
-  mix-blend-mode: screen;
-  will-change: transform;
-}
 
 /* 星尘闪烁（时光气泡场 / Hero） */
 .spark {
@@ -2330,10 +2305,8 @@ body > main, body > header, body > footer { position: relative; z-index: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   .beam::before { animation: none; background: linear-gradient(120deg, rgba(103,232,249,0.4), rgba(129,140,248,0.4)); -webkit-mask: none; mask: none; }
-  .cursor-glow { display: none; }
   .spark, .shimmer-line::after { display: none; }
 }
-
 
 /* ---------- 29. 旅程之门（滚动缩放传送门，移植自 21st.dev Scroll Zoom Portal） ---------- */
 .portal-scroll {

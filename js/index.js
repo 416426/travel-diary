@@ -246,9 +246,9 @@ function initPortal() {
     if (media) media.style.transform = `scale(${1 + progress * 0.2})`;
 
     if (outro) {
-      const fade = Math.min(1, Math.max(0, (progress - 0.88) / 0.12));
+      const fade = Math.min(1, Math.max(0, (progress - 0.55) / 0.15));
       outro.style.opacity = String(fade);
-      outro.style.pointerEvents = fade > 0.6 ? "auto" : "none";
+      outro.style.pointerEvents = fade > 0.5 ? "auto" : "none";
     }
   };
 

@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initSpotlight();
   initMagnetic();
   initAurora();
-  initCursorGlow();
   initSparkles();
 });
 
@@ -352,6 +351,7 @@ function setupAutoMarquee(el, options = {}) {
   const speed = options.speed ?? 0.55;          // px / 16.7ms
   const dir = options.direction ?? 1;
   let paused = options.paused ?? false;
+  let offscreen = false;
   let last = performance.now();
 
   // 反向行从第二份内容起步，向左减到 0 时回绕，避免跳位
@@ -360,10 +360,20 @@ function setupAutoMarquee(el, options = {}) {
   el.addEventListener("pointerenter", () => { paused = true; });
   el.addEventListener("pointerleave", () => { paused = false; });
 
+  // 离屏省电：视口外 600px 之外暂停（接近即恢复，避免"到位不启动"）
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      (entries) => {
+        offscreen = !(entries[0]?.isIntersecting ?? true);
+      },
+      { rootMargin: "600px" }
+    ).observe(el);
+  }
+
   function frame(now) {
     const dt = Math.min(now - last, 64);
     last = now;
-    if (!paused && !document.hidden && !REDUCED_MOTION) {
+    if (!paused && !offscreen && !document.hidden && !REDUCED_MOTION) {
       el.scrollLeft += dir * speed * (dt / 16.7);
       const half = el.scrollWidth / 2;
       if (half > 10) {
@@ -546,35 +556,6 @@ function initAurora() {
   update();
 }
 
-
-/* ===== 全页鼠标聚光光晕（跟随 + 缓动） ===== */
-function initCursorGlow() {
-  if (!FINE_POINTER || REDUCED_MOTION || window.WEBDRIVER_MODE) return;
-
-  const glow = document.createElement("div");
-  glow.className = "cursor-glow";
-  glow.setAttribute("aria-hidden", "true");
-  document.body.appendChild(glow);
-
-  const pos = { x: innerWidth / 2, y: innerHeight / 3 };
-  const cur = { x: pos.x, y: pos.y };
-
-  window.addEventListener(
-    "pointermove",
-    (event) => {
-      pos.x = event.clientX;
-      pos.y = event.clientY;
-    },
-    { passive: true }
-  );
-
-  (function follow() {
-    cur.x += (pos.x - cur.x) * 0.08;
-    cur.y += (pos.y - cur.y) * 0.08;
-    glow.style.transform = `translate(${cur.x}px, ${cur.y}px) translate(-50%, -50%)`;
-    window.requestAnimationFrame(follow);
-  })();
-}
 
 /* ===== 星尘闪烁（时光气泡场） ===== */
 function initSparkles() {
