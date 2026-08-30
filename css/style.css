@@ -1658,11 +1658,11 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 
 /* ---------- 26. 降低动效偏好 ---------- */
-/* 跨文档平滑转场：页面切换淡入淡出，消除切换白闪（不支持的浏览器自动忽略） */
+/* 跨文档转场：分层淡入（旧页快照保持不透明垫底，新页淡入覆盖），
+   任何时刻画面都有不透明深色层，杜绝交叉淡化中间态露出白底 */
 @view-transition { navigation: auto; }
-::view-transition-old(root) { animation: vt-fade-out 220ms ease both; }
+::view-transition-old(root) { animation: none; }
 ::view-transition-new(root) { animation: vt-fade-in 300ms ease both; }
-@keyframes vt-fade-out { to { opacity: 0; } }
 @keyframes vt-fade-in { from { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
