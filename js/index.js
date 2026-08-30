@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await loadJSON("data/trips.json");
     const trips = Array.isArray(data?.trips) ? data.trips : [];
 
-    renderTripSlider(trips);
+    renderTripRail(trips);
     renderMoments(trips);
     renderStats(trips);
     renderTicker(trips);
@@ -167,101 +167,105 @@ function createSlider(container, items, renderSlide, options = {}) {
   return { goTo };
 }
 
-/* ===== 旅程轮播（旅行记录） ===== */
-function renderTripSlider(trips) {
-  const container = document.querySelector("#trip-slider");
-  if (!container) return;
+/* ===== 旅程卡片轨道（旅行记录） ===== */
+function renderTripRail(trips) {
+  const wrap = document.querySelector("#trip-slider");
+  if (!wrap) return;
 
   if (!trips.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
     empty.textContent = "旅行记录正在整理中。";
-    container.replaceChildren(empty);
+    wrap.replaceChildren(empty);
     return;
   }
 
-  createSlider(
-    container,
-    trips,
-    (trip, index) => createTripCard(trip, index),
-    { auto: 7000, ariaLabel: "旅程轮播" }
-  );
+  wrap.className = "trip-rail-wrap";
+  wrap.innerHTML = "";
+
+  const rail = document.createElement("div");
+  rail.className = "trip-rail";
+  rail.setAttribute("aria-label", "旅程卡片轨道");
+
+  trips.forEach((trip, index) => {
+    rail.appendChild(createRailCard(trip, index));
+  });
+
+  const prevButton = document.createElement("button");
+  prevButton.className = "rail-arrow prev";
+  prevButton.type = "button";
+  prevButton.textContent = "←";
+  prevButton.setAttribute("aria-label", "向前滚动");
+
+  const nextButton = document.createElement("button");
+  nextButton.className = "rail-arrow next";
+  nextButton.type = "button";
+  nextButton.textContent = "→";
+  nextButton.setAttribute("aria-label", "向后滚动");
+
+  wrap.append(rail, prevButton, nextButton);
+
+  const step = () => {
+    const card = rail.querySelector(".rail-card");
+    return card ? (card.getBoundingClientRect().width + 20) * 2 : 600;
+  };
+  prevButton.addEventListener("click", () => rail.scrollBy({ left: -step(), behavior: "smooth" }));
+  nextButton.addEventListener("click", () => rail.scrollBy({ left: step(), behavior: "smooth" }));
+
+  const syncArrows = () => {
+    prevButton.toggleAttribute("disabled", rail.scrollLeft <= 4);
+    nextButton.toggleAttribute(
+      "disabled",
+      rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4
+    );
+  };
+  rail.addEventListener("scroll", syncArrows, { passive: true });
+  window.addEventListener("resize", syncArrows, { passive: true });
+  syncArrows();
 }
 
-function createTripCard(trip, index) {
-  const article = document.createElement("article");
-  article.className = "card trip-card";
-  article.setAttribute("data-reveal", "");
+function createRailCard(trip, index) {
+  const card = document.createElement("a");
+  card.className = "rail-card";
+  card.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
 
-  const media = document.createElement("div");
-  media.className = "card-media";
+  const url = safeSameOriginURL(
+    Array.isArray(trip?.photos) ? String(trip.photos[0] || "") : ""
+  );
+  if (url) {
+    const image = new Image();
+    image.loading = index < 4 ? "eager" : "lazy";
+    image.decoding = "async";
+    image.alt = indexText(trip?.title, "旅程照片", 60);
+    image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+    image.addEventListener("error", () => image.remove(), { once: true });
+    image.src = url.href;
+    card.appendChild(image);
+  }
 
   const badge = document.createElement("span");
-  badge.className = "card-index";
+  badge.className = "rail-badge";
   badge.textContent = String(index + 1).padStart(2, "0");
-  media.appendChild(badge);
+  card.appendChild(badge);
 
-  renderTripCover(
-    media,
-    Array.isArray(trip?.photos) ? trip.photos[0] : "",
-    indexText(trip?.moodEmoji, "📷", 8),
-    indexText(trip?.title, "旅行照片", 80)
-  );
+  const body = document.createElement("span");
+  body.className = "rail-body";
 
-  const body = document.createElement("div");
-  body.className = "card-body";
+  const title = document.createElement("b");
+  title.textContent = indexText(trip?.title, "未命名旅程", 60);
 
-  const title = document.createElement("h3");
-  const titleLink = document.createElement("a");
-  titleLink.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
-  titleLink.textContent = indexText(trip?.title, "未命名旅程", 80);
-  titleLink.style.color = "inherit";
-  titleLink.style.textDecoration = "none";
-  title.appendChild(titleLink);
-
-  const meta = document.createElement("div");
-  meta.className = "trip-meta";
-  meta.innerHTML =
-    `<span>📅 ${escapeHTML(indexText(trip?.date, "待补充", 40))}</span>` +
-    `<span>⏱ ${escapeHTML(indexText(trip?.duration, "待补充", 40))}</span>` +
-    `<span>📍 ${escapeHTML(indexText(trip?.location, "待补充", 100))}</span>`;
-
-  const mood = document.createElement("div");
-  mood.className = "trip-mood";
-  mood.textContent =
-    `${indexText(trip?.moodEmoji, "🧭", 8)} ` +
-    indexText(trip?.mood, "心情待补充", 100);
-
-  const thoughts = document.createElement("p");
-  thoughts.className = "trip-thoughts";
-  thoughts.textContent = indexText(trip?.thoughts, "这段旅程的故事正在整理中。", 600);
-
-  body.append(title, meta, mood, thoughts);
-
-  const tags = document.createElement("div");
-  tags.className = "tags";
-  (Array.isArray(trip?.tags) ? trip.tags : []).slice(0, 8).forEach((value) => {
-    const tag = document.createElement("span");
-    tag.className = "tag";
-    tag.textContent = `#${indexText(value, "旅行", 32)}`;
-    tags.appendChild(tag);
-  });
-  if (tags.childElementCount) body.appendChild(tags);
-
+  const meta = document.createElement("small");
   const photoCount = Array.isArray(trip?.photos)
     ? trip.photos.filter((p) => typeof p === "string" && p.trim()).length
     : 0;
+  meta.innerHTML =
+    `<span>📅 ${escapeHTML(indexText(trip?.date, "待补充", 40))}</span>` +
+    `<span class="rail-count">📷 ${photoCount} 张</span>`;
 
-  const link = document.createElement("a");
-  link.className = "trip-link";
-  link.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
-  link.innerHTML = `进入旅程相册（${photoCount} 张照片） <span class="arr" aria-hidden="true">→</span>`;
-  body.appendChild(link);
+  body.append(title, meta);
+  card.appendChild(body);
 
-  article.append(media, body);
-  observeReveal(article);
-
-  return article;
+  return card;
 }
 
 function renderTripCover(container, path, fallbackEmoji, title) {

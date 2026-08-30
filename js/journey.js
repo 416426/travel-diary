@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderStats(trips, wishes);
     renderTimeline(trips);
+    renderYearHeat(trips);
     renderWishlist(wishes);
   } catch (err) {
     console.error("旅程日志数据加载失败", err);
@@ -406,4 +407,70 @@ function escapeHTML(value) {
   const element = document.createElement("span");
   element.textContent = value;
   return element.innerHTML;
+}
+
+/* ===== 年度旅行节奏（月度热力条） ===== */
+function renderYearHeat(trips) {
+  const wrap = document.querySelector("#year-heat");
+  if (!wrap) return;
+
+  const months = [
+    ["1月"], ["2月"], ["3月"], ["4月"], ["5月"], ["6月"],
+    ["7月"], ["8月"], ["9月"], ["10月"], ["11月"], ["12月"],
+  ];
+  const perMonth = months.map(([label]) => ({ label, photos: 0, trips: [] }));
+
+  trips.forEach((trip) => {
+    const month = Number(String(trip?.date || "").slice(5, 7));
+    if (!month || month < 1 || month > 12) return;
+    const count = (Array.isArray(trip?.photos) ? trip.photos : []).length;
+    perMonth[month - 1].photos += count;
+    const title = indexText(trip?.title, "", 60);
+    if (title) perMonth[month - 1].trips.push(title);
+  });
+
+  const max = Math.max(1, ...perMonth.map((m) => m.photos));
+  const fragment = document.createDocumentFragment();
+
+  perMonth.forEach((m) => {
+    const cell = document.createElement("div");
+    cell.className = "heat-cell";
+    cell.style.setProperty("--h", `${Math.round((m.photos / max) * 100)}%`);
+
+    const bar = document.createElement("i");
+    bar.style.setProperty("--h", "0%");
+
+    const tip = document.createElement("span");
+    tip.className = "heat-tip";
+    tip.textContent = m.photos
+      ? `${m.label} · ${m.photos} 张${m.trips.length ? "（" + m.trips[0] + "）" : ""}`
+      : `${m.label} · 无记录`;
+    bar.appendChild(tip);
+
+    const label = document.createElement("small");
+    label.textContent = m.label;
+
+    cell.append(bar, label);
+    fragment.appendChild(cell);
+  });
+
+  wrap.replaceChildren(fragment);
+  observeReveal(wrap);
+
+  if (REDUCED_MOTION || window.WEBDRIVER_MODE) {
+    wrap.querySelectorAll(".heat-cell").forEach((cell) => {
+      const bar = cell.querySelector("i");
+      bar.style.setProperty("--h", cell.style.getPropertyValue("--h"));
+    });
+    return;
+  }
+  // 入场后让热力条生长到目标高度
+  window.requestAnimationFrame(() => {
+    window.setTimeout(() => {
+      wrap.querySelectorAll(".heat-cell").forEach((cell) => {
+        const bar = cell.querySelector("i");
+        bar.style.setProperty("--h", cell.style.getPropertyValue("--h"));
+      });
+    }, 120);
+  });
 }
