@@ -152,10 +152,13 @@ function renderTripRail(trips) {
   rail.className = "trip-rail";
   rail.setAttribute("aria-label", "旅程卡片轨道，自动滚动，悬停可拖动");
 
-  // 复制两份实现无缝循环
-  const cards = trips.map((trip, index) => createRailCard(trip, index));
-  cards.forEach((card) => rail.appendChild(card));
-  cards.forEach((card) => rail.appendChild(card.cloneNode(true)));
+  // 内容复制两份实现无缝循环（第二份独立构建，保证图片各自加载）
+  trips.forEach((trip, index) => rail.appendChild(createRailCard(trip, index)));
+  trips.forEach((trip, index) => {
+    const copy = createRailCard(trip, index);
+    copy.setAttribute("aria-hidden", "true");
+    rail.appendChild(copy);
+  });
 
   wrap.appendChild(rail);
   enableDragScroll(rail);
@@ -172,11 +175,9 @@ function createRailCard(trip, index) {
   );
   if (url) {
     const image = new Image();
-    image.loading = index < 4 ? "eager" : "lazy";
+    image.loading = "eager";
     image.decoding = "async";
     image.alt = indexText(trip?.title, "旅程照片", 60);
-    image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
-    image.addEventListener("error", () => image.remove(), { once: true });
     image.src = url.href;
     card.appendChild(image);
   }

@@ -69,12 +69,6 @@ function renderRegionHub() {
     return;
   }
 
-  const hint = document.createElement("p");
-  hint.className = "trip-meta";
-  hint.style.marginBottom = "20px";
-  hint.textContent = "自动滚动 · 悬停后可按住左右拖动 · 点击进入该旅程相册";
-  wrap.appendChild(hint);
-
   // 两行：奇偶分组，方向相反
   const row1 = document.createElement("div");
   row1.className = "album-row";
@@ -108,10 +102,9 @@ function createAlbumTile(trip, index) {
   const url = safeSameOriginURL(String((trip?.photos || [])[0] || ""));
   if (url) {
     const image = new Image();
-    image.loading = index < 4 ? "eager" : "lazy";
+    image.loading = "eager";
     image.decoding = "async";
     image.alt = indexText(trip?.title, "旅程相册", 60);
-    image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
     image.src = url.href;
     tile.appendChild(image);
   }

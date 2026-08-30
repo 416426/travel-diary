@@ -346,26 +346,18 @@ function setupAutoMarquee(el, options = {}) {
   const speed = options.speed ?? 0.55;          // px / 16.7ms
   const dir = options.direction ?? 1;
   let paused = options.paused ?? false;
-  let running = true;
   let last = performance.now();
 
-  el.addEventListener("pointerenter", () => { paused = true; });
-  el.addEventListener("pointerleave", () => { paused = options.paused ?? false; });
+  // 反向行从第二份内容起步，向左减到 0 时回绕，避免跳位
+  if (dir < 0) el.scrollLeft = el.scrollWidth / 2;
 
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver(
-      (entries) => {
-        running = entries[0]?.isIntersecting ?? true;
-        last = performance.now();
-      },
-      { threshold: 0.05 }
-    ).observe(el);
-  }
+  el.addEventListener("pointerenter", () => { paused = true; });
+  el.addEventListener("pointerleave", () => { paused = false; });
 
   function frame(now) {
     const dt = Math.min(now - last, 64);
     last = now;
-    if (running && !paused && !document.hidden && !REDUCED_MOTION) {
+    if (!paused && !document.hidden && !REDUCED_MOTION) {
       el.scrollLeft += dir * speed * (dt / 16.7);
       const half = el.scrollWidth / 2;
       if (half > 10) {
