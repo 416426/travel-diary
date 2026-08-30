@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20260902" />
+  <link rel="stylesheet" href="css/style.css?v=20260903" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -69,29 +69,29 @@
           <header class="section-head" data-reveal>
             <p class="eyebrow">STATS OVERVIEW</p>
             <h2 class="section-title" id="stats-title">旅行统计</h2>
-            <p class="section-sub">数字会记得每一次出发。</p>
+            <p class="section-sub">数字会记得每一次出发，热力条记录每个月的快门密度。</p>
           </header>
-          <div class="stats-grid" id="stats-grid" aria-live="polite"></div>
+          <div class="card data-panel" data-reveal style="padding: clamp(22px, 3.5vw, 36px)">
+            <div class="stats-grid" id="stats-grid" aria-live="polite"></div>
+            <div>
+              <p class="data-label">YEAR RHYTHM · 2026</p>
+              <div class="year-heat" id="year-heat" aria-label="2026 年各月照片数量"></div>
+            </div>
+          </div>
         </section>
 
         <section class="section" id="journey-timeline" aria-labelledby="timeline-title">
           <header class="section-head" data-reveal>
             <p class="eyebrow">TIMELINE</p>
             <h2 class="section-title" id="timeline-title">旅程时间线</h2>
-            <p class="section-sub">按时间倒序，最新的一段路在最上面。</p>
+            <p class="section-sub">按时间倒序，在面板内滚动浏览，光点标记当前位置。</p>
           </header>
-          <div class="tl-panel" id="tl-panel" tabindex="0" aria-label="旅程时间线，可滚动浏览">
-            <div class="page-timeline" id="page-timeline" aria-live="polite"></div>
+          <div class="tl-panel-wrap" data-reveal>
+            <div class="tl-panel" id="tl-panel" tabindex="0" aria-label="旅程时间线，可滚动浏览">
+              <div class="page-timeline" id="page-timeline" aria-live="polite"></div>
+            </div>
+            <span class="tl-progress-dot" id="tlProgressDot" aria-hidden="true"></span>
           </div>
-        </section>
-
-        <section class="section" id="year-rhythm" aria-labelledby="rhythm-title" style="padding-top:0">
-          <header class="section-head" data-reveal>
-            <p class="eyebrow">YEAR RHYTHM · 2026</p>
-            <h2 class="section-title" id="rhythm-title">年度旅行节奏</h2>
-            <p class="section-sub">每个月的快门密度，悬停可查看当月旅程。</p>
-          </header>
-          <div class="year-heat" id="year-heat" data-reveal aria-label="2026 年各月照片数量"></div>
         </section>
 
         <section class="section" id="journey-wishlist" aria-labelledby="wishlist-title">
@@ -155,8 +155,8 @@
     <span class="arrow" aria-hidden="true">↑</span>
   </button>
 
-  <script src="js/main.js?v=20260902"></script>
-  <script src="js/effects.js?v=20260902"></script>
-  <script src="js/journey.js?v=20260902"></script>
+  <script src="js/main.js?v=20260903"></script>
+  <script src="js/effects.js?v=20260903"></script>
+  <script src="js/journey.js?v=20260903"></script>
 </body>
 </html>

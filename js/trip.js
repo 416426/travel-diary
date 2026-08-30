@@ -62,6 +62,14 @@ function renderError(message) {
 }
 
 /* ===== Hero：封面大图 + 信息 ===== */
+function resolveBackTarget() {
+  const ref = String(document.referrer || "");
+  if (ref.includes("photos.html")) {
+    return { href: "photos.html", label: "← 返回途中光影" };
+  }
+  return { href: "journey.html", label: "← 返回旅程日志" };
+}
+
 function renderHero(trip) {
   const hero = document.querySelector("#trip-hero");
   const title = document.querySelector("#trip-title");
@@ -69,6 +77,13 @@ function renderHero(trip) {
   const brief = document.querySelector("#trip-brief");
   const eyebrow = document.querySelector("#trip-eyebrow");
   if (!hero || !title || !chips || !brief) return;
+
+  const back = resolveBackTarget();
+  const backLink = document.querySelector(".trip-hero .back-link");
+  if (backLink) {
+    backLink.href = back.href;
+    backLink.textContent = back.label;
+  }
 
   const cover = Array.isArray(trip?.photos) ? trip.photos[0] : "";
   const coverURL = safeSameOriginURL(String(cover || ""));

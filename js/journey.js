@@ -164,6 +164,26 @@ function renderTimeline(trips) {
 
   wrap.replaceChildren(fragment);
   wrap.querySelectorAll("[data-reveal]").forEach((el) => observeReveal(el));
+  setupTimelineProgress();
+}
+
+/* ===== 时间线进度光点：随面板滚动沿中轴线下滑 ===== */
+function setupTimelineProgress() {
+  const panel = document.querySelector("#tl-panel");
+  const dot = document.querySelector("#tlProgressDot");
+  if (!panel || !dot) return;
+
+  const wrap = panel.parentElement;
+  const update = () => {
+    const max = panel.scrollHeight - panel.clientHeight;
+    const progress = max > 0 ? panel.scrollTop / max : 0;
+    const travel = panel.clientHeight - 26;
+    dot.style.top = `${10 + progress * travel}px`;
+  };
+
+  panel.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update, { passive: true });
+  update();
 }
 
 function createTimelineEntry(trip, index) {

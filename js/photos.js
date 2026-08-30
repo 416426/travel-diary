@@ -114,7 +114,7 @@ function renderRegionHub() {
   document.title = `途中光影 · 按地区（${trips.length} 段旅程）`;
 }
 
-/* ===== 模式二：按月份（瀑布流年度回顾） ===== */
+/* ===== 模式二：按月份（可折叠的瀑布流年度回顾） ===== */
 function renderMonthReview() {
   const wrap = document.querySelector("#photo-groups");
   if (!wrap) return;
@@ -135,7 +135,7 @@ function renderMonthReview() {
   const months = [...byMonth.keys()].sort((a, b) => b.localeCompare(a)); // 新→旧
   const fragment = document.createDocumentFragment();
 
-  months.forEach((month) => {
+  months.forEach((month, monthIndex) => {
     const entries = byMonth.get(month);
     const photoTotal = entries.reduce((sum, e) => sum + e.photos.length, 0);
 
@@ -143,28 +143,63 @@ function renderMonthReview() {
     section.className = "month-group";
     section.setAttribute("data-reveal", "");
 
-    const head = document.createElement("header");
+    // 折叠头：月份 + 张数 + 旅程 + 箭头
+    const head = document.createElement("button");
     head.className = "month-head";
+    head.type = "button";
+    head.setAttribute("aria-expanded", "false");
 
     const title = document.createElement("h2");
     title.className = "section-title";
     title.innerHTML =
       `${escapeHTML(month.replace("-", " · "))} ` +
       `<span class="count">${photoTotal} 张</span>`;
-    head.appendChild(title);
 
-    const tripsLine = document.createElement("p");
+    const tripsLine = document.createElement("span");
     tripsLine.className = "trip-meta";
     tripsLine.innerHTML = entries
       .map((e) => `<span>${escapeHTML(indexText(e.trip?.title, "旅程", 40))}</span>`)
       .join("");
-    head.appendChild(tripsLine);
 
+    const chev = document.createElement("span");
+    chev.className = "chev";
+    chev.textContent = "▾";
+    chev.setAttribute("aria-hidden", "true");
+
+    head.append(title, tripsLine, chev);
     section.appendChild(head);
+
+    // 主体：收起时为缩略条，展开时为全量瀑布流（两者都预构建，懒加载按需触发）
+    const body = document.createElement("div");
+    body.className = "month-body";
+
+    const strip = document.createElement("div");
+    strip.className = "month-strip";
+    const preview = entries.flatMap((e) => e.photos).slice(0, 5);
+    preview.forEach((photo) => {
+      const thumb = document.createElement("span");
+      thumb.className = "strip-thumb";
+      const url = safeSameOriginURL(photo);
+      if (url) {
+        const image = new Image();
+        image.loading = "lazy";
+        image.alt = "";
+        image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+        image.src = url.href;
+        thumb.appendChild(image);
+      }
+      strip.appendChild(thumb);
+    });
+    if (photoTotal > preview.length) {
+      const more = document.createElement("span");
+      more.className = "strip-more";
+      more.textContent = `+${photoTotal - preview.length}`;
+      strip.appendChild(more);
+    }
+    body.appendChild(strip);
 
     const wall = document.createElement("div");
     wall.className = "photo-wall";
-
     let photoIndex = 0;
     entries.forEach(({ trip, photos }) => {
       const title = indexText(trip?.title, "旅行照片", 60);
@@ -173,13 +208,19 @@ function renderMonthReview() {
         const el = photoEl(photo, emoji, `${title} · ${month} · 第 ${photoIndex + 1} 张`);
         el.setAttribute("data-reveal", "zoom");
         el.style.setProperty("--d", `${Math.min(photoIndex * 0.03, 0.3)}s`);
-        observeReveal(el);
         wall.appendChild(el);
         photoIndex += 1;
       });
     });
+    body.appendChild(wall);
 
-    section.appendChild(wall);
+    section.appendChild(body);
+
+    head.addEventListener("click", () => {
+      const open = section.classList.toggle("open");
+      head.setAttribute("aria-expanded", String(open));
+    });
+
     fragment.appendChild(section);
   });
 

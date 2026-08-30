@@ -832,24 +832,30 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   position: relative;
   height: clamp(380px, 46vw, 540px);
   overflow: hidden;
-  border: 1px solid var(--stroke);
-  border-radius: calc(var(--radius-card) + 4px);
   background:
-    radial-gradient(ellipse 60% 70% at 30% 20%, rgba(103, 232, 249, 0.08), transparent 60%),
-    radial-gradient(ellipse 55% 65% at 75% 85%, rgba(232, 121, 249, 0.07), transparent 60%),
-    var(--bg-1);
-  box-shadow: var(--shadow-1);
+    radial-gradient(ellipse 60% 70% at 30% 20%, rgba(103, 232, 249, 0.05), transparent 60%),
+    radial-gradient(ellipse 55% 65% at 75% 85%, rgba(232, 121, 249, 0.045), transparent 60%);
 }
 .bubble {
   position: absolute;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 14px 40px rgba(3, 6, 18, 0.55), 0 0 24px rgba(103, 232, 249, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 16px 44px rgba(3, 6, 18, 0.6),
+    0 0 34px 8px rgba(103, 232, 249, 0.1),
+    inset 0 0 22px rgba(5, 7, 15, 0.35);
   cursor: pointer;
   transform: translate(-50%, -50%);
   transition: transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast), box-shadow var(--dur-fast);
-  animation: bubble-float 7s ease-in-out infinite alternate;
+  animation: bubble-float 9s ease-in-out infinite alternate;
+}
+.bubble::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 2;
+  border-radius: 50%;
+  box-shadow: inset 0 0 26px rgba(5, 7, 15, 0.5);
+  pointer-events: none;
 }
 .bubble img {
   width: 100%; height: 100%;
@@ -860,8 +866,11 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .bubble img.is-loaded { opacity: 1; }
 .bubble:hover {
   z-index: 3;
-  border-color: rgba(103, 232, 249, 0.75);
-  box-shadow: 0 18px 48px rgba(3, 6, 18, 0.6), 0 0 34px rgba(103, 232, 249, 0.35);
+  border-color: rgba(103, 232, 249, 0.5);
+  box-shadow:
+    0 20px 52px rgba(3, 6, 18, 0.65),
+    0 0 48px 10px rgba(103, 232, 249, 0.22),
+    inset 0 0 22px rgba(5, 7, 15, 0.3);
 }
 .bubble:hover img { scale: 1.08; transition: scale 0.6s var(--ease-out); }
 .bubble .bubble-tag {
@@ -888,8 +897,9 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   pointer-events: none;
 }
 @keyframes bubble-float {
-  from { margin-top: -8px; }
-  to { margin-top: 8px; }
+  0% { margin-top: -12px; }
+  50% { margin-left: 6px; }
+  100% { margin-top: 12px; }
 }
 
 /* 相册磁贴（按地区） */
@@ -976,17 +986,57 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .mode-toggle button:not(.active):hover { color: var(--text-1); }
 
-/* 月份分组（年度回顾） */
-.month-group { padding-block: clamp(36px, 5vw, 60px); }
+/* 月份分组（年度回顾，可折叠缩放） */
+.month-group { padding-block: clamp(20px, 3vw, 30px); }
 .month-group + .month-group { border-top: 1px solid var(--stroke); }
 .month-head {
-  display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
-  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 0;
+  width: 100%;
+  background: none; border: 0; text-align: left;
+  color: inherit;
+  cursor: pointer;
+  padding: 6px 2px;
+  border-radius: 12px;
+  transition: background var(--dur-fast);
 }
+.month-head:hover { background: rgba(255, 255, 255, 0.03); }
 .month-head h2 {
   display: flex; align-items: baseline; gap: 14px;
 }
 .month-head .count { color: var(--text-3); font: 600 0.8rem var(--font-mono); letter-spacing: 0.12em; }
+.month-head .chev {
+  margin-left: auto;
+  color: var(--text-3);
+  font-size: 0.9rem;
+  transition: transform 0.3s var(--ease-spring);
+}
+.month-group.open .chev { transform: rotate(180deg); color: var(--cyan); }
+.month-body { display: none; padding-top: 22px; }
+.month-group.open .month-body { display: block; animation: panel-enter var(--dur-mid) var(--ease-out) both; }
+.month-strip {
+  display: flex; gap: 10px;
+  overflow: hidden;
+  height: 86px;
+}
+.month-strip .strip-thumb {
+  flex: 0 0 auto;
+  width: 118px; height: 86px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+}
+.month-strip .strip-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.month-strip .strip-more {
+  flex: 0 0 auto;
+  display: grid; place-items: center;
+  width: 118px; height: 86px;
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--stroke-strong);
+  border-radius: 12px;
+  font: 600 0.76rem var(--font-mono);
+}
 
 /* 旅程卡片轨道（首页旅行记录）：紧凑横向 scroll-snap */
 .trip-rail-wrap { position: relative; }
@@ -1081,37 +1131,43 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 
 /* 旅程日志：固定高度时间线面板，滚动条即时间轴 */
+.tl-panel-wrap { position: relative; }
 .tl-panel {
   height: clamp(480px, 74vh, 820px);
   overflow-y: auto;
   padding: 8px 22px 8px 6px;
   scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: #818cf8 rgba(129, 140, 248, 0.12);
+  scrollbar-width: none;
 }
-.tl-panel::-webkit-scrollbar { width: 8px; }
-.tl-panel::-webkit-scrollbar-track {
-  background: rgba(129, 140, 248, 0.1);
-  border-radius: 8px;
+.tl-panel::-webkit-scrollbar { display: none; }
+/* 时间轴进度光点：随面板滚动沿中轴线下滑 */
+.tl-progress-dot {
+  position: absolute; top: 0; left: 50%; z-index: 3;
+  width: 13px; height: 13px;
+  transform: translate(-50%, 0);
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--cyan);
+  box-shadow: 0 0 18px rgba(103, 232, 249, 0.9);
+  pointer-events: none;
+  transition: top 0.12s linear;
 }
-.tl-panel::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--cyan), var(--indigo), var(--fuchsia));
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(129, 140, 248, 0.55);
-}
-.tl-panel::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--mint), var(--cyan));
+@media (max-width: 767px) {
+  .tl-progress-dot { left: 9px; }
 }
 
 /* 年度旅行节奏（月度热力条） */
+.data-panel { display: grid; gap: 26px; }
+.data-panel .data-label {
+  color: var(--text-3);
+  font: 600 0.7rem var(--font-mono);
+  letter-spacing: 0.22em; text-transform: uppercase;
+}
 .year-heat {
   display: grid; gap: 10px;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: end;
-  padding: 22px 22px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius-card);
+  padding: 6px 4px 2px;
 }
 .heat-cell {
   display: grid; gap: 8px;
