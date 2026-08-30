@@ -16,6 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
   initBackToTop();
   initTiltCards();
   initCountUp();
+  initTextGenerate();
+  initSpotlight();
+  initMagnetic();
+  initAurora();
 });
 
 /* ===== 预加载 ===== */
@@ -407,4 +411,135 @@ function enableDragScroll(el) {
     },
     true
   );
+}
+
+
+/* ===== 21ST 风格特效层 ===== */
+
+/* 逐字文字生成（纯文本标题自动拆字，blur→清晰 错峰入场） */
+function initTextGenerate() {
+  if (REDUCED_MOTION || window.WEBDRIVER_MODE || !("IntersectionObserver" in window)) return;
+
+  document.querySelectorAll(".section-title, .page-hero h1").forEach((el) => {
+    if (el.dataset.splitDone || el.children.length) return; // 含嵌套结构的标题不拆
+    el.dataset.splitDone = "1";
+    el.classList.add("split-words");
+    el.setAttribute("aria-label", el.textContent.trim());
+
+    const chars = [...el.textContent];
+    el.textContent = "";
+    chars.forEach((ch, i) => {
+      if (ch === " ") {
+        el.appendChild(document.createTextNode("\u00A0"));
+        return;
+      }
+      const s = document.createElement("span");
+      s.className = "w";
+      s.textContent = ch;
+      s.style.setProperty("--wd", `${Math.min(i * 0.05, 0.9)}s`);
+      el.appendChild(s);
+    });
+
+    observeReveal(el);
+  });
+}
+
+/* 鼠标追光（所有卡片类容器，动态渲染内容自动覆盖） */
+function initSpotlight() {
+  if (!FINE_POINTER || REDUCED_MOTION || window.WEBDRIVER_MODE) return;
+
+  const SPOT_SELECTOR =
+    ".card, .album-tile, .rail-card, .stat-card, .note-card, .guide-card, .wish-card";
+
+  document.addEventListener(
+    "pointerover",
+    (event) => {
+      const target = event.target instanceof Element ? event.target.closest(SPOT_SELECTOR) : null;
+      if (!target) return;
+      target.setAttribute("data-spot", "");
+      if (!target.querySelector(".spot-layer")) {
+        const layer = document.createElement("span");
+        layer.className = "spot-layer";
+        layer.setAttribute("aria-hidden", "true");
+        target.appendChild(layer);
+      }
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      const target = event.target instanceof Element ? event.target.closest("[data-spot]") : null;
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      target.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+      target.style.setProperty("--my", `${event.clientY - rect.top}px`);
+    },
+    { passive: true }
+  );
+}
+
+/* 磁吸按钮（光标靠近时轻微吸附） */
+function initMagnetic() {
+  if (!FINE_POINTER || REDUCED_MOTION || window.WEBDRIVER_MODE) return;
+
+  const selector = ".hero-actions .button, .next-cta .button, .contact-links a";
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = event.clientX - cx;
+        const dy = event.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        const range = Math.max(rect.width, 110) + 40;
+        if (dist < range) {
+          const pull = (1 - dist / range) * 9;
+          el.style.transform = `translate(${(dx / dist) * pull}px, ${(dy / dist) * pull}px)`;
+        } else if (el.style.transform) {
+          el.style.transform = "";
+        }
+      });
+    },
+    { passive: true }
+  );
+}
+
+/* 极光视差背景（随滚动缓慢流动融合） */
+function initAurora() {
+  if (REDUCED_MOTION || window.WEBDRIVER_MODE) return;
+
+  const b1 = document.createElement("div");
+  const b2 = document.createElement("div");
+  b1.className = "bgblob b1";
+  b2.className = "bgblob b2";
+  b1.setAttribute("aria-hidden", "true");
+  b2.setAttribute("aria-hidden", "true");
+  document.body.prepend(b2, b1);
+
+  let ticking = false;
+  const update = () => {
+    const y = window.scrollY;
+    b1.style.transform = `translate3d(0, ${y * 0.08}px, 0)`;
+    b2.style.transform = `translate3d(0, ${y * -0.05}px, 0)`;
+    ticking = false;
+  };
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    },
+    { passive: true }
+  );
+  update();
 }
