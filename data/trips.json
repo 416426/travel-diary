@@ -1,43 +1,470 @@
 {
  "trips": [
   {
-   "id": "datong-2026",
-   "title": "大同之旅",
-   "date": "待补充",
-   "duration": "待补充",
-   "location": "中国 山西 大同",
-   "lat": 40.0768,
-   "lng": 113.3001,
+   "id": "pinggu-2026-01",
+   "title": "北京 · 平谷山野",
+   "date": "2026-01-02",
+   "duration": "元旦一日",
+   "location": "中国 北京 平谷",
+   "lat": 40.0964,
+   "lng": 117.3511,
    "photos": [
-    "photos/live_photo_paired_photo_19BC2A46-86E4-4398-BABF-C6F0273C2EA0.jpg"
+    "photos/IMG_5049.jpg",
+    "photos/IMG_5052.jpg",
+    "photos/IMG_5055.jpg",
+    "photos/IMG_5056.jpg"
    ],
-   "mood": "🏯 待补充",
-   "moodEmoji": "🏯",
-   "thoughts": "（心情与想法待补充 —— 编辑 data/trips.json 中 datong-2026 条目的 mood / thoughts 即可）",
+   "mood": "🌄 元旦的第一次登山",
+   "moodEmoji": "🥾",
+   "thoughts": "新年第一天，把登山杖踩进冻土里。山脊上的风很硬，但夕阳把整条山线镀成了金色。",
    "tags": [
-    "大同",
-    "山西"
+    "徒步",
+    "元旦",
+    "京郊"
    ],
-   "highlights": []
+   "highlights": [
+    {
+     "name": "金海湖山脊",
+     "lat": 40.0964,
+     "lng": 117.3511,
+     "note": "持杖登顶的夕阳剪影"
+    }
+   ]
   },
   {
-   "id": "tianjin-2026",
-   "title": "天津 · 东疆海岸",
-   "date": "2026-07-19",
-   "duration": "7.19 - 7.26",
-   "location": "中国 天津 · 滨海新区",
-   "lat": 39.0054,
-   "lng": 117.6627,
+   "id": "yunnan-2026-02",
+   "title": "云南 · 梅里雪山与丽江",
+   "date": "2026-02-17",
+   "duration": "春节八天环线",
+   "location": "中国 云南 迪庆·丽江",
+   "lat": 28.4,
+   "lng": 98.8,
    "photos": [
-    "photos/IMG_1967.jpg",
-    "photos/dji_export_20260726_202716_1785068836433_framed.jpg",
-    "photos/36d5709feb10bf4933f092afc084c41a_livephoto.jpg",
-    "photos/035fa0b54341ff52dce15f6211a25e67.jpg",
-    "photos/864e00ff46746a890b3bec2617ad7ce9.jpg"
+    "photos/2afb95107fa9fa4caa3e5edc0ed14455.jpg",
+    "photos/9176802469a0ef71797228cde7e49f21.jpg",
+    "photos/9fba13b7e8be7e8c3f2ccecc091baa5d.jpg",
+    "photos/DJI_20260220124953_0192_D.jpg",
+    "photos/IMG_5611.jpg",
+    "photos/IMG_5633.jpg",
+    "photos/IMG_5635.jpg",
+    "photos/IMG_5646.jpg",
+    "photos/IMG_5648.jpg",
+    "photos/IMG_5649.jpg",
+    "photos/IMG_5706.jpg",
+    "photos/IMG_5711.jpg",
+    "photos/IMG_5721.jpg",
+    "photos/IMG_5725.jpg",
+    "photos/IMG_5729.jpg",
+    "photos/IMG_5731.jpg",
+    "photos/IMG_5733.jpg",
+    "photos/IMG_5735.jpg",
+    "photos/IMG_5752.jpg",
+    "photos/IMG_5765.jpg",
+    "photos/IMG_5768.jpg",
+    "photos/IMG_5769.jpg",
+    "photos/IMG_5773.jpg",
+    "photos/IMG_5775.jpg",
+    "photos/IMG_5780.jpg",
+    "photos/IMG_5786.jpg",
+    "photos/IMG_5805.jpg",
+    "photos/IMG_5818.jpg",
+    "photos/IMG_5862.jpg",
+    "photos/IMG_5864.jpg",
+    "photos/IMG_5867.jpg",
+    "photos/IMG_5873.jpg",
+    "photos/IMG_5935.jpg",
+    "photos/IMG_5941.jpg",
+    "photos/IMG_5973.jpg",
+    "photos/IMG_5979.jpg",
+    "photos/IMG_5984.jpg",
+    "photos/IMG_5986.jpg",
+    "photos/IMG_6014.jpg",
+    "photos/IMG_6068.jpg",
+    "photos/IMG_6070.jpg",
+    "photos/IMG_6078.jpg",
+    "photos/IMG_6097.jpg",
+    "photos/IMG_6139.jpg",
+    "photos/IMG_6146.jpg",
+    "photos/IMG_6147.jpg",
+    "photos/IMG_6155.jpg",
+    "photos/IMG_6156.jpg",
+    "photos/dc18edaf1b101573684b7f3ff1d92c9b.jpg",
+    "photos/dji_export_20260224_photo_0001.jpg",
+    "photos/dji_export_20260224_photo_0002.jpg",
+    "photos/dji_export_20260224_photo_0003.jpg",
+    "photos/dji_export_20260224_photo_0005.jpg",
+    "photos/dji_export_20260224_photo_0007.jpg",
+    "photos/fe513e0237b1542c45c738ddec6e07d6.jpg"
    ],
-   "mood": "🌊 待补充",
+   "mood": "🏔️ 雪山、峡谷与古城",
+   "moodEmoji": "🏔️",
+   "thoughts": "春节没有回家，和朋友们一路向西：澜沧江峡谷的云、梅里的雪、雾里村的墙，最后在丽江的花店里收尾。",
+   "tags": [
+    "春节",
+    "梅里雪山",
+    "怒江",
+    "丽江",
+    "自驾"
+   ],
+   "highlights": [
+    {
+     "name": "澜沧江峡谷 · 德钦",
+     "lat": 28.4,
+     "lng": 98.8,
+     "note": "峡谷云海与雪山"
+    },
+    {
+     "name": "丽江古城",
+     "lat": 26.87,
+     "lng": 100.23,
+     "note": "夜里的花与灯笼"
+    }
+   ]
+  },
+  {
+   "id": "jincheng-2026-04",
+   "title": "山西 · 晋城太行古堡",
+   "date": "2026-04-05",
+   "duration": "清明两日",
+   "location": "中国 山西 晋城",
+   "lat": 35.6333,
+   "lng": 113.5462,
+   "photos": [
+    "photos/176_livephoto.jpg",
+    "photos/IMG_7185.jpg",
+    "photos/IMG_7199.jpg",
+    "photos/IMG_7211.jpg",
+    "photos/IMG_7230.jpg",
+    "photos/IMG_7234.jpg",
+    "photos/IMG_7236.jpg",
+    "photos/IMG_7245.jpg",
+    "photos/IMG_7255.jpg",
+    "photos/IMG_7304.jpg",
+    "photos/IMG_7332.jpg",
+    "photos/IMG_7342.jpg",
+    "photos/IMG_7363.jpg",
+    "photos/dji_export_20260405_photo_0001.jpg"
+   ],
+   "mood": "🏯 太行山下的古堡",
+   "moodEmoji": "🏯",
+   "thoughts": "清明往南走，太行山间的古堡和院落比想象中更壮观。",
+   "tags": [
+    "清明",
+    "古堡",
+    "太行山"
+   ],
+   "highlights": [
+    {
+     "name": "皇城相府一带",
+     "lat": 35.6333,
+     "lng": 113.5462,
+     "note": "太行古堡群"
+    }
+   ]
+  },
+  {
+   "id": "jinshanling-2026-04",
+   "title": "河北 · 金山岭长城",
+   "date": "2026-04-25",
+   "duration": "周末两日",
+   "location": "中国 河北 承德",
+   "lat": 40.4207,
+   "lng": 118.2914,
+   "photos": [
+    "photos/IMG_3052.jpg",
+    "photos/IMG_8007.jpg",
+    "photos/IMG_8012.jpg",
+    "photos/IMG_8030.jpg",
+    "photos/IMG_8067.jpg",
+    "photos/IMG_8097.jpg",
+    "photos/livePhoto_1777197826.jpg",
+    "photos/livePhoto_1777197945.jpg"
+   ],
+   "mood": "🧱 长城上的落日与云海",
+   "moodEmoji": "🧱",
+   "thoughts": "在金山岭等一场长城日落，敌楼一个接一个排进山脊深处。",
+   "tags": [
+    "长城",
+    "周末",
+    "徒步"
+   ],
+   "highlights": [
+    {
+     "name": "金山岭长城",
+     "lat": 40.4207,
+     "lng": 118.2914,
+     "note": "长城云海日落"
+    }
+   ]
+  },
+  {
+   "id": "yuxian-2026-05",
+   "title": "河北 · 蔚县甸子梁草甸",
+   "date": "2026-05-03",
+   "duration": "五一一角",
+   "location": "中国 河北 张家口",
+   "lat": 39.73,
+   "lng": 114.86,
+   "photos": [
+    "photos/19_livephoto.jpg",
+    "photos/23_livephoto.jpg",
+    "photos/33_livephoto.jpg",
+    "photos/IMG_8437.jpg",
+    "photos/IMG_8442.jpg",
+    "photos/IMG_8451.jpg",
+    "photos/IMG_8466.jpg",
+    "photos/IMG_8498.jpg"
+   ],
+   "mood": "🌾 山顶的风车与草甸",
+   "moodEmoji": "🌾",
+   "thoughts": "五一避开人群，上甸子梁看风车和草甸，山脊线一直铺到天边。",
+   "tags": [
+    "五一",
+    "草甸",
+    "风车"
+   ],
+   "highlights": [
+    {
+     "name": "甸子梁草甸",
+     "lat": 39.73,
+     "lng": 114.86,
+     "note": "风车与高山草甸"
+    }
+   ]
+  },
+  {
+   "id": "mentougou-2026-05",
+   "title": "北京 · 门头沟西山",
+   "date": "2026-05-09",
+   "duration": "周末两日",
+   "location": "中国 北京 门头沟",
+   "lat": 40.03,
+   "lng": 115.46,
+   "photos": [
+    "photos/IMG_8668.jpg",
+    "photos/IMG_8678.jpg",
+    "photos/IMG_8697.jpg",
+    "photos/IMG_8706.jpg",
+    "photos/IMG_8723.jpg",
+    "photos/IMG_8725.jpg",
+    "photos/IMG_8728.jpg",
+    "photos/b5f099b5cbce02904365950ce7cf498c.jpg"
+   ],
+   "mood": "🌅 西山暮色里的剪影",
+   "moodEmoji": "🌅",
+   "thoughts": "门头沟的山一个接一个，走到暮色四合，人变成了山脊上的剪影。",
+   "tags": [
+    "徒步",
+    "西山",
+    "周末"
+   ],
+   "highlights": [
+    {
+     "name": "斋堂西山山脊",
+     "lat": 40.03,
+     "lng": 115.46,
+     "note": "暮色中的登山剪影"
+    }
+   ]
+  },
+  {
+   "id": "yuxian-2026-06",
+   "title": "河北 · 蔚县山谷",
+   "date": "2026-06-07",
+   "duration": "周末一日",
+   "location": "中国 河北 张家口",
+   "lat": 39.61,
+   "lng": 114.82,
+   "photos": [
+    "photos/043A2384.jpg",
+    "photos/043A2388.jpg",
+    "photos/043A2416.jpg",
+    "photos/043A2418.jpg",
+    "photos/IMG_9543.jpg",
+    "photos/IMG_9544.jpg",
+    "photos/IMG_9617.jpg",
+    "photos/IMG_9618.jpg"
+   ],
+   "mood": "💚 初夏的山谷绿",
+   "moodEmoji": "💚",
+   "thoughts": "六月的蔚县山谷绿得发光，带上了相机和三脚架慢慢拍。",
+   "tags": [
+    "周末",
+    "山谷",
+    "风光"
+   ],
+   "highlights": [
+    {
+     "name": "蔚县南部山谷",
+     "lat": 39.61,
+     "lng": 114.82,
+     "note": "初夏绿谷"
+    }
+   ]
+  },
+  {
+   "id": "wutaishan-2026-06",
+   "title": "山西 · 五台山大朝台",
+   "date": "2026-06-18",
+   "duration": "五天徒步",
+   "location": "中国 山西 忻州",
+   "lat": 39.01,
+   "lng": 113.58,
+   "photos": [
+    "photos/63_livephoto.jpg",
+    "photos/6b334448096525a497674bfedb09af38.jpg",
+    "photos/72_livephoto.jpg",
+    "photos/77_livephoto.jpg",
+    "photos/FullSizeRender-2.jpg",
+    "photos/FullSizeRender-3.jpg",
+    "photos/FullSizeRender-4.jpg",
+    "photos/FullSizeRender.jpg",
+    "photos/IMG_0013.jpg",
+    "photos/IMG_0014.jpg",
+    "photos/IMG_0029.jpg",
+    "photos/IMG_0031.jpg",
+    "photos/IMG_0032.jpg",
+    "photos/IMG_0113.jpg",
+    "photos/IMG_0131.jpg",
+    "photos/IMG_0136.jpg",
+    "photos/IMG_0154.jpg",
+    "photos/IMG_0221.jpg",
+    "photos/IMG_0341.jpg",
+    "photos/IMG_0349.jpg",
+    "photos/IMG_0366.jpg",
+    "photos/IMG_0375.jpg",
+    "photos/IMG_0406.jpg",
+    "photos/IMG_0425.jpg",
+    "photos/IMG_9981.jpg",
+    "photos/IMG_9991.jpg"
+   ],
+   "mood": "⛰️ 五个台顶的风和云",
+   "moodEmoji": "⛰️",
+   "thoughts": "大朝台五天，云雾在台顶翻涌。经幡、石阶与徒步的人，是五台山最好的风景。",
+   "tags": [
+    "五台山",
+    "朝台",
+    "徒步",
+    "端午"
+   ],
+   "highlights": [
+    {
+     "name": "台怀镇寺庙群",
+     "lat": 39.01,
+     "lng": 113.58,
+     "note": "五台山核心区"
+    },
+    {
+     "name": "南台方向草甸",
+     "lat": 38.93,
+     "lng": 113.54,
+     "note": "高山草甸云雾"
+    }
+   ]
+  },
+  {
+   "id": "qingdao-2026-07",
+   "title": "山东 · 青岛",
+   "date": "2026-07-03",
+   "duration": "周末三日",
+   "location": "中国 山东 青岛",
+   "lat": 36.14,
+   "lng": 120.71,
+   "photos": [
+    "photos/IMG_0726.jpg",
+    "photos/IMG_0831.jpg",
+    "photos/IMG_9564.jpg",
+    "photos/IMG_9667.jpg",
+    "photos/IMG_9668.jpg",
+    "photos/FullSizeRender-5.jpg",
+    "photos/IMG_1041.jpg",
+    "photos/IMG_1089.jpg",
+    "photos/IMG_1090.jpg"
+   ],
+   "mood": "🌊 海边的一场短期逃离",
    "moodEmoji": "🌊",
-   "thoughts": "（心情与想法待补充 —— 编辑 data/trips.json 中 tianjin-2026 条目的 mood / thoughts 即可）",
+   "thoughts": "崂山脚下的海雾、市区公园的树影，还有返程高铁上的晚霞。",
+   "tags": [
+    "青岛",
+    "海边",
+    "周末"
+   ],
+   "highlights": [
+    {
+     "name": "崂山仰口海岸",
+     "lat": 36.14,
+     "lng": 120.71,
+     "note": "黄昏的海岸线"
+    },
+    {
+     "name": "青岛市区海滨",
+     "lat": 36.06,
+     "lng": 120.42,
+     "note": "树影与跳跃"
+    }
+   ]
+  },
+  {
+   "id": "qinhuangdao-2026-07",
+   "title": "河北 · 秦皇岛海岸",
+   "date": "2026-07-11",
+   "duration": "周末两日",
+   "location": "中国 河北 秦皇岛",
+   "lat": 39.841,
+   "lng": 119.282,
+   "photos": [
+    "photos/IMG_0117.jpg",
+    "photos/IMG_0119.jpg",
+    "photos/IMG_0192.jpg",
+    "photos/IMG_0202.jpg",
+    "photos/IMG_0216.jpg",
+    "photos/IMG_0222.jpg",
+    "photos/IMG_0252.jpg",
+    "photos/IMG_0276.jpg",
+    "photos/IMG_0347.jpg",
+    "photos/IMG_1216.jpg",
+    "photos/IMG_1220.jpg",
+    "photos/IMG_1333.jpg",
+    "photos/IMG_1343.jpg",
+    "photos/IMG_1364.jpg",
+    "photos/IMG_1606.jpg",
+    "photos/IMG_1613.jpg"
+   ],
+   "mood": "🌅 渤海湾的周末",
+   "moodEmoji": "🌅",
+   "thoughts": "两天都在海边：清晨的渔港、正午的浪、傍晚把整片天染橘的渤海湾。",
+   "tags": [
+    "秦皇岛",
+    "海边",
+    "周末"
+   ],
+   "highlights": [
+    {
+     "name": "南戴河一带海岸",
+     "lat": 39.841,
+     "lng": 119.282,
+     "note": "渤海湾日出方向"
+    }
+   ]
+  },
+  {
+   "id": "tianjin-2026-07",
+   "title": "天津 · 东疆海岸",
+   "date": "2026-07-14",
+   "duration": "7.14 - 7.21",
+   "location": "中国 天津 · 滨海新区",
+   "lat": 39.0013,
+   "lng": 117.6716,
+   "photos": [
+    "photos/IMG_0504.jpg",
+    "photos/IMG_0510.jpg",
+    "photos/IMG_0512.jpg",
+    "photos/IMG_1805.jpg",
+    "photos/IMG_1967.jpg"
+   ],
+   "mood": "🌊 海风、无人机与赶海",
+   "moodEmoji": "🌊",
+   "thoughts": "夏天就要去海边。白天航拍海岸线，傍晚在礁石上等一场没有计划的海风。",
    "tags": [
     "天津",
     "海岸",
@@ -48,13 +475,66 @@
      "name": "东疆港海岸",
      "lat": 39.001286,
      "lng": 117.6716,
-     "note": "iPhone 拍摄点（照片 EXIF 精确坐标）"
+     "note": "iPhone 拍摄点"
     },
     {
      "name": "近海航拍点",
      "lat": 39.009553,
      "lng": 117.653713,
-     "note": "大疆无人机航拍（照片 EXIF 精确坐标）"
+     "note": "无人机视角"
+    }
+   ]
+  },
+  {
+   "id": "yesanpo-baiyangdian-2026-08",
+   "title": "河北 · 野三坡与白洋淀",
+   "date": "2026-08-08",
+   "duration": "周末两日",
+   "location": "中国 河北 保定",
+   "lat": 39.66,
+   "lng": 115.4,
+   "photos": [
+    "photos/IMG_1015.jpg",
+    "photos/IMG_1266.jpg",
+    "photos/IMG_1864.jpg",
+    "photos/IMG_20260808_101308_5_2026-08-08_14-42-33_728.jpg",
+    "photos/IMG_20260809_154202.jpg",
+    "photos/IMG_20260809_154219.jpg",
+    "photos/IMG_20260809_161207.jpg",
+    "photos/IMG_20260809_161701.jpg",
+    "photos/IMG_2048.jpg",
+    "photos/IMG_2288.jpg",
+    "photos/IMG_2314.jpg",
+    "photos/IMG_2328.jpg",
+    "photos/IMG_2333.jpg",
+    "photos/IMG_2445.jpg",
+    "photos/IMG_2448.jpg",
+    "photos/IMG_3995.jpg",
+    "photos/IMG_5853.jpg",
+    "photos/IMG_6550.jpg",
+    "photos/IMG_8653.jpg",
+    "photos/IMG_9313.jpg"
+   ],
+   "mood": "🪷 草甸跳跃与荷塘晚风",
+   "moodEmoji": "🪷",
+   "thoughts": "第一天在野三坡的草甸上集体起跳，第二天钻进白洋淀的荷花深处。",
+   "tags": [
+    "周末",
+    "草甸",
+    "荷花"
+   ],
+   "highlights": [
+    {
+     "name": "野三坡高山草甸",
+     "lat": 39.66,
+     "lng": 115.4,
+     "note": "集体跳跃合影"
+    },
+    {
+     "name": "白洋淀荷塘",
+     "lat": 38.89,
+     "lng": 116.05,
+     "note": "夏日荷花"
     }
    ]
   }
