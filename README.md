@@ -30,9 +30,9 @@
 - **增强 Lightbox**：照片墙点击放大，支持 ←/→ 翻页、1/6 计数、Esc 关闭、焦点还原
 - **翻牌倒计时**：数字变化时弹出动画（下次旅行页）
 - **回到顶部**：悬浮按钮带滚动进度环
-- **地图联动**：旅程卡片点「在地图上查看足迹」→ 平滑滚动 + 地图飞行定位 + 弹窗
+- **高光时刻轮播**：首页全宽电影感照片轮播，自动播放（悬停/离开视口暂停）+ 箭头 + 圆点 + 拖拽翻页
 - **笔记筛选**：分类 chips + 实时搜索（标题/标签/正文）
-- **药丸 Tab**：行前指南（天气/路线/穿衣）滑动指示器 + 流动虚线路线
+- **出发清单**：下次旅行页可勾选行前清单，localStorage 持久化，重置一键清空
 
 ### 旅程日志页（journey.html，2026-08 新增）
 
@@ -43,31 +43,25 @@
 - **目的地心愿清单**：`data/wishlist.json` 驱动，「计划中」琥珀高亮 /「梦想清单」玻璃款，
   顶部极光进度条显示 `已解锁 / 总数`，计划中条目自动排前
 
-### 地图
-
-- Leaflet 1.9.4 **自托管**于 `assets/leaflet/`（不再依赖 unpkg CDN，本地离线可用）
-- 瓦片：Esri World Dark Gray（免费无 key），CSS 压暗 + 半透明融合深蓝主题
-- 自定义发光 marker（脉冲光环）+ 暗色弹窗/控件覆写
 
 ## 📁 目录结构
 
 ```
 travel-diary/
-├── index.html        # 首页：星空 Hero + 跑马灯 + 旅行卡片 + 照片墙 + 足迹地图
+├── index.html        # 首页：星空 Hero + 跑马灯 + 旅行卡片 + 照片墙 + 高光轮播
 ├── journey.html      # 旅程日志：旅行统计 + 旅程时间线 + 目的地心愿清单
-├── next.html         # 下一次旅行：倒计时 + 天气/路线/穿衣 Tab
+├── next.html         # 下一次旅行：倒计时 + 行前指南 bento + 出发清单
 ├── notes.html        # 笔记：分类筛选 + 搜索
 ├── about.html        # 关于我：档案卡 + 渐变头像环 + 旅行原则
 ├── css/style.css     # AURORA 设计系统（tokens → 组件 → 动效 → 响应式）
 ├── js/
 │   ├── effects.js    # 全站交互动效（进度/reveal/tilt/计数/星空…）
 │   ├── main.js       # 导航 + Lightbox + 公共工具（安全 URL/DOM）
-│   ├── index.js      # 首页逻辑（地图/卡片/照片墙/统计/跑马灯）
+│   ├── index.js      # 首页逻辑（卡片/照片墙/高光轮播/统计/跑马灯）
 │   ├── journey.js    # 旅程日志逻辑（统计/时间线/心愿清单）
-│   ├── next.js       # 倒计时 + Tab + 路线地图
+│   ├── next.js       # 倒计时 + 行前指南 + 出发清单
 │   ├── notes.js      # 筛选 + 搜索
 │   └── about.js      # 档案渲染
-├── assets/leaflet/   # 自托管 Leaflet 1.9.4
 ├── data/             # 数据（JSON）：trips / wishlist / notes / profile
 └── photos/           # 📷 照片目录
 ```
@@ -102,7 +96,7 @@ npx serve .                        # 或 Node 的 serve（如已安装）
 - [x] 桌面（1440）+ 移动端（390）全页面截图验收
 - [x] 照片缺失 emoji 占位降级
 - [x] Lightbox 键盘导航（←/→/Esc）
-- [x] 筛选/搜索/Tab 交互
+- [x] 筛选/搜索/清单/轮播交互
 - [x] `prefers-reduced-motion` 全站降级
 - [x] 自动化环境（`navigator.webdriver`）确定性渲染，便于截图回归
 

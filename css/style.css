@@ -794,89 +794,173 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .lb-next { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); }
 .lb-prev:active, .lb-next:active { transform: translateY(-50%) scale(0.94); }
 
-/* ---------- 13. 地图 ---------- */
-.map-wrap { padding: 12px; }
-#map, .route-map {
-  width: 100%;
-  aspect-ratio: 16 / 8;
-  min-height: 340px;
-  overflow: hidden;
-  border: 1px solid var(--stroke);
-  border-radius: calc(var(--radius-card) - 6px);
-  background: var(--bg-1);
-}
-.map-note, .map-fallback, .rec-note, .rec-source {
+/* ---------- 13. 高光时刻轮播 ---------- */
+.rec-note, .rec-source {
   color: var(--text-3);
   font-size: 0.85rem;
 }
-.map-note, .map-fallback { margin: 12px 8px 2px; }
+.rec-note { margin-top: 8px; }
+.rec-source { margin-top: 12px; }
 
-/* Leaflet 暗色主题覆写 */
-.leaflet-container {
+.moment-slider {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--stroke);
+  border-radius: calc(var(--radius-card) + 4px);
   background: var(--bg-1);
-  font-family: var(--font-body);
+  box-shadow: var(--shadow-1);
+  touch-action: pan-y;
 }
-/* Esri 灰底瓦片压暗 + 半透明融合深蓝底色，契合暗色主题 */
-.leaflet-tile-pane { filter: brightness(0.62) contrast(1.1) saturate(0.8); }
-.leaflet-tile { opacity: 0.8; }
-.leaflet-popup-content-wrapper {
+.moment-track {
+  display: flex;
+  transition: transform 0.55s var(--ease-out);
+}
+.moment-slide {
+  position: relative;
+  flex: 0 0 100%;
+  margin: 0;
+  min-width: 0;
+  aspect-ratio: 16 / 8;
+  max-height: 560px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #16204a, #0c1228);
+}
+.moment-slide img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 6s var(--ease-out);
+  transform: scale(1.06);
+}
+.moment-slide img.is-loaded { opacity: 1; transform: scale(1); }
+.moment-caption {
+  position: absolute; inset: auto 0 0 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 40px clamp(18px, 3vw, 32px) 20px;
+  background: linear-gradient(180deg, transparent, rgba(3, 5, 12, 0.85));
+}
+.moment-title { color: var(--text-1); font-weight: 700; font-size: 1rem; }
+.moment-mood {
+  color: var(--cyan);
+  font-size: 0.82rem; font-weight: 600;
+  white-space: nowrap;
+}
+.moment-arrow {
+  position: absolute; top: 50%; z-index: 2;
+  transform: translateY(-50%);
+  display: grid; place-items: center;
+  width: 46px; height: 46px;
   color: var(--text-1);
-  background: rgba(10, 15, 30, 0.94);
+  background: rgba(5, 7, 15, 0.55);
   border: 1px solid var(--stroke-strong);
-  border-radius: 14px;
-  box-shadow: var(--shadow-2);
+  border-radius: 50%;
+  font-size: 1.05rem;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  transition: background var(--dur-fast), transform var(--dur-fast) var(--ease-spring), border-color var(--dur-fast);
 }
-.leaflet-popup-content { margin: 12px 16px; line-height: 1.6; font-size: 0.88rem; }
-.leaflet-popup-content b { font-family: var(--font-display); }
-.leaflet-popup-tip { background: rgba(10, 15, 30, 0.94); }
-.leaflet-container a.leaflet-popup-close-button { color: var(--text-2); }
-.leaflet-bar a {
+.moment-arrow:hover {
+  background: rgba(103, 232, 249, 0.25);
+  border-color: rgba(103, 232, 249, 0.55);
+  transform: translateY(-50%) scale(1.08);
+}
+.moment-arrow.prev { left: 18px; }
+.moment-arrow.next { right: 18px; }
+.moment-counter {
+  position: absolute; top: 18px; right: 18px; z-index: 2;
+  padding: 5px 13px;
   color: var(--text-1);
-  background: rgba(10, 15, 30, 0.9);
-  border-bottom: 1px solid var(--stroke);
+  background: rgba(5, 7, 15, 0.6);
+  border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-pill);
+  font: 600 0.72rem var(--font-mono);
+  letter-spacing: 0.16em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-.leaflet-bar a:hover { background: rgba(129, 140, 248, 0.25); }
-.leaflet-control-attribution {
-  color: var(--text-3);
-  background: rgba(5, 7, 15, 0.65);
-  font-size: 0.62rem;
+.moment-dots {
+  position: absolute; bottom: 16px; left: 50%; z-index: 2;
+  display: flex; gap: 8px;
+  transform: translateX(-50%);
 }
-.leaflet-control-attribution a { color: var(--text-2); }
+.moment-dots button {
+  width: 9px; height: 9px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.28);
+  border: 0; border-radius: 50%;
+  transition: width 0.3s var(--ease-spring), background var(--dur-fast);
+}
+.moment-dots button.active {
+  width: 26px;
+  background: var(--aurora);
+  box-shadow: 0 0 10px rgba(103, 232, 249, 0.6);
+}
 
-/* 自定义发光 marker */
-.pin {
-  position: relative;
-  display: grid; place-items: center;
-  width: 36px; height: 36px;
-  font-size: 15px;
-  background: rgba(10, 15, 30, 0.88);
-  border: 1px solid rgba(103, 232, 249, 0.6);
-  border-radius: 50%;
-  box-shadow: 0 0 20px rgba(103, 232, 249, 0.4);
+/* ---------- 14. 行前指南（bento）与出发清单 ---------- */
+.guide-grid {
+  display: grid; gap: 26px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.pin::after {
-  content: "";
-  position: absolute; inset: -7px;
-  border: 1px solid rgba(103, 232, 249, 0.5);
-  border-radius: 50%;
-  animation: pin-pulse 2.4s ease-out infinite;
+.guide-card { transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast), border-color var(--dur-fast); }
+.guide-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(251, 191, 36, 0.35);
+  box-shadow: var(--shadow-2);
 }
-@keyframes pin-pulse {
-  0% { transform: scale(0.55); opacity: 1; }
-  70%, 100% { transform: scale(1.5); opacity: 0; }
-}
-.pin.is-active { border-color: var(--amber); box-shadow: 0 0 24px rgba(251, 191, 36, 0.5); }
+.guide-weather { grid-column: 1 / -1; }
+.guide-weather .weather-big { grid-template-columns: 1fr 1fr; }
+.guide-weather .weather-temp span { font-size: clamp(1.8rem, 3vw, 2.8rem); }
+.guide-title { margin-bottom: 18px; }
 
-/* 路线动画 */
-.route-line.leaflet-interactive {
-  stroke-dasharray: 10 12;
-  animation: route-dash 1.6s linear infinite;
+.meta-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 4px 0 6px; }
+.meta-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 36px;
+  padding: 7px 16px;
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-pill);
+  font-weight: 600; font-size: 0.86rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-@keyframes route-dash { to { stroke-dashoffset: -44; } }
+.meta-chip i { font-style: normal; }
 
-/* ---------- 14. CTA 区块 ---------- */
+.checklist-progress { max-width: none; margin-bottom: 20px; }
+.checklist {
+  display: grid; gap: 10px;
+  margin: 0; padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.check-item {
+  display: flex; align-items: center; gap: 12px;
+  min-height: 52px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color var(--dur-fast), background var(--dur-fast), opacity var(--dur-fast);
+}
+.check-item:hover { border-color: rgba(251, 191, 36, 0.4); }
+.check-item input {
+  width: 20px; height: 20px;
+  margin: 0;
+  accent-color: #fb923c;
+  cursor: pointer;
+}
+.check-item label { cursor: pointer; color: var(--text-1); font-size: 0.94rem; }
+.check-item.done { opacity: 0.55; }
+.check-item.done label { text-decoration: line-through; text-decoration-color: rgba(251, 146, 60, 0.7); }
+.checklist-foot {
+  display: flex; align-items: center; gap: 16px;
+  margin-top: 18px;
+}
+.checklist-foot .rec-note { margin-top: 0; }
+
+/* ---------- 15. CTA 区块 ---------- */
 .next-cta, .contact-card {
   position: relative;
   display: flex; align-items: center; justify-content: space-between; gap: 32px;
@@ -911,7 +995,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   font-size: 0.72rem; letter-spacing: 0.24em; text-transform: uppercase;
 }
 
-/* ---------- 15. 内页 Hero ---------- */
+/* ---------- 16. 内页 Hero ---------- */
 .page-hero {
   position: relative;
   isolation: isolate;
@@ -957,7 +1041,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   animation: blink-dot 2.2s ease-in-out infinite;
 }
 
-/* ---------- 16. 倒计时 ---------- */
+/* ---------- 17. 倒计时 ---------- */
 .countdown {
   display: flex; width: fit-content;
   margin: 36px 0;
@@ -993,7 +1077,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .countdown-done { color: var(--amber); font-weight: 700; }
 
-/* ---------- 17. Tabs ---------- */
+/* ---------- 18. Tabs ---------- */
 .next-body { padding-block: var(--space-section); }
 .tab-nav {
   position: relative;
@@ -1125,7 +1209,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .plan-card { margin-top: 34px; }
 .plan-card h3 { margin: 22px 0 12px; }
 
-/* ---------- 18. 笔记页 ---------- */
+/* ---------- 19. 笔记页 ---------- */
 .filter-bar {
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
   margin: -12px 0 clamp(30px, 4vw, 44px);
@@ -1195,7 +1279,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   border-radius: var(--radius-card);
 }
 
-/* ---------- 19. 旅程日志页（统计/时间线/心愿清单） ---------- */
+/* ---------- 20. 旅程日志页（统计/时间线/心愿清单） ---------- */
 .stats-grid {
   display: grid; gap: 18px;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -1350,7 +1434,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .wish-note { margin-bottom: 16px; color: var(--text-2); font-size: 0.9rem; }
 .wish-card .tags { margin-top: auto; }
 
-/* ---------- 20. 关于页 ---------- */
+/* ---------- 21. 关于页 ---------- */
 .about-wrap {
   display: grid; gap: 30px;
   grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.7fr);
@@ -1434,7 +1518,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .contact-links a:hover { border-color: rgba(103, 232, 249, 0.6); box-shadow: var(--glow-cyan); transform: translateY(-2px); }
 
-/* ---------- 21. 页脚 ---------- */
+/* ---------- 22. 页脚 ---------- */
 .site-footer {
   position: relative;
   overflow: hidden;
@@ -1469,7 +1553,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .site-footer p { margin: 0; }
 
-/* ---------- 22. file:// 提示 ---------- */
+/* ---------- 23. file:// 提示 ---------- */
 .proto-hint {
   position: fixed; left: 50%; bottom: 20px; z-index: 1600;
   max-width: min(92vw, 520px);
@@ -1489,7 +1573,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   font-size: 0.8rem;
 }
 
-/* ---------- 23. Keyframes 共享 ---------- */
+/* ---------- 24. Keyframes 共享 ---------- */
 @keyframes spin { to { transform: rotate(1turn); }
 }
 .button.loading::after {
@@ -1501,7 +1585,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   animation: spin 0.7s linear infinite;
 }
 
-/* ---------- 24. 响应式 ---------- */
+/* ---------- 25. 响应式 ---------- */
 @media (min-width: 1440px) {
   :root { --container: 1280px; }
 }
@@ -1536,7 +1620,13 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .trip-grid, .grid-2, .about-wrap { grid-template-columns: 1fr; }
   .photo-wall { columns: 2 130px; column-gap: 12px; }
   .photo-wall > * { margin-bottom: 12px; }
-  #map, .route-map { min-height: 300px; aspect-ratio: 4 / 3; }
+  .guide-grid { grid-template-columns: 1fr; }
+  .moment-slide { aspect-ratio: 4 / 3; }
+  .moment-caption { padding: 28px 16px 14px; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .moment-arrow { width: 38px; height: 38px; font-size: 0.9rem; }
+  .moment-arrow.prev { left: 10px; }
+  .moment-arrow.next { right: 10px; }
+  .checklist { grid-template-columns: 1fr; }
   .next-cta, .contact-card { flex-direction: column; align-items: flex-start; }
   .contact-links { justify-content: flex-start; }
   .page-timeline::before { left: 9px; }
@@ -1567,7 +1657,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .stat + .stat { border-left: 1px solid var(--stroke); }
 }
 
-/* ---------- 25. 降低动效偏好 ---------- */
+/* ---------- 26. 降低动效偏好 ---------- */
 /* 跨文档平滑转场：页面切换淡入淡出，消除切换白闪（不支持的浏览器自动忽略） */
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation: vt-fade-out 220ms ease both; }

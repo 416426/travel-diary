@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#05070f" />
   <meta name="color-scheme" content="dark" />
   <style>html{background:#05070f}</style>
-  <meta name="description" content="腾格里沙漠下一次旅行的倒计时、路线、天气与装备计划。" />
+  <meta name="description" content="腾格里沙漠下一次旅行的倒计时、行前指南与装备清单。" />
   <meta property="og:title" content="下一次旅行 · 腾格里沙漠" />
-  <meta property="og:description" content="倒计时、路线、天气与装备计划。" />
+  <meta property="og:description" content="倒计时、行前指南与装备清单。" />
   <meta property="og:type" content="website" />
   <title>下一次旅行 · 旅行日记</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>" />
@@ -17,7 +17,6 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="assets/leaflet/leaflet.css" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -41,8 +40,7 @@
       <button class="nav-toggle" id="navToggle" type="button"
         aria-label="打开导航菜单" aria-controls="navLinks" aria-expanded="false">菜单</button>
       <ul class="nav-links" id="navLinks">
-        <li><a href="index.html">首页</a>
-        <a href="journey.html">旅程日志</a></li>
+        <li><a href="index.html">首页</a></li>
         <li><a href="journey.html">旅程日志</a></li>
         <li><a href="next.html" aria-current="page">下次旅行</a></li>
         <li><a href="notes.html">笔记</a></li>
@@ -60,8 +58,9 @@
 
         <div class="page-hero-inner">
           <p class="hero-eyebrow pill">NEXT DESTINATION · DESERT JOURNAL</p>
-          <h1 id="next-title">腾格里沙漠</h1>
-          <p class="page-sub" id="next-date"></p>
+          <h1 id="next-title"><span class="gradient-text" id="next-dest">腾格里沙漠</span></h1>
+
+          <div class="meta-chips" id="next-chips" aria-label="行程信息"></div>
 
           <div class="countdown" role="timer" aria-label="距离出发时间">
             <div class="unit"><span class="num" id="cd-days">--</span><span class="label">天</span></div>
@@ -72,76 +71,97 @@
 
           <div class="hero-actions">
             <a class="button" href="#trip-guide">查看行前指南 <span aria-hidden="true">↓</span></a>
+            <a class="button button-secondary" href="#checklist">出发清单 <span aria-hidden="true">☑</span></a>
           </div>
         </div>
       </section>
 
       <div class="next-body container" id="trip-guide">
-        <div class="tab-nav" role="tablist" aria-label="行前指南" data-reveal>
-          <button class="tab-btn active" id="tab-weather" type="button" role="tab"
-            aria-selected="true" aria-controls="panel-weather" data-panel="panel-weather">天气预览</button>
-          <button class="tab-btn" id="tab-route" type="button" role="tab"
-            aria-selected="false" aria-controls="panel-route" data-panel="panel-route">行程路线</button>
-          <button class="tab-btn" id="tab-packing" type="button" role="tab"
-            aria-selected="false" aria-controls="panel-packing" data-panel="panel-packing">穿衣装备</button>
-          <span class="tab-indicator" aria-hidden="true"></span>
-        </div>
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">TRIP GUIDE</p>
+          <h2 class="section-title">行前指南</h2>
+          <p class="section-sub">天气、穿搭与装备，一屏看全，不用来回切。</p>
+        </header>
 
-        <div class="tab-panels" data-reveal>
-          <section class="tab-panel active" id="panel-weather" role="tabpanel"
-            aria-labelledby="tab-weather">
-            <div class="panel-grid">
-              <div class="panel-side weather-big">
+        <div class="guide-grid">
+          <section class="card guide-card guide-weather" aria-labelledby="weather-title" data-reveal>
+            <div class="card-body">
+              <p class="eyebrow">WEATHER</p>
+              <h3 id="weather-title" class="guide-title">十月沙漠天气</h3>
+              <div class="weather-big">
                 <div class="weather-temp"><span id="weather-day">--</span><small>白天</small></div>
                 <div class="weather-temp alt"><span id="weather-night">--</span><small>夜间</small></div>
               </div>
-              <div class="panel-main">
-                <div class="weather-grid">
-                  <div class="w-item"><b id="weather-rain">--</b><small>降水</small></div>
-                  <div class="w-item"><b id="weather-wind">--</b><small>风沙</small></div>
-                  <div class="w-item"><b>十月</b><small>参考月份</small></div>
-                </div>
-                <p class="rec-summary" id="weather-summary"></p>
-                <p class="rec-source" id="weather-source"></p>
-                <p class="rec-note" id="weather-note"></p>
+              <div class="weather-grid">
+                <div class="w-item"><b id="weather-rain">--</b><small>降水</small></div>
+                <div class="w-item"><b id="weather-wind">--</b><small>风沙</small></div>
+                <div class="w-item"><b>十月</b><small>参考月份</small></div>
+              </div>
+              <p class="rec-summary" id="weather-summary"></p>
+              <p class="rec-source" id="weather-source"></p>
+              <p class="rec-note" id="weather-note"></p>
+            </div>
+          </section>
+
+          <section class="card guide-card" aria-labelledby="packing-title" data-reveal>
+            <div class="card-body">
+              <p class="eyebrow">LAYERS</p>
+              <h3 id="packing-title" class="guide-title">三层穿搭法</h3>
+              <div class="packing-blocks">
+                <div class="p-block"><strong class="p-time">早晨</strong><p id="packing-morning"></p></div>
+                <div class="p-block"><strong class="p-time">白天</strong><p id="packing-day"></p></div>
+                <div class="p-block"><strong class="p-time">夜间</strong><p id="packing-night"></p></div>
               </div>
             </div>
           </section>
 
-          <section class="tab-panel" id="panel-route" role="tabpanel" aria-labelledby="tab-route">
-            <div class="panel-grid">
-              <div class="panel-main">
-                <p class="route-stamp">2026-10-01 · 14 天 · 腾格里沙漠</p>
-                <div class="route-map" id="route-map" role="region"
-                  aria-label="腾格里沙漠建议路线地图"></div>
-              </div>
-              <div class="panel-side">
-                <h2 class="panel-sub">途经站点</h2>
-                <div class="timeline" id="route-list"></div>
-                <p class="rec-note" id="route-note"></p>
-              </div>
-            </div>
-          </section>
-
-          <section class="tab-panel" id="panel-packing" role="tabpanel"
-            aria-labelledby="tab-packing">
-            <div class="panel-grid">
-              <div class="panel-side">
-                <div class="packing-blocks">
-                  <div class="p-block"><strong class="p-time">早晨</strong><p id="packing-morning"></p></div>
-                  <div class="p-block"><strong class="p-time">白天</strong><p id="packing-day"></p></div>
-                  <div class="p-block"><strong class="p-time">夜间</strong><p id="packing-night"></p></div>
-                </div>
-              </div>
-              <div class="panel-main">
-                <h2 class="panel-sub">必备装备</h2>
-                <div class="tag-list" id="packing-gear"></div>
-                <p class="rec-summary" id="packing-summary"></p>
-                <p class="rec-note" id="packing-note"></p>
-              </div>
+          <section class="card guide-card" aria-labelledby="gear-title" data-reveal>
+            <div class="card-body">
+              <p class="eyebrow">GEAR</p>
+              <h3 id="gear-title" class="guide-title">防沙装备</h3>
+              <div class="tag-list" id="packing-gear"></div>
+              <p class="rec-summary" id="packing-summary"></p>
+              <p class="rec-note" id="packing-note"></p>
             </div>
           </section>
         </div>
+
+        <section class="section" id="route-rhythm" aria-labelledby="route-title">
+          <header class="section-head" data-reveal>
+            <p class="eyebrow">ROUTE RHYTHM</p>
+            <h2 class="section-title" id="route-title">行程节奏</h2>
+            <p class="section-sub">三个节点，一段从城市滑进沙海的路线。</p>
+          </header>
+          <div class="card" data-reveal>
+            <div class="card-body">
+              <p class="route-stamp" id="route-stamp"></p>
+              <div class="timeline" id="route-list"></div>
+              <p class="rec-note" id="route-note" style="margin-top:18px"></p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="checklist" aria-labelledby="checklist-title">
+          <header class="section-head" data-reveal>
+            <p class="eyebrow">PRE-TRIP CHECKLIST</p>
+            <h2 class="section-title" id="checklist-title">出发清单</h2>
+            <p class="section-sub">点一下就算收拾好了，进度自动保存，出发前全部打勾。</p>
+          </header>
+          <div class="card" data-reveal>
+            <div class="card-body">
+              <div class="wish-progress checklist-progress" role="progressbar"
+                aria-label="清单完成进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span class="wish-progress-bar" id="checklistBar"></span>
+                <span class="wish-progress-text" id="checklistText">已备 0 / 0</span>
+              </div>
+              <ul class="checklist" id="checklist-list"></ul>
+              <div class="checklist-foot">
+                <button class="chip" id="checklist-reset" type="button">重置清单</button>
+                <p class="rec-note" id="checklist-note"></p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section class="card plan-card" aria-labelledby="plan-title" data-reveal>
           <div class="card-body">
@@ -150,6 +170,18 @@
             <p id="next-plan" style="margin-top:14px;color:var(--text-2)"></p>
             <h3>此行亮点</h3>
             <div class="highlight-pills tags" id="next-highlights" style="margin-top:6px"></div>
+          </div>
+        </section>
+
+        <section class="next-cta" aria-labelledby="next-cta-title" data-reveal>
+          <div>
+            <p class="cta-eyebrow">BEFORE WE GO</p>
+            <h2 id="next-cta-title">行李收好，故事在路上</h2>
+            <p>回顾走过的旅程，或者把想去的地方加进心愿清单。</p>
+          </div>
+          <div class="hero-actions">
+            <a class="button button-secondary" href="journey.html">旅程日志 <span aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="index.html">回到首页 <span aria-hidden="true">→</span></a>
           </div>
         </section>
       </div>
@@ -161,6 +193,7 @@
       <p class="footer-brand">旅行<span>日记</span></p>
       <nav class="footer-nav" aria-label="页脚导航">
         <a href="index.html">首页</a>
+        <a href="journey.html">旅程日志</a>
         <a href="next.html">下次旅行</a>
         <a href="notes.html">笔记</a>
         <a href="about.html">关于我</a>
@@ -186,7 +219,6 @@
     <span class="arrow" aria-hidden="true">↑</span>
   </button>
 
-  <script src="assets/leaflet/leaflet.js"></script>
   <script src="js/main.js"></script>
   <script src="js/effects.js"></script>
   <script src="js/next.js"></script>

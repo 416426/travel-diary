@@ -17,7 +17,6 @@
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="assets/leaflet/leaflet.css" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -92,7 +91,7 @@
     <nav class="anchor-nav" aria-label="首页内容导航">
       <a href="#journeys">旅程</a>
       <a href="#photos">照片</a>
-      <a href="#footprints">地图</a>
+      <a href="#moments">高光</a>
       <a href="#next-trip">下一站</a>
     </nav>
 
@@ -115,16 +114,15 @@
         <div class="photo-wall" id="photo-wall" aria-live="polite"></div>
       </section>
 
-      <section class="section" id="footprints" aria-labelledby="map-title">
+      <section class="section" id="moments" aria-labelledby="moments-title">
         <header class="section-head" data-reveal>
-          <p class="eyebrow">FOOTPRINTS</p>
-          <h2 class="section-title" id="map-title">足迹地图</h2>
-          <p class="section-sub">从海岸到古城，每一个坐标都有自己的故事。</p>
+          <p class="eyebrow">HIGHLIGHT MOMENTS</p>
+          <h2 class="section-title" id="moments-title">高光时刻</h2>
+          <p class="section-sub">每段旅程最亮眼的一帧。自动轮播，也可以用箭头或拖拽亲手翻。</p>
         </header>
-        <div class="card map-wrap" data-reveal>
-          <div id="map" role="region" aria-label="旅行足迹交互地图"></div>
-          <p class="map-note">点击发光标记查看旅程；在旅行卡片中选择「在地图上查看足迹」可飞行定位。</p>
-          <noscript><p class="map-fallback">地图需要启用 JavaScript；旅行记录仍可在上方浏览。</p></noscript>
+        <div class="moment-slider" id="moment-slider" data-reveal
+          aria-roledescription="轮播" aria-label="旅行高光照片">
+          <noscript><p class="empty-state">轮播需要启用 JavaScript；全部照片仍可在上方「途中光影」浏览。</p></noscript>
         </div>
       </section>
 
@@ -170,7 +168,6 @@
     <span class="arrow" aria-hidden="true">↑</span>
   </button>
 
-  <script src="assets/leaflet/leaflet.js"></script>
   <script src="js/main.js"></script>
   <script src="js/effects.js"></script>
   <script src="js/index.js"></script>

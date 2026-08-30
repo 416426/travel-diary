@@ -1,7 +1,7 @@
 "use strict";
 
 // index.js — 首页：星空画布、跑马灯、旅行卡片（3D tilt）、照片墙、
-// 统计数字滚动、暗色足迹地图（卡片可联动飞行定位）
+// 高光时刻轮播、统计数字滚动
 
 document.addEventListener("DOMContentLoaded", async () => {
   createStarfield(document.querySelector("#starfield"));
@@ -11,9 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await loadJSON("data/trips.json");
     const trips = Array.isArray(data?.trips) ? data.trips : [];
 
-    renderMap(trips);
     renderTrips(trips);
     renderWall(trips);
+    renderMoments(trips);
     renderStats(trips);
     renderTicker(trips);
   } catch {
@@ -52,130 +52,6 @@ function renderTicker(trips) {
   };
 
   track.replaceChildren(buildList(), buildList());
-}
-
-/* ===== 地图 ===== */
-const tripMarkers = new Map();
-
-function renderMap(trips) {
-  const mapElement = document.querySelector("#map");
-  if (!mapElement) return;
-
-  if (typeof window.L === "undefined") {
-    mapElement.textContent = "地图组件暂时无法加载，请稍后重试。";
-    return;
-  }
-
-  const map = L.map(mapElement, { scrollWheelZoom: false }).setView([33, 108], 4);
-  window.__tripMap = map;
-
-  L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-    {
-      maxZoom: 16,
-      attribution:
-        "Tiles &copy; Esri — Source: Esri, HERE, Garmin, USGS, Intermap, iPC, NRCAN",
-    }
-  ).addTo(map);
-
-  const bounds = [];
-
-  trips.forEach((trip) => {
-    const coordinates = getCoordinates(trip);
-    if (!coordinates) return;
-
-    const title = indexText(trip?.title, "未命名旅程", 80);
-    const location = indexText(trip?.location, "地点待补充", 100);
-    const date = indexText(trip?.date, "日期待补充", 40);
-    const duration = indexText(trip?.duration, "时长待补充", 40);
-    const moodEmoji = indexText(trip?.moodEmoji, "📍", 8);
-
-    const icon = L.divIcon({
-      html:
-        `<div class="pin" aria-hidden="true">` +
-        `${escapeHTML(moodEmoji)}</div>`,
-      className: "",
-      iconSize: [36, 36],
-      iconAnchor: [18, 18],
-      popupAnchor: [0, -20],
-    });
-
-    const marker = L.marker(coordinates, { icon, title })
-      .addTo(map)
-      .bindPopup(createTripPopup(title, location, date, duration));
-
-    if (trip?.id) tripMarkers.set(String(trip.id), marker);
-    bounds.push(coordinates);
-
-    const highlights = Array.isArray(trip?.highlights) ? trip.highlights : [];
-    highlights.forEach((highlight) => {
-      const point = getCoordinates(highlight);
-      if (!point) return;
-
-      L.circleMarker(point, {
-        radius: 6,
-        color: "#67e8f9",
-        weight: 2,
-        fillColor: "#0ea5b7",
-        fillOpacity: 0.4,
-      })
-        .addTo(map)
-        .bindPopup(
-          createHighlightPopup(
-            indexText(highlight?.name, "旅途坐标", 80),
-            indexText(highlight?.note, "暂无补充说明", 180)
-          )
-        );
-
-      bounds.push(point);
-    });
-  });
-
-  if (bounds.length === 1) {
-    map.setView(bounds[0], 9);
-  } else if (bounds.length > 1) {
-    map.fitBounds(bounds, { padding: [42, 42], maxZoom: 8 });
-  }
-}
-
-// 卡片按钮 → 平滑滚动到地图并飞行定位
-function focusTripOnMap(tripId) {
-  const marker = tripMarkers.get(String(tripId));
-  const map = window.__tripMap;
-  const section = document.querySelector("#footprints");
-
-  if (!marker || !map) return;
-
-  section?.scrollIntoView({ behavior: REDUCED_MOTION ? "auto" : "smooth" });
-  map.flyTo(marker.getLatLng(), 9, { duration: REDUCED_MOTION ? 0 : 1.6 });
-
-  window.setTimeout(() => marker.openPopup(), REDUCED_MOTION ? 60 : 1650);
-}
-
-function createTripPopup(title, location, date, duration) {
-  const popup = document.createElement("div");
-  const heading = document.createElement("strong");
-  const place = document.createElement("span");
-  const meta = document.createElement("span");
-
-  heading.textContent = title;
-  place.textContent = location;
-  meta.textContent = `${date} · ${duration}`;
-
-  popup.append(heading, document.createElement("br"), place, document.createElement("br"), meta);
-  return popup;
-}
-
-function createHighlightPopup(name, note) {
-  const popup = document.createElement("div");
-  const heading = document.createElement("strong");
-  const description = document.createElement("span");
-
-  heading.textContent = name;
-  description.textContent = note;
-
-  popup.append(heading, document.createElement("br"), description);
-  return popup;
 }
 
 /* ===== 旅程卡片 ===== */
@@ -289,14 +165,11 @@ function createTripCard(trip, index) {
 
   if (tags.childElementCount) body.appendChild(tags);
 
-  if (trip?.id && tripMarkers.size) {
-    const link = document.createElement("button");
-    link.type = "button";
-    link.className = "trip-link";
-    link.innerHTML = `在地图上查看足迹 <span class="arr" aria-hidden="true">→</span>`;
-    link.addEventListener("click", () => focusTripOnMap(trip.id));
-    body.appendChild(link);
-  }
+  const link = document.createElement("a");
+  link.className = "trip-link";
+  link.href = "journey.html";
+  link.innerHTML = `阅读旅程日志 <span class="arr" aria-hidden="true">→</span>`;
+  body.appendChild(link);
 
   article.append(media, body);
   observeReveal(article);
@@ -367,6 +240,168 @@ function renderWall(trips) {
   });
 
   wall.replaceChildren(fragment);
+}
+
+/* ===== 高光时刻轮播 ===== */
+function renderMoments(trips) {
+  const slider = document.querySelector("#moment-slider");
+  if (!slider) return;
+
+  const moments = [];
+  trips.forEach((trip) => {
+    const title = indexText(trip?.title, "旅行照片", 80);
+    const mood = indexText(trip?.mood, "", 100);
+
+    (Array.isArray(trip?.photos) ? trip.photos : [])
+      .filter((photo) => typeof photo === "string" && photo.trim())
+      .forEach((photo, index) => {
+        moments.push({
+          path: photo,
+          caption: `${title} · 第 ${index + 1} 张`,
+          mood,
+        });
+      });
+  });
+
+  if (!moments.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "还没有高光照片，往 photos/ 里放几张旅途大片吧。";
+    slider.replaceChildren(empty);
+    return;
+  }
+
+  const track = document.createElement("div");
+  track.className = "moment-track";
+
+  moments.forEach((moment, index) => {
+    const slide = document.createElement("figure");
+    slide.className = "moment-slide";
+    slide.setAttribute("role", "group");
+    slide.setAttribute("aria-roledescription", "幻灯片");
+    slide.setAttribute("aria-label", `${index + 1} / ${moments.length}`);
+
+    const url = safeSameOriginURL(moment.path);
+    if (url) {
+      const image = new Image();
+      image.loading = index < 2 ? "eager" : "lazy";
+      image.decoding = "async";
+      image.alt = moment.caption;
+      image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+      image.src = url.href;
+      slide.appendChild(image);
+    }
+
+    const caption = document.createElement("figcaption");
+    caption.className = "moment-caption";
+    caption.innerHTML =
+      `<span class="moment-title">${escapeHTML(moment.caption)}</span>` +
+      (moment.mood ? `<span class="moment-mood">${escapeHTML(moment.mood)}</span>` : "");
+    slide.appendChild(caption);
+
+    track.appendChild(slide);
+  });
+
+  const prevButton = document.createElement("button");
+  prevButton.className = "moment-arrow prev";
+  prevButton.type = "button";
+  prevButton.textContent = "←";
+  prevButton.setAttribute("aria-label", "上一张");
+
+  const nextButton = document.createElement("button");
+  nextButton.className = "moment-arrow next";
+  nextButton.type = "button";
+  nextButton.textContent = "→";
+  nextButton.setAttribute("aria-label", "下一张");
+
+  const counter = document.createElement("span");
+  counter.className = "moment-counter";
+
+  const dots = document.createElement("div");
+  dots.className = "moment-dots";
+  dots.setAttribute("role", "tablist");
+  dots.setAttribute("aria-label", "选择照片");
+
+  slider.append(track, prevButton, nextButton, counter, dots);
+
+  const state = { index: 0, timer: 0 };
+  const autoPlay = !REDUCED_MOTION && !window.WEBDRIVER_MODE;
+
+  function update() {
+    track.style.transform = `translateX(-${state.index * 100}%)`;
+    counter.textContent = `${state.index + 1} / ${moments.length}`;
+
+    dots.querySelectorAll("button").forEach((dot, index) => {
+      const isActive = index === state.index;
+      dot.classList.toggle("active", isActive);
+      dot.setAttribute("aria-selected", String(isActive));
+    });
+  }
+
+  function goTo(index) {
+    state.index = (index + moments.length) % moments.length;
+    update();
+  }
+
+  function restartAuto() {
+    if (!autoPlay) return;
+    window.clearInterval(state.timer);
+    state.timer = window.setInterval(() => {
+      if (document.hidden) return;
+      goTo(state.index + 1);
+    }, 5000);
+  }
+
+  prevButton.addEventListener("click", () => { goTo(state.index - 1); restartAuto(); });
+  nextButton.addEventListener("click", () => { goTo(state.index + 1); restartAuto(); });
+
+  moments.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.setAttribute("role", "tab");
+    dot.setAttribute("aria-label", `第 ${index + 1} 张`);
+    dot.addEventListener("click", () => { goTo(index); restartAuto(); });
+    dots.appendChild(dot);
+  });
+
+  slider.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") { goTo(state.index - 1); restartAuto(); }
+    else if (event.key === "ArrowRight") { goTo(state.index + 1); restartAuto(); }
+  });
+
+  slider.tabIndex = 0;
+
+  // 拖拽翻页
+  let dragStartX = null;
+  slider.addEventListener("pointerdown", (event) => {
+    dragStartX = event.clientX;
+  });
+  slider.addEventListener("pointerup", (event) => {
+    if (dragStartX === null) return;
+    const delta = event.clientX - dragStartX;
+    dragStartX = null;
+    if (Math.abs(delta) < 48) return;
+    goTo(state.index + (delta < 0 ? 1 : -1));
+    restartAuto();
+  });
+  slider.addEventListener("pointercancel", () => { dragStartX = null; });
+
+  slider.addEventListener("pointerenter", () => window.clearInterval(state.timer));
+  slider.addEventListener("pointerleave", restartAuto);
+
+  // 离开视口暂停自动播放
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) restartAuto();
+        else window.clearInterval(state.timer);
+      },
+      { threshold: 0.3 }
+    ).observe(slider);
+  }
+
+  update();
+  restartAuto();
 }
 
 /* ===== 统计（数字滚动） ===== */
@@ -454,13 +489,13 @@ function extractCity(trip) {
 
 /* ===== 错误状态 ===== */
 function showIndexError() {
-  const map = document.querySelector("#map");
   const trips = document.querySelector("#trips-grid");
   const wall = document.querySelector("#photo-wall");
+  const slider = document.querySelector("#moment-slider");
 
-  if (map) map.textContent = "地图暂时无法加载，请稍后重试。";
   if (trips) trips.textContent = "旅行记录暂时无法加载。";
   if (wall) wall.textContent = "照片暂时无法加载。";
+  if (slider) slider.textContent = "高光时刻暂时无法加载。";
 
   ["#stat-trips", "#stat-photos", "#stat-cities"].forEach((selector) => {
     const element = document.querySelector(selector);
@@ -469,26 +504,6 @@ function showIndexError() {
 }
 
 /* ===== 数据校验与文本工具 ===== */
-function getCoordinates(value) {
-  const latitude = value?.lat;
-  const longitude = value?.lng;
-
-  if (
-    typeof latitude !== "number" ||
-    typeof longitude !== "number" ||
-    !Number.isFinite(latitude) ||
-    !Number.isFinite(longitude) ||
-    latitude < -90 ||
-    latitude > 90 ||
-    longitude < -180 ||
-    longitude > 180
-  ) {
-    return null;
-  }
-
-  return [latitude, longitude];
-}
-
 function indexText(value, fallback = "", maxLength = 240) {
   if (typeof value !== "string") return fallback;
   const text = value.trim();

@@ -1,11 +1,17 @@
 "use strict";
 
-// next.js — 下一次旅行预告：翻牌倒计时、Tab 推荐卡（天气/路线/穿衣）、
-// 暗色路线地图（流动虚线动画）
+// next.js — 下一次旅行页：翻牌倒计时、行前指南（天气/穿搭/装备）、
+// 行程节奏时间轴、可勾选出发清单（localStorage 持久化）、此行亮点
 
-let routeData = null;
 let tripData = null;
-let routeMapInit = false;
+
+const CHECKLIST_STORAGE_KEY = "td-checklist-v1";
+const CHECKLIST_ESSENTIALS = [
+  "身份证件 / 钱包",
+  "充电宝与线材",
+  "常用药品包",
+  "湿巾与垃圾袋（无痕露营）",
+];
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -16,12 +22,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     tripData = nextTrip;
-    renderNext(nextTrip);
-    startCountdown(nextTrip.date);
+    renderHero(nextTrip);
     renderWeather(nextTrip.weather);
-    renderRoute(nextTrip.route);
     renderPacking(nextTrip.packing);
-    initTabs();
+    renderRoute(nextTrip.route);
+    renderPlan(nextTrip);
+    renderChecklist(nextTrip);
+    startCountdown(nextTrip.date);
   } catch {
     console.error("下一次旅行数据加载失败");
     showDataHint();
@@ -31,35 +38,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const message = document.createElement("p");
     message.className = "empty-state";
+    message.style.marginBlock = "80px";
     message.textContent = "加载失败，请稍后重试。";
     wrap.replaceChildren(message);
   }
 });
 
-function renderNext(t) {
-  const title = document.querySelector("#next-title");
-  const date = document.querySelector("#next-date");
-  const plan = document.querySelector("#next-plan");
-  const pills = document.querySelector("#next-highlights");
+/* ===== Hero：标题（无 emoji）+ 信息胶囊 ===== */
+function renderHero(t) {
+  const dest = document.querySelector("#next-dest");
+  if (dest) dest.textContent = String(t.destination || "目的地待确认");
 
-  if (title) title.textContent = `🌍 ${t.destination || "目的地待确认"}`;
-  if (date) date.textContent = `${t.date || "日期待确认"} · ${t.duration || "时长待确认"}`;
-  if (plan) plan.textContent = t.plan || "暂无参考";
+  const chips = document.querySelector("#next-chips");
+  if (!chips) return;
 
-  if (pills) {
-    const fragment = document.createDocumentFragment();
+  const statusLabel = t.status === "planning" ? "计划筹备中" : "筹备中";
+  const items = [
+    { icon: "📅", text: `${t.date || "日期待确认"}` },
+    { icon: "⏱", text: `${t.duration || "时长待确认"}` },
+    { icon: "🚩", text: statusLabel },
+  ];
 
-    (Array.isArray(t.highlights) ? t.highlights : []).forEach((highlight) => {
-      const pill = document.createElement("span");
-      pill.textContent = String(highlight);
-      fragment.appendChild(pill);
-    });
+  const fragment = document.createDocumentFragment();
+  items.forEach((item) => {
+    const chip = document.createElement("span");
+    chip.className = "meta-chip";
+    chip.innerHTML =
+      `<i aria-hidden="true">${item.icon}</i>${escapeHTML(item.text)}`;
+    fragment.appendChild(chip);
+  });
 
-    pills.replaceChildren(fragment);
-  }
+  chips.replaceChildren(fragment);
 }
 
-/* ===== 天气预览 ===== */
+/* ===== 天气 ===== */
 function renderWeather(weather) {
   if (!weather || typeof weather !== "object") return;
 
@@ -77,127 +89,7 @@ function renderWeather(weather) {
   setText("#weather-note", `⚠️ ${weather.note || "历史气候参考，非实时预报"}`);
 }
 
-/* ===== 行程路线 ===== */
-function renderRoute(route) {
-  if (!route || typeof route !== "object") return;
-
-  routeData = route;
-
-  const timeline = document.querySelector("#route-list");
-  if (timeline) {
-    const fragment = document.createDocumentFragment();
-    const stops = Array.isArray(route.stops) ? route.stops : [];
-
-    stops.forEach((stop) => {
-      const item = document.createElement("div");
-      const name = document.createElement("b");
-      const coordinates = document.createElement("small");
-
-      item.className = "tl-item";
-      name.textContent = stop.name || "未命名地点";
-      coordinates.textContent = `${stop.lat ?? "--"}, ${stop.lng ?? "--"}`;
-
-      item.append(name, coordinates);
-      fragment.appendChild(item);
-    });
-
-    timeline.replaceChildren(fragment);
-  }
-
-  const note = document.querySelector("#route-note");
-  if (note) {
-    note.textContent = `⚠️ ${route.note || "建议路线，非实时导航"}`;
-  }
-}
-
-function ensureRouteMap() {
-  if (routeMapInit || !routeData) return;
-
-  const element = document.querySelector("#route-map");
-  if (!element || typeof L === "undefined") return;
-
-  const stops = (Array.isArray(routeData.stops) ? routeData.stops : [])
-    .filter((stop) => Number.isFinite(Number(stop.lat)) && Number.isFinite(Number(stop.lng)))
-    .map((stop) => ({
-      ...stop,
-      lat: Number(stop.lat),
-      lng: Number(stop.lng),
-    }));
-
-  const fallbackCenter = {
-    lat: Number(tripData?.lat),
-    lng: Number(tripData?.lng),
-  };
-
-  const center = stops.length ? stops[Math.floor(stops.length / 2)] : fallbackCenter;
-
-  if (!Number.isFinite(center.lat) || !Number.isFinite(center.lng)) {
-    element.textContent = "🗺️ 暂无有效路线坐标。";
-    return;
-  }
-
-  try {
-    routeMapInit = true;
-
-    const map = L.map(element, { scrollWheelZoom: false }).setView(
-      [center.lat, center.lng],
-      9
-    );
-
-    window._routeMap = map;
-
-    const tiles = L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
-      {
-        maxZoom: 16,
-        attribution:
-          "Tiles &copy; Esri — Source: Esri, HERE, Garmin, USGS, Intermap, iPC, NRCAN",
-      }
-    ).addTo(map);
-
-    tiles.on("tileerror", () => {
-      map.remove();
-      window._routeMap = null;
-      element.textContent = "🗺️ 地图加载失败，请参考右侧文字路线与坐标。";
-    });
-
-    const points = stops.map((stop) => [stop.lat, stop.lng]);
-
-    if (points.length > 1) {
-      L.polyline(points, {
-        color: "#fbbf24",
-        weight: 3.5,
-        opacity: 0.9,
-        className: "route-line",
-      }).addTo(map);
-    }
-
-    points.forEach((point, index) => {
-      const label = document.createElement("b");
-      label.textContent = stops[index].name || "未命名地点";
-
-      L.circleMarker(point, {
-        radius: 7,
-        color: "#fbbf24",
-        weight: 2,
-        fillColor: "#0a0f1e",
-        fillOpacity: 1,
-      })
-        .addTo(map)
-        .bindPopup(label);
-    });
-
-    if (points.length) {
-      map.fitBounds(L.latLngBounds(points).pad(0.4));
-    }
-  } catch {
-    routeMapInit = false;
-    console.error("路线地图初始化失败");
-    element.textContent = "🗺️ 地图加载失败，请参考右侧文字路线与坐标。";
-  }
-}
-
-/* ===== 穿衣指南 ===== */
+/* ===== 穿衣与装备 ===== */
 function renderPacking(packing) {
   if (!packing || typeof packing !== "object") return;
 
@@ -227,94 +119,170 @@ function renderPacking(packing) {
   }
 }
 
-/* ===== Tab 切换（药丸指示器 + 面板动画） ===== */
-function initTabs() {
-  const tabList = document.querySelector(".tab-nav");
-  const buttons = Array.from(document.querySelectorAll(".tab-btn"));
-  const panels = Array.from(document.querySelectorAll(".tab-panel"));
-  const indicator = document.querySelector(".tab-indicator");
+/* ===== 行程节奏（时间轴，无地图） ===== */
+function renderRoute(route) {
+  if (!route || typeof route !== "object") return;
 
-  if (!tabList || !buttons.length || !indicator) return;
-
-  function moveIndicator(button) {
-    indicator.style.left = `${button.offsetLeft}px`;
-    indicator.style.width = `${button.offsetWidth}px`;
+  const stamp = document.querySelector("#route-stamp");
+  if (stamp) {
+    stamp.textContent = `${tripData?.date || ""} · ${tripData?.duration || ""} · ${tripData?.destination || ""}`;
   }
 
-  function syncTabState(activeButton) {
-    const activePanelId = activeButton.dataset.panel;
+  const timeline = document.querySelector("#route-list");
+  if (timeline) {
+    const fragment = document.createDocumentFragment();
+    const stops = Array.isArray(route.stops) ? route.stops : [];
 
-    buttons.forEach((button) => {
-      const isActive = button === activeButton;
-      button.classList.toggle("active", isActive);
-      button.setAttribute("aria-selected", String(isActive));
-      button.tabIndex = isActive ? 0 : -1;
+    stops.forEach((stop, index) => {
+      const item = document.createElement("div");
+      const name = document.createElement("b");
+      const coordinates = document.createElement("small");
+
+      item.className = "tl-item";
+      name.textContent = `${stop.name || "未命名地点"}`;
+      coordinates.textContent =
+        `${index + 1}/${stops.length} · 坐标 ${stop.lat ?? "--"}, ${stop.lng ?? "--"}`;
+
+      item.append(name, coordinates);
+      fragment.appendChild(item);
     });
 
-    panels.forEach((panel) => {
-      const isActive = panel.id === activePanelId;
-      panel.classList.toggle("active", isActive);
-      panel.hidden = !isActive;
-    });
-
-    if (activePanelId === "panel-route") {
-      ensureRouteMap();
-      window.setTimeout(() => window._routeMap?.invalidateSize(), 160);
-    }
+    timeline.replaceChildren(fragment);
   }
 
-  buttons.forEach((button, index) => {
-    button.addEventListener("click", () => {
-      syncTabState(button);
-      moveIndicator(button);
-    });
+  const note = document.querySelector("#route-note");
+  if (note) {
+    note.textContent = `⚠️ ${route.note || "建议路线，非实时导航"}`;
+  }
+}
 
-    button.addEventListener("keydown", (event) => {
-      let targetIndex = index;
+/* ===== 此行亮点 ===== */
+function renderPlan(t) {
+  const plan = document.querySelector("#next-plan");
+  if (plan) plan.textContent = t.plan || "暂无参考";
 
-      if (event.key === "ArrowRight") {
-        targetIndex = (index + 1) % buttons.length;
-      } else if (event.key === "ArrowLeft") {
-        targetIndex = (index - 1 + buttons.length) % buttons.length;
-      } else if (event.key === "Home") {
-        targetIndex = 0;
-      } else if (event.key === "End") {
-        targetIndex = buttons.length - 1;
-      } else {
-        return;
-      }
+  const pills = document.querySelector("#next-highlights");
+  if (!pills) return;
 
-      event.preventDefault();
-      buttons[targetIndex].focus();
-      buttons[targetIndex].click();
-    });
+  const fragment = document.createDocumentFragment();
+
+  (Array.isArray(t.highlights) ? t.highlights : []).forEach((highlight) => {
+    const pill = document.createElement("span");
+    pill.textContent = String(highlight);
+    fragment.appendChild(pill);
   });
 
-  const initialButton =
-    buttons.find((button) => button.classList.contains("active")) || buttons[0];
+  pills.replaceChildren(fragment);
+}
 
-  syncTabState(initialButton);
-  moveIndicator(initialButton);
+/* ===== 出发清单（localStorage 持久化） ===== */
+function checklistItems(packing) {
+  const gear = Array.isArray(packing?.gear) ? packing.gear.map(String) : [];
+  return [...CHECKLIST_ESSENTIALS, ...gear].map((text, index) => ({
+    id: `item-${index}-${text}`,
+    text,
+  }));
+}
 
-  let resizeFrame = 0;
-  window.addEventListener(
-    "resize",
-    () => {
-      window.cancelAnimationFrame(resizeFrame);
-      resizeFrame = window.requestAnimationFrame(() => {
-        const activeButton =
-          buttons.find((button) => button.classList.contains("active")) || buttons[0];
-        moveIndicator(activeButton);
+function loadChecklistState() {
+  try {
+    const raw = window.localStorage.getItem(CHECKLIST_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveChecklistState(state) {
+  try {
+    window.localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    /* 隐私模式下静默失败，不影响浏览 */
+  }
+}
+
+function renderChecklist(trip) {
+  const list = document.querySelector("#checklist-list");
+  if (!list) return;
+
+  const items = checklistItems(trip.packing);
+  const state = loadChecklistState();
+
+  const fragment = document.createDocumentFragment();
+
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "check-item";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = `ck-${simpleHash(item.id)}`;
+    checkbox.checked = Boolean(state[item.id]);
+    checkbox.setAttribute("aria-label", item.text);
+
+    const label = document.createElement("label");
+    label.htmlFor = checkbox.id;
+    label.textContent = item.text;
+
+    li.append(checkbox, label);
+    fragment.appendChild(li);
+
+    checkbox.addEventListener("change", () => {
+      const latest = loadChecklistState();
+      if (checkbox.checked) latest[item.id] = true;
+      else delete latest[item.id];
+      saveChecklistState(latest);
+      li.classList.toggle("done", checkbox.checked);
+      updateChecklistProgress(items, loadChecklistState());
+    });
+
+    if (checkbox.checked) li.classList.add("done");
+  });
+
+  list.replaceChildren(fragment);
+
+  const reset = document.querySelector("#checklist-reset");
+  if (reset) {
+    reset.addEventListener("click", () => {
+      saveChecklistState({});
+      list.querySelectorAll("input[type='checkbox']").forEach((box) => {
+        box.checked = false;
+        box.closest(".check-item")?.classList.remove("done");
       });
-    },
-    { passive: true }
-  );
+      updateChecklistProgress(items, {});
+    });
+  }
 
-  document.fonts?.ready.then(() => {
-    const activeButton =
-      buttons.find((button) => button.classList.contains("active")) || buttons[0];
-    moveIndicator(activeButton);
-  });
+  const note = document.querySelector("#checklist-note");
+  if (note) {
+    note.textContent = "进度只保存在这台设备的浏览器里。";
+  }
+
+  updateChecklistProgress(items, loadChecklistState());
+}
+
+function updateChecklistProgress(items, state) {
+  const bar = document.querySelector("#checklistBar");
+  const text = document.querySelector("#checklistText");
+  const progress = document.querySelector(".checklist-progress");
+  if (!bar || !text) return;
+
+  const total = items.length;
+  const done = items.filter((item) => state[item.id]).length;
+  const percent = total ? Math.round((done / total) * 100) : 0;
+
+  if (progress) progress.setAttribute("aria-valuenow", String(percent));
+  bar.style.width = `${percent}%`;
+  text.textContent = `已备 ${done} / ${total}`;
+}
+
+function simpleHash(value) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(36);
 }
 
 /* ===== 翻牌倒计时 ===== */
@@ -370,4 +338,10 @@ function startCountdown(dateString) {
 
   tick();
   timerId = window.setInterval(tick, 1000);
+}
+
+function escapeHTML(value) {
+  const element = document.createElement("span");
+  element.textContent = value;
+  return element.innerHTML;
 }
