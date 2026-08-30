@@ -132,7 +132,7 @@ function renderBubbles(trips) {
 }
 
 
-/* ===== 旅程卡片轨道（旅行记录） ===== */
+/* ===== 旅程卡片轨道（旅行记录）：自动跑马灯，悬停手动滑动 ===== */
 function renderTripRail(trips) {
   const wrap = document.querySelector("#trip-slider");
   if (!wrap) return;
@@ -150,43 +150,16 @@ function renderTripRail(trips) {
 
   const rail = document.createElement("div");
   rail.className = "trip-rail";
-  rail.setAttribute("aria-label", "旅程卡片轨道");
+  rail.setAttribute("aria-label", "旅程卡片轨道，自动滚动，悬停可拖动");
 
-  trips.forEach((trip, index) => {
-    rail.appendChild(createRailCard(trip, index));
-  });
+  // 复制两份实现无缝循环
+  const cards = trips.map((trip, index) => createRailCard(trip, index));
+  cards.forEach((card) => rail.appendChild(card));
+  cards.forEach((card) => rail.appendChild(card.cloneNode(true)));
 
-  const prevButton = document.createElement("button");
-  prevButton.className = "rail-arrow prev";
-  prevButton.type = "button";
-  prevButton.textContent = "←";
-  prevButton.setAttribute("aria-label", "向前滚动");
-
-  const nextButton = document.createElement("button");
-  nextButton.className = "rail-arrow next";
-  nextButton.type = "button";
-  nextButton.textContent = "→";
-  nextButton.setAttribute("aria-label", "向后滚动");
-
-  wrap.append(rail, prevButton, nextButton);
-
-  const step = () => {
-    const card = rail.querySelector(".rail-card");
-    return card ? (card.getBoundingClientRect().width + 20) * 2 : 600;
-  };
-  prevButton.addEventListener("click", () => rail.scrollBy({ left: -step(), behavior: "smooth" }));
-  nextButton.addEventListener("click", () => rail.scrollBy({ left: step(), behavior: "smooth" }));
-
-  const syncArrows = () => {
-    prevButton.toggleAttribute("disabled", rail.scrollLeft <= 4);
-    nextButton.toggleAttribute(
-      "disabled",
-      rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 4
-    );
-  };
-  rail.addEventListener("scroll", syncArrows, { passive: true });
-  window.addEventListener("resize", syncArrows, { passive: true });
-  syncArrows();
+  wrap.appendChild(rail);
+  enableDragScroll(rail);
+  setupAutoMarquee(rail, { speed: 0.6, direction: 1 });
 }
 
 function createRailCard(trip, index) {
@@ -233,7 +206,7 @@ function createRailCard(trip, index) {
   return card;
 }
 
-/* ===== 统计（数字滚动） ===== */
+/* ===== 统计（数字滚动） ===== *//* ===== 统计（数字滚动） ===== */
 function renderStats(trips) {
   const tripElement = document.querySelector("#stat-trips");
   const photoElement = document.querySelector("#stat-photos");

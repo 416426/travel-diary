@@ -1043,12 +1043,24 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .trip-rail {
   display: flex; gap: 20px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
   padding: 4px 4px 20px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  cursor: grab;
 }
+.trip-rail:active { cursor: grabbing; }
 .trip-rail::-webkit-scrollbar { display: none; }
+.album-row {
+  display: flex; gap: 20px;
+  overflow-x: auto;
+  padding: 4px 4px 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+.album-row:active { cursor: grabbing; }
+.album-row::-webkit-scrollbar { display: none; }
+.album-row .album-tile { flex: 0 0 clamp(220px, 22vw, 280px); }
 .rail-card {
   position: relative;
   flex: 0 0 clamp(230px, 24vw, 300px);
@@ -1135,6 +1147,8 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .tl-panel {
   height: clamp(480px, 74vh, 820px);
   overflow-y: auto;
+  overflow-x: hidden;
+  overflow-x: clip;
   padding: 8px 22px 8px 6px;
   scroll-behavior: smooth;
   scrollbar-width: none;
@@ -1798,6 +1812,23 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .tl-entry.right .tl-dot { right: auto; left: -6.5px; }
 .tl-card .tl-media { aspect-ratio: 16 / 8; }
+
+/* 紧凑时间线卡片：整卡可点击查看详情 */
+.tl-card { cursor: pointer; transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), box-shadow var(--dur-fast); }
+.tl-card:hover { transform: translateY(-3px); border-color: rgba(103, 232, 249, 0.45); box-shadow: var(--shadow-2), var(--glow-cyan); }
+.tl-card .card-body { padding: 16px 18px 18px; }
+.tl-card .card-body h3 { font-size: 1.02rem; margin-bottom: 6px; }
+.tl-card .card-body h3 a:hover { color: var(--cyan); }
+.tl-card .tl-media { aspect-ratio: auto; height: 132px; flex: 0 0 auto; }
+.tl-card .card-body { padding: 14px 16px 15px; gap: 0; }
+.tl-card .card-body h3 { margin-bottom: 4px; }
+.tl-card .trip-meta { margin-bottom: 0; }
+.tl-card .trip-link { margin-top: 8px; }
+.tl-card .trip-thoughts { display: none; }
+.tl-card .trip-meta { font-size: 0.78rem; gap: 6px 12px; margin-bottom: 8px; }
+.tl-card .trip-mood { margin-bottom: 10px; font-size: 0.84rem; }
+.tl-card .tags { display: none; }
+.tl-card .trip-link { min-height: 32px; font-size: 0.82rem; }
 
 .wish-progress {
   position: relative;

@@ -254,30 +254,7 @@ function createTimelineEntry(trip, index) {
       ? `<span>⏱ ${escapeHTML(indexText(trip?.duration, "", 40))}</span>`
       : "");
 
-  const mood = document.createElement("div");
-  mood.className = "trip-mood";
-  mood.textContent =
-    `${indexText(trip?.moodEmoji, "🧭", 8)} ` +
-    indexText(trip?.mood, "心情待补充", 100);
-
-  const thoughts = document.createElement("p");
-  thoughts.className = "trip-thoughts";
-  thoughts.textContent = indexText(trip?.thoughts, "这段旅程的故事正在整理中。", 400);
-
-  body.append(title, meta, mood, thoughts);
-
-  const tags = Array.isArray(trip?.tags) ? trip.tags : [];
-  if (tags.length) {
-    const tagBox = document.createElement("div");
-    tagBox.className = "tags";
-    tags.slice(0, 6).forEach((value) => {
-      const tag = document.createElement("span");
-      tag.className = "tag";
-      tag.textContent = `#${indexText(value, "旅行", 32)}`;
-      tagBox.appendChild(tag);
-    });
-    body.appendChild(tagBox);
-  }
+  body.append(title, meta);
 
   const photoCount = Array.isArray(trip?.photos)
     ? trip.photos.filter((p) => typeof p === "string" && p.trim()).length
@@ -291,6 +268,13 @@ function createTimelineEntry(trip, index) {
     `查看该旅程全部照片（${photoCount} 张） <span class="arr" aria-hidden="true">→</span>`;
 
   body.appendChild(link);
+
+  // 整卡可点击进入详情
+  card.style.cursor = "pointer";
+  card.addEventListener("click", () => {
+    window.location.href = `trip.html?id=${tripId}`;
+  });
+
   card.append(media, body);
   entry.appendChild(card);
 

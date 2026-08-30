@@ -51,7 +51,7 @@ function renderMode(mode) {
   else renderRegionHub();
 }
 
-/* ===== 模式一：按地区（磁贴 hub，点击进入 trip.html） ===== */
+/* ===== 模式一：按地区（两行双向跑马灯，点击进入 trip.html） ===== */
 function renderRegionHub() {
   const wrap = document.querySelector("#photo-groups");
   if (!wrap) return;
@@ -60,47 +60,7 @@ function renderRegionHub() {
     (trip) => Array.isArray(trip?.photos) && trip.photos.length
   );
 
-  const tiles = document.createElement("div");
-  tiles.className = "album-tiles";
-  tiles.setAttribute("aria-label", "按地区进入相册");
-
-  trips.forEach((trip, index) => {
-    const tile = document.createElement("a");
-    tile.className = "album-tile";
-    tile.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
-    tile.setAttribute("data-reveal", "zoom");
-    tile.style.setProperty("--d", `${Math.min(index * 0.05, 0.3)}s`);
-
-    const url = safeSameOriginURL(String((trip?.photos || [])[0] || ""));
-    if (url) {
-      const image = new Image();
-      image.loading = index < 4 ? "eager" : "lazy";
-      image.decoding = "async";
-      image.alt = indexText(trip?.title, "旅程相册", 60);
-      image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
-      image.src = url.href;
-      tile.appendChild(image);
-    }
-
-    const top = document.createElement("span");
-    top.className = "tile-top";
-    top.innerHTML =
-      `<span class="tile-count">${(trip?.photos || []).length} 张</span>` +
-      `<span class="tile-mood">${escapeHTML(indexText(trip?.moodEmoji, "🧭", 8))}</span>`;
-    tile.appendChild(top);
-
-    const body = document.createElement("span");
-    body.className = "tile-body";
-    body.innerHTML =
-      `<b>${escapeHTML(indexText(trip?.title, "未命名旅程", 60))}</b>` +
-      `<small><span>📅 ${escapeHTML(indexText(trip?.date, "待补充", 40))}</span>` +
-      `<span>📍 ${escapeHTML(indexText(trip?.location, "", 80))}</span></small>`;
-    tile.appendChild(body);
-
-    tiles.appendChild(tile);
-  });
-
-  if (!tiles.childElementCount) {
+  if (!trips.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
     empty.style.marginBlock = "80px";
@@ -109,9 +69,69 @@ function renderRegionHub() {
     return;
   }
 
-  wrap.replaceChildren(tiles);
-  wrap.querySelectorAll("[data-reveal]").forEach((el) => observeReveal(el));
+  const hint = document.createElement("p");
+  hint.className = "trip-meta";
+  hint.style.marginBottom = "20px";
+  hint.textContent = "自动滚动 · 悬停后可按住左右拖动 · 点击进入该旅程相册";
+  wrap.appendChild(hint);
+
+  // 两行：奇偶分组，方向相反
+  const row1 = document.createElement("div");
+  row1.className = "album-row";
+  const row2 = document.createElement("div");
+  row2.className = "album-row";
+
+  trips.forEach((trip, index) => {
+    const tile = createAlbumTile(trip, index);
+    (index % 2 === 0 ? row1 : row2).appendChild(tile);
+  });
+  trips.forEach((trip, index) => {
+    const tile = createAlbumTile(trip, index);
+    (index % 2 === 0 ? row1 : row2).appendChild(tile);
+  });
+
+  wrap.append(row1, row2);
+
+  setupAutoMarquee(row1, { speed: 0.5, direction: 1 });
+  setupAutoMarquee(row2, { speed: 0.5, direction: -1 });
+  enableDragScroll(row1);
+  enableDragScroll(row2);
+
   document.title = `途中光影 · 按地区（${trips.length} 段旅程）`;
+}
+
+function createAlbumTile(trip, index) {
+  const tile = document.createElement("a");
+  tile.className = "album-tile";
+  tile.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
+
+  const url = safeSameOriginURL(String((trip?.photos || [])[0] || ""));
+  if (url) {
+    const image = new Image();
+    image.loading = index < 4 ? "eager" : "lazy";
+    image.decoding = "async";
+    image.alt = indexText(trip?.title, "旅程相册", 60);
+    image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+    image.src = url.href;
+    tile.appendChild(image);
+  }
+
+  const top = document.createElement("span");
+  top.className = "tile-top";
+  top.innerHTML =
+    `<span class="tile-count">${(trip?.photos || []).length} 张</span>` +
+    `<span class="tile-mood">${escapeHTML(indexText(trip?.moodEmoji, "🧭", 8))}</span>`;
+  tile.appendChild(top);
+
+  const body = document.createElement("span");
+  body.className = "tile-body";
+  body.innerHTML =
+    `<b>${escapeHTML(indexText(trip?.title, "未命名旅程", 60))}</b>` +
+    `<small><span>📅 ${escapeHTML(indexText(trip?.date, "待补充", 40))}</span>` +
+    `<span>📍 ${escapeHTML(indexText(trip?.location, "", 80))}</span></small>`;
+  tile.appendChild(body);
+
+  return tile;
 }
 
 /* ===== 模式二：按月份（可折叠的瀑布流年度回顾） ===== */
@@ -169,34 +189,9 @@ function renderMonthReview() {
     head.append(title, tripsLine, chev);
     section.appendChild(head);
 
-    // 主体：收起时为缩略条，展开时为全量瀑布流（两者都预构建，懒加载按需触发）
+    // 主体：默认收起，点击月份行展开全量瀑布流
     const body = document.createElement("div");
     body.className = "month-body";
-
-    const strip = document.createElement("div");
-    strip.className = "month-strip";
-    const preview = entries.flatMap((e) => e.photos).slice(0, 5);
-    preview.forEach((photo) => {
-      const thumb = document.createElement("span");
-      thumb.className = "strip-thumb";
-      const url = safeSameOriginURL(photo);
-      if (url) {
-        const image = new Image();
-        image.loading = "lazy";
-        image.alt = "";
-        image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
-        image.src = url.href;
-        thumb.appendChild(image);
-      }
-      strip.appendChild(thumb);
-    });
-    if (photoTotal > preview.length) {
-      const more = document.createElement("span");
-      more.className = "strip-more";
-      more.textContent = `+${photoTotal - preview.length}`;
-      strip.appendChild(more);
-    }
-    body.appendChild(strip);
 
     const wall = document.createElement("div");
     wall.className = "photo-wall";

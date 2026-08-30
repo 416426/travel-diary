@@ -337,3 +337,82 @@ function createStarfield(canvas) {
   frame();
   window.setTimeout(spawnMeteor, 1800);
 }
+
+
+/* ===== 横向跑马灯自动滚动（悬停暂停，可手动拖拽） ===== */
+// 内容需复制两份实现无缝循环；方向 dir=1 向左，-1 向右
+function setupAutoMarquee(el, options = {}) {
+  if (!el) return () => {};
+  const speed = options.speed ?? 0.55;          // px / 16.7ms
+  const dir = options.direction ?? 1;
+  let paused = options.paused ?? false;
+  let running = true;
+  let last = performance.now();
+
+  el.addEventListener("pointerenter", () => { paused = true; });
+  el.addEventListener("pointerleave", () => { paused = options.paused ?? false; });
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      (entries) => {
+        running = entries[0]?.isIntersecting ?? true;
+        last = performance.now();
+      },
+      { threshold: 0.05 }
+    ).observe(el);
+  }
+
+  function frame(now) {
+    const dt = Math.min(now - last, 64);
+    last = now;
+    if (running && !paused && !document.hidden && !REDUCED_MOTION) {
+      el.scrollLeft += dir * speed * (dt / 16.7);
+      const half = el.scrollWidth / 2;
+      if (half > 10) {
+        if (el.scrollLeft >= half) el.scrollLeft -= half;
+        else if (el.scrollLeft <= 0) el.scrollLeft += half;
+      }
+    }
+    window.requestAnimationFrame(frame);
+  }
+  window.requestAnimationFrame(frame);
+}
+
+/* ===== 拖拽横向滚动（鼠标按住左右拖） ===== */
+function enableDragScroll(el) {
+  if (!el) return;
+  let down = false;
+  let startX = 0;
+  let startLeft = 0;
+  let moved = false;
+
+  el.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "mouse") return; // 触屏走原生滚动
+    down = true;
+    moved = false;
+    startX = event.clientX;
+    startLeft = el.scrollLeft;
+  });
+  el.addEventListener("pointermove", (event) => {
+    if (!down) return;
+    const dx = event.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    if (moved) el.scrollLeft = startLeft - dx;
+  });
+  const end = () => { down = false; };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+
+  // 拖拽后拦截误触点击（避免拖完直接跳转）
+  el.addEventListener(
+    "click",
+    (event) => {
+      if (moved) {
+        event.preventDefault();
+        event.stopPropagation();
+        moved = false;
+      }
+    },
+    true
+  );
+}
