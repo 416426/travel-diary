@@ -1,21 +1,18 @@
 "use strict";
 
-// photos.js — 途中光影相册页：按地区分组，单地区视图切换，Lightbox 翻看
+// photos.js — 途中光影：双模式
+//   按地区：气泡式磁贴 hub，点击直接进入该旅程的相册子页（trip.html?id=xxx）
+//   按月份：瀑布流年度回顾，按月分组滚动浏览
 
 let albumTrips = [];
-let albumOrder = [];   // 排序后的旅程引用
-let activeGroup = 0;
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const data = await loadJSON("data/trips.json");
     albumTrips = Array.isArray(data?.trips) ? data.trips : [];
-    albumOrder = sortedTrips(albumTrips).filter(
-      (trip) => Array.isArray(trip?.photos) && trip.photos.length
-    );
 
-    renderRegionNav();
-    renderActiveGroup();
+    setupModeToggle();
+    renderMode("region");
   } catch (err) {
     console.error("相册数据加载失败", err);
     showDataHint();
@@ -35,138 +32,169 @@ function sortedTrips(trips) {
   return [...trips].sort((a, b) => String(b?.date || "").localeCompare(String(a?.date || "")));
 }
 
-function groupId(trip, index) {
-  return `g-${indexText(trip?.id, `trip-${index}`, 60) || `trip-${index}`}`;
-}
-
-/* ===== 地区快速跳转（单选 tab） ===== */
-function renderRegionNav() {
-  const nav = document.querySelector("#regionNav");
-  if (!nav) return;
-  if (albumOrder.length < 2) {
-    nav.hidden = albumOrder.length === 0;
-  }
-
-  const fragment = document.createDocumentFragment();
-
-  albumOrder.forEach((trip, index) => {
-    const chip = document.createElement("button");
-    chip.type = "button";
-    chip.className = "chip";
-    chip.innerHTML =
-      `${escapeHTML(indexText(trip?.title, "旅程", 40))} ` +
-      `<span class="n">${(trip?.photos || []).length}</span>`;
-    chip.addEventListener("click", () => setActiveGroup(index));
-    fragment.appendChild(chip);
+/* ===== 模式切换 ===== */
+function setupModeToggle() {
+  document.querySelectorAll(".mode-toggle button").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".mode-toggle button").forEach((b) => {
+        const active = b === button;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-selected", String(active));
+      });
+      renderMode(button.dataset.mode);
+    });
   });
-
-  nav.replaceChildren(fragment);
-  nav.hidden = false;
 }
 
-/* ===== 渲染当前地区的分组 ===== */
-function renderActiveGroup() {
+function renderMode(mode) {
+  if (mode === "month") renderMonthReview();
+  else renderRegionHub();
+}
+
+/* ===== 模式一：按地区（磁贴 hub，点击进入 trip.html） ===== */
+function renderRegionHub() {
   const wrap = document.querySelector("#photo-groups");
-  const nav = document.querySelector("#regionNav");
   if (!wrap) return;
 
-  const trip = albumOrder[activeGroup];
-  if (!trip) return;
+  const trips = sortedTrips(albumTrips).filter(
+    (trip) => Array.isArray(trip?.photos) && trip.photos.length
+  );
 
-  if (nav) {
-    nav.querySelectorAll(".chip").forEach((chip, index) => {
-      chip.classList.toggle("active", index === activeGroup);
-      chip.setAttribute("aria-pressed", String(index === activeGroup));
-    });
-  }
+  const tiles = document.createElement("div");
+  tiles.className = "album-tiles";
+  tiles.setAttribute("aria-label", "按地区进入相册");
 
-  const photos = (trip?.photos || []).filter((p) => typeof p === "string" && p.trim());
-  const section = document.createElement("section");
-  section.className = "photo-group";
+  trips.forEach((trip, index) => {
+    const tile = document.createElement("a");
+    tile.className = "album-tile";
+    tile.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
+    tile.setAttribute("data-reveal", "zoom");
+    tile.style.setProperty("--d", `${Math.min(index * 0.05, 0.3)}s`);
 
-  const head = document.createElement("header");
-  head.className = "photo-group-head";
+    const url = safeSameOriginURL(String((trip?.photos || [])[0] || ""));
+    if (url) {
+      const image = new Image();
+      image.loading = index < 4 ? "eager" : "lazy";
+      image.decoding = "async";
+      image.alt = indexText(trip?.title, "旅程相册", 60);
+      image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+      image.src = url.href;
+      tile.appendChild(image);
+    }
 
-  const eyebrow = document.createElement("p");
-  eyebrow.className = "eyebrow";
-  eyebrow.textContent = `TRIP ${String(activeGroup + 1).padStart(2, "0")} / ${String(albumOrder.length).padStart(2, "0")}`;
+    const top = document.createElement("span");
+    top.className = "tile-top";
+    top.innerHTML =
+      `<span class="tile-count">${(trip?.photos || []).length} 张</span>` +
+      `<span class="tile-mood">${escapeHTML(indexText(trip?.moodEmoji, "🧭", 8))}</span>`;
+    tile.appendChild(top);
 
-  const titleRow = document.createElement("h2");
-  titleRow.className = "section-title";
-  titleRow.style.marginBottom = "6px";
+    const body = document.createElement("span");
+    body.className = "tile-body";
+    body.innerHTML =
+      `<b>${escapeHTML(indexText(trip?.title, "未命名旅程", 60))}</b>` +
+      `<small><span>📅 ${escapeHTML(indexText(trip?.date, "待补充", 40))}</span>` +
+      `<span>📍 ${escapeHTML(indexText(trip?.location, "", 80))}</span></small>`;
+    tile.appendChild(body);
 
-  const titleLink = document.createElement("a");
-  titleLink.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
-  titleLink.textContent = indexText(trip?.title, "未命名旅程", 80);
-  titleLink.style.color = "inherit";
-  titleLink.style.textDecoration = "none";
-  titleRow.appendChild(titleLink);
-
-  const count = document.createElement("span");
-  count.className = "count";
-  count.textContent = `${photos.length} 张`;
-  titleRow.appendChild(count);
-
-  const meta = document.createElement("p");
-  meta.className = "trip-meta";
-  meta.innerHTML =
-    `<span>📅 ${escapeHTML(indexText(trip?.date, "待补充", 40))}</span>` +
-    `<span>📍 ${escapeHTML(indexText(trip?.location, "地点待补充", 100))}</span>` +
-    `<span>${escapeHTML(indexText(trip?.moodEmoji, "🧭", 8))} ${escapeHTML(indexText(trip?.mood, "心情待补充", 100))}</span>`;
-
-  head.append(eyebrow, titleRow, meta);
-  section.appendChild(head);
-
-  const wall = document.createElement("div");
-  wall.className = "photo-wall";
-
-  photos.forEach((photo, photoIndex) => {
-    const el = photoEl(
-      photo,
-      indexText(trip?.moodEmoji, "📷", 8),
-      `${indexText(trip?.title, "旅行照片", 60)} · 第 ${photoIndex + 1} 张`
-    );
-    el.setAttribute("data-reveal", "zoom");
-    el.style.setProperty("--d", `${Math.min(photoIndex * 0.04, 0.3)}s`);
-    observeReveal(el);
-    wall.appendChild(el);
+    tiles.appendChild(tile);
   });
 
-  section.appendChild(wall);
+  if (!tiles.childElementCount) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.style.marginBlock = "80px";
+    empty.textContent = "还没有可展示的旅程相册。";
+    wrap.replaceChildren(empty);
+    return;
+  }
 
-  const pager = document.createElement("nav");
-  pager.className = "album-pager";
-
-  const prevBtn = document.createElement("button");
-  prevBtn.className = "chip";
-  prevBtn.type = "button";
-  prevBtn.innerHTML = activeGroup > 0
-    ? `← ${escapeHTML(indexText(albumOrder[activeGroup - 1]?.title, "上一地区", 40))}`
-    : "已是最新一组";
-  prevBtn.disabled = activeGroup === 0;
-  prevBtn.addEventListener("click", () => setActiveGroup(activeGroup - 1));
-
-  const nextBtn = document.createElement("button");
-  nextBtn.className = "chip";
-  nextBtn.type = "button";
-  nextBtn.innerHTML = activeGroup < albumOrder.length - 1
-    ? `${escapeHTML(indexText(albumOrder[activeGroup + 1]?.title, "下一地区", 40))} →`
-    : "已是最后一组";
-  nextBtn.disabled = activeGroup === albumOrder.length - 1;
-  nextBtn.addEventListener("click", () => setActiveGroup(activeGroup + 1));
-
-  pager.append(prevBtn, nextBtn);
-  section.appendChild(pager);
-
-  wrap.replaceChildren(section);
+  wrap.replaceChildren(tiles);
   wrap.querySelectorAll("[data-reveal]").forEach((el) => observeReveal(el));
-  document.title = `途中光影 · ${indexText(trip?.title, "旅行照片", 40)}（${photos.length} 张）`;
+  document.title = `途中光影 · 按地区（${trips.length} 段旅程）`;
 }
 
-function setActiveGroup(index) {
-  activeGroup = Math.max(0, Math.min(index, albumOrder.length - 1));
-  renderActiveGroup();
-  window.scrollTo({ top: 0, behavior: REDUCED_MOTION ? "auto" : "smooth" });
+/* ===== 模式二：按月份（瀑布流年度回顾） ===== */
+function renderMonthReview() {
+  const wrap = document.querySelector("#photo-groups");
+  if (!wrap) return;
+
+  const byMonth = new Map();
+  sortedTrips(albumTrips).forEach((trip) => {
+    const month = String(trip?.date || "").slice(0, 7); // 2026-08
+    if (!month) return;
+    const photos = (Array.isArray(trip?.photos) ? trip.photos : []).filter(
+      (p) => typeof p === "string" && p.trim()
+    );
+    if (!photos.length) return;
+
+    if (!byMonth.has(month)) byMonth.set(month, []);
+    byMonth.get(month).push({ trip, photos });
+  });
+
+  const months = [...byMonth.keys()].sort((a, b) => b.localeCompare(a)); // 新→旧
+  const fragment = document.createDocumentFragment();
+
+  months.forEach((month) => {
+    const entries = byMonth.get(month);
+    const photoTotal = entries.reduce((sum, e) => sum + e.photos.length, 0);
+
+    const section = document.createElement("section");
+    section.className = "month-group";
+    section.setAttribute("data-reveal", "");
+
+    const head = document.createElement("header");
+    head.className = "month-head";
+
+    const title = document.createElement("h2");
+    title.className = "section-title";
+    title.innerHTML =
+      `${escapeHTML(month.replace("-", " · "))} ` +
+      `<span class="count">${photoTotal} 张</span>`;
+    head.appendChild(title);
+
+    const tripsLine = document.createElement("p");
+    tripsLine.className = "trip-meta";
+    tripsLine.innerHTML = entries
+      .map((e) => `<span>${escapeHTML(indexText(e.trip?.title, "旅程", 40))}</span>`)
+      .join("");
+    head.appendChild(tripsLine);
+
+    section.appendChild(head);
+
+    const wall = document.createElement("div");
+    wall.className = "photo-wall";
+
+    let photoIndex = 0;
+    entries.forEach(({ trip, photos }) => {
+      const title = indexText(trip?.title, "旅行照片", 60);
+      const emoji = indexText(trip?.moodEmoji, "📷", 8);
+      photos.forEach((photo) => {
+        const el = photoEl(photo, emoji, `${title} · ${month} · 第 ${photoIndex + 1} 张`);
+        el.setAttribute("data-reveal", "zoom");
+        el.style.setProperty("--d", `${Math.min(photoIndex * 0.03, 0.3)}s`);
+        observeReveal(el);
+        wall.appendChild(el);
+        photoIndex += 1;
+      });
+    });
+
+    section.appendChild(wall);
+    fragment.appendChild(section);
+  });
+
+  if (!fragment.childNodes.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.style.marginBlock = "80px";
+    empty.textContent = "还没有照片可以回顾。";
+    wrap.replaceChildren(empty);
+    return;
+  }
+
+  wrap.replaceChildren(fragment);
+  wrap.querySelectorAll("[data-reveal]").forEach((el) => observeReveal(el));
+  document.title = `途中光影 · 2026 年度回顾`;
 }
 
 function indexText(value, fallback = "", maxLength = 240) {

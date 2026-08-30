@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20260901" />
+  <link rel="stylesheet" href="css/style.css?v=20260902" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -58,15 +58,20 @@
         <div class="hero-orb o2" aria-hidden="true"></div>
 
         <div class="page-hero-inner">
-          <p class="hero-eyebrow pill">EVERY FRAME · GROUPED BY REGION</p>
+          <p class="hero-eyebrow pill">EVERY FRAME · BY REGION OR BY MONTH</p>
           <h1 id="photos-title">途中<span class="gradient-text">光影</span></h1>
-          <p class="page-sub">全部照片按旅程地区分组，点击任意一张可以放大翻看。</p>
+          <p class="page-sub">按地区进入每段旅程的相册，或按月份瀑布流回顾全年。</p>
+          <div class="mode-toggle" role="tablist" aria-label="查看模式" style="margin-top:24px">
+            <button type="button" class="active" data-mode="region" role="tab" aria-selected="true">🗺️ 按地区</button>
+            <button type="button" data-mode="month" role="tab" aria-selected="false">🗓️ 按月份</button>
+          </div>
         </div>
       </header>
 
       <nav class="region-nav" id="regionNav" aria-label="按地区跳转" hidden></nav>
 
       <div class="container" id="photo-groups" aria-live="polite">
+        <!--内容由 photos.js 按模式渲染-->
         <noscript><p class="empty-state">相册需要启用 JavaScript 浏览。</p></noscript>
       </div>
     </div>
@@ -104,8 +109,8 @@
     <span class="arrow" aria-hidden="true">↑</span>
   </button>
 
-  <script src="js/main.js?v=20260901"></script>
-  <script src="js/effects.js?v=20260901"></script>
-  <script src="js/photos.js?v=20260901"></script>
+  <script src="js/main.js?v=20260902"></script>
+  <script src="js/effects.js?v=20260902"></script>
+  <script src="js/photos.js?v=20260902"></script>
 </body>
 </html>

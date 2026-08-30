@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const trips = Array.isArray(data?.trips) ? data.trips : [];
 
     renderTripRail(trips);
-    renderMoments(trips);
+    renderBubbles(trips);
     renderStats(trips);
     renderTicker(trips);
   } catch {
@@ -52,120 +52,85 @@ function renderTicker(trips) {
   track.replaceChildren(buildList(), buildList());
 }
 
-/* ===== 通用轮播工厂 ===== */
-// items: 数据数组；renderSlide(item, index) 返回一个 DOM 节点
-// options: { auto: 自动播放毫秒数(0 关闭), ariaLabel, select }
-function createSlider(container, items, renderSlide, options = {}) {
-  if (!container || !items.length) return null;
+/* ===== 时光气泡 ===== */
+// 预设散点槽位（百分比），避免重叠
+const BUBBLE_SLOTS = [
+  { x: 8,  y: 16, s: "b-lg" },
+  { x: 27, y: 46, s: "b-md" },
+  { x: 43, y: 10, s: "b-md" },
+  { x: 58, y: 38, s: "b-lg" },
+  { x: 76, y: 12, s: "b-sm" },
+  { x: 89, y: 44, s: "b-md" },
+  { x: 15, y: 68, s: "b-sm" },
+  { x: 45, y: 70, s: "b-md" },
+  { x: 68, y: 68, s: "b-lg" },
+  { x: 90, y: 74, s: "b-sm" },
+  { x: 33, y: 28, s: "b-sm" },
+  { x: 70, y: 26, s: "b-sm" },
+];
 
-  const track = document.createElement("div");
-  track.className = "slider-track";
+function renderBubbles(trips) {
+  const field = document.querySelector("#bubble-field");
+  if (!field) return;
 
-  items.forEach((item, index) => {
-    const slide = document.createElement("div");
-    slide.className = "slider-slide";
-    const node = renderSlide(item, index);
-    if (node) slide.appendChild(node);
-    track.appendChild(slide);
-  });
-
-  const prevButton = document.createElement("button");
-  prevButton.className = "moment-arrow prev";
-  prevButton.type = "button";
-  prevButton.textContent = "←";
-  prevButton.setAttribute("aria-label", "上一个");
-
-  const nextButton = document.createElement("button");
-  nextButton.className = "moment-arrow next";
-  nextButton.type = "button";
-  nextButton.textContent = "→";
-  nextButton.setAttribute("aria-label", "下一个");
-
-  const counter = document.createElement("span");
-  counter.className = "moment-counter";
-
-  const dots = document.createElement("div");
-  dots.className = "moment-dots";
-
-  container.append(track, prevButton, nextButton, counter, dots);
-  container.tabIndex = 0;
-
-  const state = { index: 0, timer: 0 };
-  const autoMs = options.auto ?? 0;
-  const autoPlay = autoMs > 0 && !REDUCED_MOTION && !window.WEBDRIVER_MODE;
-
-  function update() {
-    track.style.transform = `translateX(-${state.index * 100}%)`;
-    counter.textContent = `${state.index + 1} / ${items.length}`;
-    dots.querySelectorAll("button").forEach((dot, index) => {
-      const isActive = index === state.index;
-      dot.classList.toggle("active", isActive);
-      dot.setAttribute("aria-selected", String(isActive));
+  const pool = [];
+  trips.forEach((trip) => {
+    (Array.isArray(trip?.photos) ? trip.photos : []).forEach((photo) => {
+      if (typeof photo === "string" && photo.trim()) {
+        pool.push({ path: photo, trip });
+      }
     });
-    if (typeof options.onSlide === "function") {
-      options.onSlide(state.index);
+  });
+
+  if (!pool.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "还没有照片可以变成气泡。";
+    field.replaceChildren(empty);
+    return;
+  }
+
+  const count = Math.min(BUBBLE_SLOTS.length, pool.length);
+  const step = pool.length / count;
+
+  const hint = document.createElement("span");
+  hint.className = "bubble-hint";
+  hint.textContent = "TAP A BUBBLE";
+  field.appendChild(hint);
+
+  for (let i = 0; i < count; i += 1) {
+    const slot = BUBBLE_SLOTS[i];
+    const item = pool[Math.floor(i * step)];
+    const trip = item.trip;
+
+    const bubble = document.createElement("a");
+    bubble.className = `bubble ${slot.s}`;
+    bubble.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
+    bubble.style.left = `${slot.x}%`;
+    bubble.style.top = `${slot.y}%`;
+    bubble.style.animationDelay = `${(i % 5) * -1.3}s`;
+    bubble.title = indexText(trip?.title, "旅程照片", 40);
+
+    const url = safeSameOriginURL(item.path);
+    if (url) {
+      const image = new Image();
+      image.loading = i < 4 ? "eager" : "lazy";
+      image.decoding = "async";
+      image.alt = indexText(trip?.title, "旅程照片", 40);
+      image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+      image.src = url.href;
+      bubble.appendChild(image);
     }
+
+    const tag = document.createElement("span");
+    tag.className = "bubble-tag";
+    tag.textContent = indexText(trip?.title, "旅程照片", 24);
+    bubble.appendChild(tag);
+
+    field.appendChild(bubble);
   }
-
-  function goTo(index) {
-    state.index = (index + items.length) % items.length;
-    update();
-  }
-
-  function restartAuto() {
-    if (!autoPlay) return;
-    window.clearInterval(state.timer);
-    state.timer = window.setInterval(() => {
-      if (document.hidden) return;
-      goTo(state.index + 1);
-    }, autoMs);
-  }
-
-  prevButton.addEventListener("click", () => { goTo(state.index - 1); restartAuto(); });
-  nextButton.addEventListener("click", () => { goTo(state.index + 1); restartAuto(); });
-
-  items.forEach((_, index) => {
-    const dot = document.createElement("button");
-    dot.type = "button";
-    dot.setAttribute("role", "tab");
-    dot.setAttribute("aria-label", `第 ${index + 1} 项`);
-    dot.addEventListener("click", () => { goTo(index); restartAuto(); });
-    dots.appendChild(dot);
-  });
-
-  container.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") { goTo(state.index - 1); restartAuto(); }
-    else if (event.key === "ArrowRight") { goTo(state.index + 1); restartAuto(); }
-  });
-
-  let dragStartX = null;
-  container.addEventListener("pointerdown", (event) => { dragStartX = event.clientX; });
-  container.addEventListener("pointerup", (event) => {
-    if (dragStartX === null) return;
-    const delta = event.clientX - dragStartX;
-    dragStartX = null;
-    if (Math.abs(delta) < 48) return;
-    goTo(state.index + (delta < 0 ? 1 : -1));
-    restartAuto();
-  });
-  container.addEventListener("pointercancel", () => { dragStartX = null; });
-  container.addEventListener("pointerenter", () => window.clearInterval(state.timer));
-  container.addEventListener("pointerleave", restartAuto);
-
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) restartAuto();
-        else window.clearInterval(state.timer);
-      },
-      { threshold: 0.3 }
-    ).observe(container);
-  }
-
-  update();
-  restartAuto();
-  return { goTo };
 }
+
 
 /* ===== 旅程卡片轨道（旅行记录） ===== */
 function renderTripRail(trips) {
@@ -266,101 +231,6 @@ function createRailCard(trip, index) {
   card.appendChild(body);
 
   return card;
-}
-
-function renderTripCover(container, path, fallbackEmoji, title) {
-  const fallback = document.createElement("span");
-  fallback.className = "media-fallback";
-  fallback.textContent = fallbackEmoji;
-  fallback.setAttribute("aria-hidden", "true");
-  container.appendChild(fallback);
-
-  const url = safeSameOriginURL(path);
-  if (!url) return;
-
-  const image = new Image();
-  image.loading = "lazy";
-  image.decoding = "async";
-  image.alt = `${title}封面照片`;
-
-  image.addEventListener(
-    "load",
-    () => {
-      image.classList.add("is-loaded");
-      fallback.remove();
-    },
-    { once: true }
-  );
-
-  image.addEventListener("error", () => image.remove(), { once: true });
-
-  image.src = url.href;
-  container.appendChild(image);
-}
-
-/* ===== 高光精选轮播（每个地区一张封面） ===== */
-function renderMoments(trips) {
-  const container = document.querySelector("#moment-slider");
-  if (!container) return;
-
-  const moments = trips
-    .filter((trip) => Array.isArray(trip?.photos) && trip.photos.length)
-    .map((trip) => ({
-      path: trip.photos[0],
-      title: indexText(trip?.title, "旅行照片", 60),
-      meta: indexText(trip?.location, "", 60),
-      id: indexText(trip?.id, "", 60),
-    }));
-
-  if (!moments.length) {
-    const empty = document.createElement("p");
-    empty.className = "empty-state";
-    empty.textContent = "还没有高光照片，往 photos/ 里放几张旅途大片吧。";
-    container.replaceChildren(empty);
-    return;
-  }
-
-  createSlider(
-    container,
-    moments,
-    (moment, index) => {
-      const slide = document.createElement("figure");
-      slide.className = "moment-slide";
-      slide.setAttribute("role", "group");
-      slide.setAttribute("aria-roledescription", "幻灯片");
-      slide.setAttribute("aria-label", `${index + 1} / ${moments.length}`);
-
-      const url = safeSameOriginURL(moment.path);
-      if (url) {
-        const image = new Image();
-        image.loading = index < 2 ? "eager" : "lazy";
-        image.decoding = "async";
-        image.alt = moment.title;
-        image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
-        image.src = url.href;
-        slide.appendChild(image);
-      }
-
-      const caption = document.createElement("figcaption");
-      caption.className = "moment-caption";
-      caption.innerHTML =
-        `<span class="moment-title">${escapeHTML(moment.title)}</span>` +
-        (moment.meta ? `<span class="moment-mood">${escapeHTML(moment.meta)}</span>` : "");
-      slide.appendChild(caption);
-
-      // 点击封面 → 该旅程相册
-      if (moment.id) {
-        slide.style.cursor = "pointer";
-        slide.addEventListener("click", () => {
-          window.location.href = `trip.html?id=${encodeURIComponent(moment.id)}`;
-        });
-        slide.title = "点击查看该旅程相册";
-      }
-
-      return slide;
-    },
-    { auto: 5000, ariaLabel: "旅行高光照片" }
-  );
 }
 
 /* ===== 统计（数字滚动） ===== */
