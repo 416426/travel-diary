@@ -83,13 +83,14 @@ travel-diary/
 无需安装任何依赖，任选其一：
 
 ```bash
-python3 -m http.server 8080        # Python 内置服务器
-npx serve .                        # 或 Node 的 serve（如已安装）
+python3 dev-server.py 8123         # 推荐：禁用缓存，改数据后刷新即生效
+python3 -m http.server 8080        # 或 Python 内置服务器
 ```
 
-浏览器访问 `http://localhost:8080`
+浏览器访问 `http://localhost:8123`
 
 > ⚠️ 数据通过 fetch 加载，直接双击 HTML（file://）会提示需要本地服务器。
+> 💡 页面脚本自带缓存穿透参数，数据更新后刷新即可看到；推荐使用 `dev-server.py` 彻底禁用缓存。
 
 ## ✅ 测试
 

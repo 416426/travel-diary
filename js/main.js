@@ -338,7 +338,11 @@ async function loadJSON(path) {
   const url = safeSameOriginURL(path);
   if (!url) throw new Error("DATA_LOAD_FAILED");
 
-  const response = await fetch(url.href, {
+  // 数据文件总是拉最新：加时间戳参数穿透浏览器缓存，
+  // 避免更新 trips/notes 后页面仍显示旧数据
+  const bustURL = `${url.href}${url.search ? "&" : "?"}_=${Date.now()}`;
+
+  const response = await fetch(bustURL, {
     method: "GET",
     credentials: "same-origin",
     headers: { Accept: "application/json" },

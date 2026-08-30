@@ -106,11 +106,21 @@ function animateCount(element, target) {
 
   const duration = 1300;
   const start = performance.now();
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    element.textContent = String(target);
+  };
+  // rAF 被节流（如页面不可见）时兜底写入最终值
+  window.setTimeout(finish, duration + 400);
   const step = (now) => {
+    if (done) return;
     const t = Math.min((now - start) / duration, 1);
     const eased = 1 - Math.pow(1 - t, 3);
     element.textContent = String(Math.round(target * eased));
     if (t < 1) window.requestAnimationFrame(step);
+    else finish();
   };
   window.requestAnimationFrame(step);
 }
