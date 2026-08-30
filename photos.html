@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#05070f" />
   <meta name="color-scheme" content="dark" />
   <style>html{background:#05070f}</style>
-  <meta name="description" content="旅程时间线、旅行统计与目的地心愿清单。" />
-  <meta property="og:title" content="旅程日志 · 旅行日记" />
-  <meta property="og:description" content="时间线、统计与心愿清单。" />
+  <meta name="description" content="途中光影：按地区分组的全部旅行照片。" />
+  <meta property="og:title" content="途中光影 · 旅行日记" />
+  <meta property="og:description" content="按地区分组的全部旅行照片。" />
   <meta property="og:type" content="website" />
-  <title>旅程日志 · 旅行日记</title>
+  <title>途中光影 · 旅行日记</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,7 +25,7 @@
     <div class="preloader-inner">
       <div class="preloader-logo">旅行<span>日记</span></div>
       <div class="preloader-bar"><i></i></div>
-      <p class="preloader-tip">PLAYING THE TIMELINE</p>
+      <p class="preloader-tip">EVERY FRAME REMEMBERED</p>
     </div>
   </div>
 
@@ -41,8 +41,8 @@
         aria-label="打开导航菜单" aria-controls="navLinks" aria-expanded="false">菜单</button>
       <ul class="nav-links" id="navLinks">
         <li><a href="index.html">首页</a></li>
-        <li><a href="journey.html" aria-current="page">旅程日志</a></li>
-        <li><a href="photos.html">途中光影</a></li>
+        <li><a href="journey.html">旅程日志</a></li>
+        <li><a href="photos.html" aria-current="page">途中光影</a></li>
         <li><a href="next.html">下次旅行</a></li>
         <li><a href="notes.html">笔记</a></li>
         <li><a href="about.html">关于我</a></li>
@@ -51,63 +51,23 @@
   </header>
 
   <main id="main-content">
-    <div id="journey-wrap">
-      <header class="page-hero p-aurora" aria-labelledby="journey-title">
+    <div id="photos-wrap">
+      <header class="page-hero p-mint" aria-labelledby="photos-title">
         <div class="grid-bg" aria-hidden="true"></div>
         <div class="hero-orb o1" aria-hidden="true"></div>
         <div class="hero-orb o2" aria-hidden="true"></div>
 
         <div class="page-hero-inner">
-          <p class="hero-eyebrow pill">JOURNEY LOG · EVERY MILE REMEMBERED</p>
-          <h1 id="journey-title">旅程<span class="gradient-text">日志</span></h1>
-          <p class="page-sub">把走过的路串成一条时间线，把想去的地方列成一张清单。</p>
+          <p class="hero-eyebrow pill">EVERY FRAME · GROUPED BY REGION</p>
+          <h1 id="photos-title">途中<span class="gradient-text">光影</span></h1>
+          <p class="page-sub">全部照片按旅程地区分组，点击任意一张可以放大翻看。</p>
         </div>
       </header>
 
-      <div class="container">
-        <section class="section" id="journey-stats" aria-labelledby="stats-title">
-          <header class="section-head" data-reveal>
-            <p class="eyebrow">STATS OVERVIEW</p>
-            <h2 class="section-title" id="stats-title">旅行统计</h2>
-            <p class="section-sub">数字会记得每一次出发。</p>
-          </header>
-          <div class="stats-grid" id="stats-grid" aria-live="polite"></div>
-        </section>
+      <nav class="region-nav" id="regionNav" aria-label="按地区跳转" hidden></nav>
 
-        <section class="section" id="journey-timeline" aria-labelledby="timeline-title">
-          <header class="section-head" data-reveal>
-            <p class="eyebrow">TIMELINE</p>
-            <h2 class="section-title" id="timeline-title">旅程时间线</h2>
-            <p class="section-sub">按时间倒序，最新的一段路在最上面。</p>
-          </header>
-          <div class="page-timeline" id="page-timeline" aria-live="polite"></div>
-        </section>
-
-        <section class="section" id="journey-wishlist" aria-labelledby="wishlist-title">
-          <header class="section-head" data-reveal>
-            <p class="eyebrow">BUCKET LIST</p>
-            <h2 class="section-title" id="wishlist-title">目的地心愿清单</h2>
-            <p class="section-sub">有些地方还在梦里，有些已经在日程表上。</p>
-            <div class="wish-progress" role="progressbar" aria-label="心愿完成进度"
-              aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-reveal>
-              <span class="wish-progress-bar" id="wishProgressBar"></span>
-              <span class="wish-progress-text" id="wishProgressText">0 / 0 已解锁</span>
-            </div>
-          </header>
-          <div class="wish-grid" id="wish-grid" aria-live="polite"></div>
-        </section>
-
-        <section class="next-cta" aria-labelledby="journey-cta-title" data-reveal>
-          <div>
-            <p class="cta-eyebrow">KEEP GOING</p>
-            <h2 id="journey-cta-title">下一章，正在路上</h2>
-            <p>看看已经排期的行程，或者读读路上的笔记。</p>
-          </div>
-          <div class="hero-actions">
-            <a class="button" href="next.html">下次旅行 <span aria-hidden="true">→</span></a>
-            <a class="button button-secondary" href="notes.html">路上笔记 <span aria-hidden="true">→</span></a>
-          </div>
-        </section>
+      <div class="container" id="photo-groups" aria-live="polite">
+        <noscript><p class="empty-state">相册需要启用 JavaScript 浏览。</p></noscript>
       </div>
     </div>
   </main>
@@ -125,7 +85,7 @@
       </nav>
     </div>
     <div class="footer-base">
-      <p>© 2026 旅行日记 · 把走过的路串成故事</p>
+      <p>© 2026 旅行日记 · 那些没有被语言说完的风景</p>
       <p>BUILT WITH STARDUST &amp; CURIOSITY</p>
     </div>
   </footer>
@@ -146,6 +106,6 @@
 
   <script src="js/main.js?v=20260831"></script>
   <script src="js/effects.js?v=20260831"></script>
-  <script src="js/journey.js?v=20260831"></script>
+  <script src="js/photos.js?v=20260831"></script>
 </body>
 </html>

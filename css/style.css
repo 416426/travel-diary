@@ -794,7 +794,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .lb-next { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); }
 .lb-prev:active, .lb-next:active { transform: translateY(-50%) scale(0.94); }
 
-/* ---------- 13. 高光时刻轮播 ---------- */
+/* ---------- 13. 轮播（高光 / 旅程通用） ---------- */
 .rec-note, .rec-source {
   color: var(--text-3);
   font-size: 0.85rem;
@@ -802,7 +802,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .rec-note { margin-top: 8px; }
 .rec-source { margin-top: 12px; }
 
-.moment-slider {
+.slider {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--stroke);
@@ -811,15 +811,17 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   box-shadow: var(--shadow-1);
   touch-action: pan-y;
 }
-.moment-track {
+.slider-track {
   display: flex;
   transition: transform 0.55s var(--ease-out);
 }
+.slider-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
 .moment-slide {
   position: relative;
-  flex: 0 0 100%;
   margin: 0;
-  min-width: 0;
   aspect-ratio: 16 / 8;
   max-height: 560px;
   overflow: hidden;
@@ -895,6 +897,122 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   background: var(--aurora);
   box-shadow: 0 0 10px rgba(103, 232, 249, 0.6);
 }
+
+/* 旅程轮播（首页旅行记录） */
+.trip-slide { padding-inline: clamp(58px, 7vw, 96px); }
+.trip-slide .trip-card { height: 100%; }
+.trip-slide .card-media { aspect-ratio: 16 / 7; }
+.slider.trip-slider { border-radius: var(--radius-card); }
+
+/* ---------- 13b. 途中光影相册页 ---------- */
+.region-nav {
+  position: sticky; top: var(--header-height); z-index: 900;
+  display: flex; gap: 6px;
+  padding: 10px 24px;
+  overflow-x: auto;
+  background: rgba(5, 7, 15, 0.78);
+  border-bottom: 1px solid var(--stroke);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  scrollbar-width: none;
+}
+.region-nav::-webkit-scrollbar { display: none; }
+.region-nav a {
+  flex: 0 0 auto;
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 38px;
+  padding: 7px 15px;
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-pill);
+  font-weight: 600; font-size: 0.84rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast), background var(--dur-fast), border-color var(--dur-fast);
+}
+.region-nav a:hover { color: var(--text-1); border-color: rgba(103, 232, 249, 0.45); }
+.region-nav a .n {
+  color: var(--cyan);
+  font: 600 0.72rem var(--font-mono);
+}
+.photo-group { padding-block: clamp(44px, 6vw, 72px); }
+.photo-group + .photo-group { border-top: 1px solid var(--stroke); }
+.photo-group-head { margin-bottom: 26px; }
+.photo-group-head h2 {
+  display: flex; align-items: baseline; gap: 14px;
+  flex-wrap: wrap;
+}
+.photo-group-head .count {
+  color: var(--text-3);
+  font: 600 0.8rem var(--font-mono);
+  letter-spacing: 0.12em;
+}
+
+/* ---------- 13c. 旅程详情页 ---------- */
+.trip-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: clamp(420px, 62svh, 620px);
+  align-content: end;
+  overflow: hidden;
+  padding: calc(var(--header-height) + 64px) 24px 56px;
+  color: var(--text-1);
+  background: var(--bg-1) center / cover no-repeat;
+}
+.trip-hero::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(5, 7, 15, 0.55), rgba(5, 7, 15, 0.35) 40%, rgba(5, 7, 15, 0.92)),
+    linear-gradient(90deg, rgba(5, 7, 15, 0.55), transparent 60%);
+}
+.trip-hero-inner { width: min(100%, var(--container)); margin-inline: auto; }
+.trip-hero .back-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-bottom: 22px;
+  padding: 8px 16px;
+  color: var(--text-2);
+  background: rgba(5, 7, 15, 0.5);
+  border: 1px solid var(--stroke-strong);
+  border-radius: var(--radius-pill);
+  font-size: 0.86rem; font-weight: 600;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+}
+.trip-hero .back-link:hover { color: var(--text-1); border-color: rgba(103, 232, 249, 0.5); }
+.trip-hero h1 { margin-bottom: 16px; }
+.trip-hero .trip-brief {
+  max-width: 44rem;
+  color: rgba(238, 242, 255, 0.85);
+  font-size: 1.02rem;
+}
+.trip-neighbor-nav {
+  display: grid; gap: 18px;
+  grid-template-columns: 1fr 1fr;
+  margin-block: var(--space-section) 8px;
+}
+.trip-neighbor {
+  display: grid; gap: 4px;
+  padding: 20px 24px;
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-card);
+  text-decoration: none;
+  transition: border-color var(--dur-fast), transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
+}
+.trip-neighbor:hover {
+  border-color: rgba(103, 232, 249, 0.45);
+  box-shadow: var(--shadow-1);
+  transform: translateY(-3px);
+}
+.trip-neighbor .dir { color: var(--text-3); font: 600 0.7rem var(--font-mono); letter-spacing: 0.2em; text-transform: uppercase; }
+.trip-neighbor b { color: var(--text-1); font-family: var(--font-display); font-size: 1.05rem; }
+.trip-neighbor.next { text-align: right; }
+@media (max-width: 640px) { .trip-neighbor-nav { grid-template-columns: 1fr; } .trip-neighbor.next { text-align: left; } }
 
 /* ---------- 14. 行前指南（bento）与出发清单 ---------- */
 .guide-grid {
@@ -1622,6 +1740,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .photo-wall > * { margin-bottom: 12px; }
   .guide-grid { grid-template-columns: 1fr; }
   .moment-slide { aspect-ratio: 4 / 3; }
+  .trip-slide { padding-inline: 46px; }
   .moment-caption { padding: 28px 16px 14px; flex-direction: column; align-items: flex-start; gap: 4px; }
   .moment-arrow { width: 38px; height: 38px; font-size: 0.9rem; }
   .moment-arrow.prev { left: 10px; }

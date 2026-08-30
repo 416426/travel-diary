@@ -1,7 +1,6 @@
 "use strict";
 
-// index.js — 首页：星空画布、跑马灯、旅行卡片（3D tilt）、照片墙、
-// 高光时刻轮播、统计数字滚动
+// index.js — 首页：星空画布、跑马灯、旅程轮播、高光精选轮播（每地区一张）、统计数字滚动
 
 document.addEventListener("DOMContentLoaded", async () => {
   createStarfield(document.querySelector("#starfield"));
@@ -11,8 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await loadJSON("data/trips.json");
     const trips = Array.isArray(data?.trips) ? data.trips : [];
 
-    renderTrips(trips);
-    renderWall(trips);
+    renderTripSlider(trips);
     renderMoments(trips);
     renderStats(trips);
     renderTicker(trips);
@@ -54,33 +52,146 @@ function renderTicker(trips) {
   track.replaceChildren(buildList(), buildList());
 }
 
-/* ===== 旅程卡片 ===== */
-function renderTrips(trips) {
-  const wrapper = document.querySelector("#trips-grid");
-  if (!wrapper) return;
+/* ===== 通用轮播工厂 ===== */
+// items: 数据数组；renderSlide(item, index) 返回一个 DOM 节点
+// options: { auto: 自动播放毫秒数(0 关闭), ariaLabel, select }
+function createSlider(container, items, renderSlide, options = {}) {
+  if (!container || !items.length) return null;
 
-  const fragment = document.createDocumentFragment();
+  const track = document.createElement("div");
+  track.className = "slider-track";
 
-  trips.forEach((trip, index) => {
-    fragment.appendChild(createTripCard(trip, index));
+  items.forEach((item, index) => {
+    const slide = document.createElement("div");
+    slide.className = "slider-slide";
+    const node = renderSlide(item, index);
+    if (node) slide.appendChild(node);
+    track.appendChild(slide);
   });
 
-  if (!fragment.childNodes.length) {
+  const prevButton = document.createElement("button");
+  prevButton.className = "moment-arrow prev";
+  prevButton.type = "button";
+  prevButton.textContent = "←";
+  prevButton.setAttribute("aria-label", "上一个");
+
+  const nextButton = document.createElement("button");
+  nextButton.className = "moment-arrow next";
+  nextButton.type = "button";
+  nextButton.textContent = "→";
+  nextButton.setAttribute("aria-label", "下一个");
+
+  const counter = document.createElement("span");
+  counter.className = "moment-counter";
+
+  const dots = document.createElement("div");
+  dots.className = "moment-dots";
+
+  container.append(track, prevButton, nextButton, counter, dots);
+  container.tabIndex = 0;
+
+  const state = { index: 0, timer: 0 };
+  const autoMs = options.auto ?? 0;
+  const autoPlay = autoMs > 0 && !REDUCED_MOTION && !window.WEBDRIVER_MODE;
+
+  function update() {
+    track.style.transform = `translateX(-${state.index * 100}%)`;
+    counter.textContent = `${state.index + 1} / ${items.length}`;
+    dots.querySelectorAll("button").forEach((dot, index) => {
+      const isActive = index === state.index;
+      dot.classList.toggle("active", isActive);
+      dot.setAttribute("aria-selected", String(isActive));
+    });
+    if (typeof options.onSlide === "function") {
+      options.onSlide(state.index);
+    }
+  }
+
+  function goTo(index) {
+    state.index = (index + items.length) % items.length;
+    update();
+  }
+
+  function restartAuto() {
+    if (!autoPlay) return;
+    window.clearInterval(state.timer);
+    state.timer = window.setInterval(() => {
+      if (document.hidden) return;
+      goTo(state.index + 1);
+    }, autoMs);
+  }
+
+  prevButton.addEventListener("click", () => { goTo(state.index - 1); restartAuto(); });
+  nextButton.addEventListener("click", () => { goTo(state.index + 1); restartAuto(); });
+
+  items.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.setAttribute("role", "tab");
+    dot.setAttribute("aria-label", `第 ${index + 1} 项`);
+    dot.addEventListener("click", () => { goTo(index); restartAuto(); });
+    dots.appendChild(dot);
+  });
+
+  container.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") { goTo(state.index - 1); restartAuto(); }
+    else if (event.key === "ArrowRight") { goTo(state.index + 1); restartAuto(); }
+  });
+
+  let dragStartX = null;
+  container.addEventListener("pointerdown", (event) => { dragStartX = event.clientX; });
+  container.addEventListener("pointerup", (event) => {
+    if (dragStartX === null) return;
+    const delta = event.clientX - dragStartX;
+    dragStartX = null;
+    if (Math.abs(delta) < 48) return;
+    goTo(state.index + (delta < 0 ? 1 : -1));
+    restartAuto();
+  });
+  container.addEventListener("pointercancel", () => { dragStartX = null; });
+  container.addEventListener("pointerenter", () => window.clearInterval(state.timer));
+  container.addEventListener("pointerleave", restartAuto);
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) restartAuto();
+        else window.clearInterval(state.timer);
+      },
+      { threshold: 0.3 }
+    ).observe(container);
+  }
+
+  update();
+  restartAuto();
+  return { goTo };
+}
+
+/* ===== 旅程轮播（旅行记录） ===== */
+function renderTripSlider(trips) {
+  const container = document.querySelector("#trip-slider");
+  if (!container) return;
+
+  if (!trips.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
     empty.textContent = "旅行记录正在整理中。";
-    fragment.appendChild(empty);
+    container.replaceChildren(empty);
+    return;
   }
 
-  wrapper.replaceChildren(fragment);
+  createSlider(
+    container,
+    trips,
+    (trip, index) => createTripCard(trip, index),
+    { auto: 7000, ariaLabel: "旅程轮播" }
+  );
 }
 
 function createTripCard(trip, index) {
   const article = document.createElement("article");
-  article.className = "card trip-card tilt-card";
-  article.setAttribute("data-tilt", "");
+  article.className = "card trip-card";
   article.setAttribute("data-reveal", "");
-  article.style.setProperty("--d", `${(index % 2) * 0.12}s`);
 
   const media = document.createElement("div");
   media.className = "card-media";
@@ -101,7 +212,12 @@ function createTripCard(trip, index) {
   body.className = "card-body";
 
   const title = document.createElement("h3");
-  title.textContent = indexText(trip?.title, "未命名旅程", 80);
+  const titleLink = document.createElement("a");
+  titleLink.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
+  titleLink.textContent = indexText(trip?.title, "未命名旅程", 80);
+  titleLink.style.color = "inherit";
+  titleLink.style.textDecoration = "none";
+  title.appendChild(titleLink);
 
   const meta = document.createElement("div");
   meta.className = "trip-meta";
@@ -118,57 +234,28 @@ function createTripCard(trip, index) {
 
   const thoughts = document.createElement("p");
   thoughts.className = "trip-thoughts";
-  thoughts.textContent = indexText(
-    trip?.thoughts,
-    "这段旅程的故事正在整理中。",
-    1200
-  );
+  thoughts.textContent = indexText(trip?.thoughts, "这段旅程的故事正在整理中。", 600);
 
   body.append(title, meta, mood, thoughts);
 
-  const highlightList = document.createElement("ul");
-  highlightList.className = "highlight-list";
-
-  const highlights = Array.isArray(trip?.highlights) ? trip.highlights : [];
-  highlights.forEach((highlight) => {
-    const item = document.createElement("li");
-    const dot = document.createElement("span");
-    const name = document.createElement("span");
-    const note = document.createElement("span");
-
-    dot.className = "dot";
-    dot.textContent = "📍";
-    dot.setAttribute("aria-hidden", "true");
-
-    name.className = "name";
-    name.textContent = indexText(highlight?.name, "旅途坐标", 80);
-
-    note.className = "note";
-    note.textContent = indexText(highlight?.note, "暂无补充说明", 180);
-
-    item.append(dot, name, note);
-    highlightList.appendChild(item);
-  });
-
-  if (highlightList.childElementCount) body.appendChild(highlightList);
-
   const tags = document.createElement("div");
   tags.className = "tags";
-
-  const tagValues = Array.isArray(trip?.tags) ? trip.tags : [];
-  tagValues.slice(0, 20).forEach((value) => {
+  (Array.isArray(trip?.tags) ? trip.tags : []).slice(0, 8).forEach((value) => {
     const tag = document.createElement("span");
     tag.className = "tag";
     tag.textContent = `#${indexText(value, "旅行", 32)}`;
     tags.appendChild(tag);
   });
-
   if (tags.childElementCount) body.appendChild(tags);
+
+  const photoCount = Array.isArray(trip?.photos)
+    ? trip.photos.filter((p) => typeof p === "string" && p.trim()).length
+    : 0;
 
   const link = document.createElement("a");
   link.className = "trip-link";
-  link.href = "journey.html";
-  link.innerHTML = `阅读旅程日志 <span class="arr" aria-hidden="true">→</span>`;
+  link.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
+  link.innerHTML = `进入旅程相册（${photoCount} 张照片） <span class="arr" aria-hidden="true">→</span>`;
   body.appendChild(link);
 
   article.append(media, body);
@@ -187,7 +274,6 @@ function renderTripCover(container, path, fallbackEmoji, title) {
   const url = safeSameOriginURL(path);
   if (!url) return;
 
-  // 图片立即挂载进入懒加载管线，加载完成后淡入覆盖占位
   const image = new Image();
   image.loading = "lazy";
   image.decoding = "async";
@@ -208,200 +294,69 @@ function renderTripCover(container, path, fallbackEmoji, title) {
   container.appendChild(image);
 }
 
-/* ===== 照片墙 ===== */
-function renderWall(trips) {
-  const wall = document.querySelector("#photo-wall");
-  if (!wall) return;
-
-  const fragment = document.createDocumentFragment();
-  let photoIndex = 0;
-
-  trips.forEach((trip) => {
-    const title = indexText(trip?.title, "旅行照片", 80);
-    const emoji = indexText(trip?.moodEmoji, "📷", 8);
-
-    const photos = Array.isArray(trip?.photos)
-      ? trip.photos.filter((photo) => typeof photo === "string" && photo.trim())
-      : [];
-
-    if (!photos.length) {
-      fragment.appendChild(photoEl("", emoji, title));
-      return;
-    }
-
-    photos.forEach((photo, index) => {
-      const el = photoEl(photo, emoji, `${title} · 第 ${index + 1} 张`);
-      el.setAttribute("data-reveal", "zoom");
-      el.style.setProperty("--d", `${Math.min(photoIndex * 0.05, 0.4)}s`);
-      observeReveal(el);
-      fragment.appendChild(el);
-      photoIndex += 1;
-    });
-  });
-
-  wall.replaceChildren(fragment);
-}
-
-/* ===== 高光时刻轮播 ===== */
+/* ===== 高光精选轮播（每个地区一张封面） ===== */
 function renderMoments(trips) {
-  const slider = document.querySelector("#moment-slider");
-  if (!slider) return;
+  const container = document.querySelector("#moment-slider");
+  if (!container) return;
 
-  const moments = [];
-  trips.forEach((trip) => {
-    const title = indexText(trip?.title, "旅行照片", 80);
-    const mood = indexText(trip?.mood, "", 100);
-
-    (Array.isArray(trip?.photos) ? trip.photos : [])
-      .filter((photo) => typeof photo === "string" && photo.trim())
-      .forEach((photo, index) => {
-        moments.push({
-          path: photo,
-          caption: `${title} · 第 ${index + 1} 张`,
-          mood,
-        });
-      });
-  });
+  const moments = trips
+    .filter((trip) => Array.isArray(trip?.photos) && trip.photos.length)
+    .map((trip) => ({
+      path: trip.photos[0],
+      title: indexText(trip?.title, "旅行照片", 60),
+      meta: indexText(trip?.location, "", 60),
+      id: indexText(trip?.id, "", 60),
+    }));
 
   if (!moments.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
     empty.textContent = "还没有高光照片，往 photos/ 里放几张旅途大片吧。";
-    slider.replaceChildren(empty);
+    container.replaceChildren(empty);
     return;
   }
 
-  const track = document.createElement("div");
-  track.className = "moment-track";
+  createSlider(
+    container,
+    moments,
+    (moment, index) => {
+      const slide = document.createElement("figure");
+      slide.className = "moment-slide";
+      slide.setAttribute("role", "group");
+      slide.setAttribute("aria-roledescription", "幻灯片");
+      slide.setAttribute("aria-label", `${index + 1} / ${moments.length}`);
 
-  moments.forEach((moment, index) => {
-    const slide = document.createElement("figure");
-    slide.className = "moment-slide";
-    slide.setAttribute("role", "group");
-    slide.setAttribute("aria-roledescription", "幻灯片");
-    slide.setAttribute("aria-label", `${index + 1} / ${moments.length}`);
+      const url = safeSameOriginURL(moment.path);
+      if (url) {
+        const image = new Image();
+        image.loading = index < 2 ? "eager" : "lazy";
+        image.decoding = "async";
+        image.alt = moment.title;
+        image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
+        image.src = url.href;
+        slide.appendChild(image);
+      }
 
-    const url = safeSameOriginURL(moment.path);
-    if (url) {
-      const image = new Image();
-      image.loading = index < 2 ? "eager" : "lazy";
-      image.decoding = "async";
-      image.alt = moment.caption;
-      image.addEventListener("load", () => image.classList.add("is-loaded"), { once: true });
-      image.src = url.href;
-      slide.appendChild(image);
-    }
+      const caption = document.createElement("figcaption");
+      caption.className = "moment-caption";
+      caption.innerHTML =
+        `<span class="moment-title">${escapeHTML(moment.title)}</span>` +
+        (moment.meta ? `<span class="moment-mood">${escapeHTML(moment.meta)}</span>` : "");
+      slide.appendChild(caption);
 
-    const caption = document.createElement("figcaption");
-    caption.className = "moment-caption";
-    caption.innerHTML =
-      `<span class="moment-title">${escapeHTML(moment.caption)}</span>` +
-      (moment.mood ? `<span class="moment-mood">${escapeHTML(moment.mood)}</span>` : "");
-    slide.appendChild(caption);
+      // 点击封面 → 该旅程相册
+      if (moment.id) {
+        slide.style.cursor = "pointer";
+        slide.addEventListener("click", () => {
+          window.location.href = `trip.html?id=${encodeURIComponent(moment.id)}`;
+        });
+        slide.title = "点击查看该旅程相册";
+      }
 
-    track.appendChild(slide);
-  });
-
-  const prevButton = document.createElement("button");
-  prevButton.className = "moment-arrow prev";
-  prevButton.type = "button";
-  prevButton.textContent = "←";
-  prevButton.setAttribute("aria-label", "上一张");
-
-  const nextButton = document.createElement("button");
-  nextButton.className = "moment-arrow next";
-  nextButton.type = "button";
-  nextButton.textContent = "→";
-  nextButton.setAttribute("aria-label", "下一张");
-
-  const counter = document.createElement("span");
-  counter.className = "moment-counter";
-
-  const dots = document.createElement("div");
-  dots.className = "moment-dots";
-  dots.setAttribute("role", "tablist");
-  dots.setAttribute("aria-label", "选择照片");
-
-  slider.append(track, prevButton, nextButton, counter, dots);
-
-  const state = { index: 0, timer: 0 };
-  const autoPlay = !REDUCED_MOTION && !window.WEBDRIVER_MODE;
-
-  function update() {
-    track.style.transform = `translateX(-${state.index * 100}%)`;
-    counter.textContent = `${state.index + 1} / ${moments.length}`;
-
-    dots.querySelectorAll("button").forEach((dot, index) => {
-      const isActive = index === state.index;
-      dot.classList.toggle("active", isActive);
-      dot.setAttribute("aria-selected", String(isActive));
-    });
-  }
-
-  function goTo(index) {
-    state.index = (index + moments.length) % moments.length;
-    update();
-  }
-
-  function restartAuto() {
-    if (!autoPlay) return;
-    window.clearInterval(state.timer);
-    state.timer = window.setInterval(() => {
-      if (document.hidden) return;
-      goTo(state.index + 1);
-    }, 5000);
-  }
-
-  prevButton.addEventListener("click", () => { goTo(state.index - 1); restartAuto(); });
-  nextButton.addEventListener("click", () => { goTo(state.index + 1); restartAuto(); });
-
-  moments.forEach((_, index) => {
-    const dot = document.createElement("button");
-    dot.type = "button";
-    dot.setAttribute("role", "tab");
-    dot.setAttribute("aria-label", `第 ${index + 1} 张`);
-    dot.addEventListener("click", () => { goTo(index); restartAuto(); });
-    dots.appendChild(dot);
-  });
-
-  slider.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") { goTo(state.index - 1); restartAuto(); }
-    else if (event.key === "ArrowRight") { goTo(state.index + 1); restartAuto(); }
-  });
-
-  slider.tabIndex = 0;
-
-  // 拖拽翻页
-  let dragStartX = null;
-  slider.addEventListener("pointerdown", (event) => {
-    dragStartX = event.clientX;
-  });
-  slider.addEventListener("pointerup", (event) => {
-    if (dragStartX === null) return;
-    const delta = event.clientX - dragStartX;
-    dragStartX = null;
-    if (Math.abs(delta) < 48) return;
-    goTo(state.index + (delta < 0 ? 1 : -1));
-    restartAuto();
-  });
-  slider.addEventListener("pointercancel", () => { dragStartX = null; });
-
-  slider.addEventListener("pointerenter", () => window.clearInterval(state.timer));
-  slider.addEventListener("pointerleave", restartAuto);
-
-  // 离开视口暂停自动播放
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) restartAuto();
-        else window.clearInterval(state.timer);
-      },
-      { threshold: 0.3 }
-    ).observe(slider);
-  }
-
-  update();
-  restartAuto();
+      return slide;
+    },
+    { auto: 5000, ariaLabel: "旅行高光照片" }
+  );
 }
 
 /* ===== 统计（数字滚动） ===== */
@@ -489,13 +444,11 @@ function extractCity(trip) {
 
 /* ===== 错误状态 ===== */
 function showIndexError() {
-  const trips = document.querySelector("#trips-grid");
-  const wall = document.querySelector("#photo-wall");
-  const slider = document.querySelector("#moment-slider");
+  const slider = document.querySelector("#trip-slider");
+  const moments = document.querySelector("#moment-slider");
 
-  if (trips) trips.textContent = "旅行记录暂时无法加载。";
-  if (wall) wall.textContent = "照片暂时无法加载。";
-  if (slider) slider.textContent = "高光时刻暂时无法加载。";
+  if (slider) slider.textContent = "旅行记录暂时无法加载。";
+  if (moments) moments.textContent = "高光时刻暂时无法加载。";
 
   ["#stat-trips", "#stat-photos", "#stat-cities"].forEach((selector) => {
     const element = document.querySelector(selector);

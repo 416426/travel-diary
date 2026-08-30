@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20260830" />
+  <link rel="stylesheet" href="css/style.css?v=20260831" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -42,6 +42,7 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="index.html" aria-current="page">首页</a></li>
         <li><a href="journey.html">旅程日志</a></li>
+        <li><a href="photos.html">途中光影</a></li>
         <li><a href="next.html">下次旅行</a></li>
         <li><a href="notes.html">笔记</a></li>
         <li><a href="about.html">关于我</a></li>
@@ -90,7 +91,6 @@
 
     <nav class="anchor-nav" aria-label="首页内容导航">
       <a href="#journeys">旅程</a>
-      <a href="#photos">照片</a>
       <a href="#moments">高光</a>
       <a href="#next-trip">下一站</a>
     </nav>
@@ -102,16 +102,9 @@
           <h2 class="section-title" id="journeys-title">旅行记录</h2>
           <p class="section-sub">每一段旅程，都是相册里无法替代的一页。</p>
         </header>
-        <div class="trip-grid" id="trips-grid" aria-live="polite"></div>
-      </section>
-
-      <section class="section" id="photos" aria-labelledby="photos-title">
-        <header class="section-head" data-reveal>
-          <p class="eyebrow">PHOTOGRAPHS</p>
-          <h2 class="section-title" id="photos-title">途中光影</h2>
-          <p class="section-sub">那些没有被语言说完的风景，留在照片里。点击可放大浏览。</p>
-        </header>
-        <div class="photo-wall" id="photo-wall" aria-live="polite"></div>
+        <div class="slider trip-slider" id="trip-slider" aria-roledescription="轮播" aria-label="旅程轮播">
+          <noscript><p class="empty-state">轮播需要启用 JavaScript。</p></noscript>
+        </div>
       </section>
 
       <section class="section" id="moments" aria-labelledby="moments-title">
@@ -143,6 +136,7 @@
       <nav class="footer-nav" aria-label="页脚导航">
         <a href="index.html">首页</a>
         <a href="journey.html">旅程日志</a>
+        <a href="photos.html">途中光影</a>
         <a href="next.html">下次旅行</a>
         <a href="notes.html">笔记</a>
         <a href="about.html">关于我</a>
@@ -168,8 +162,8 @@
     <span class="arrow" aria-hidden="true">↑</span>
   </button>
 
-  <script src="js/main.js?v=20260830"></script>
-  <script src="js/effects.js?v=20260830"></script>
-  <script src="js/index.js?v=20260830"></script>
+  <script src="js/main.js?v=20260831"></script>
+  <script src="js/effects.js?v=20260831"></script>
+  <script src="js/index.js?v=20260831"></script>
 </body>
 </html>

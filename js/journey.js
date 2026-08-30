@@ -166,6 +166,7 @@ function renderTimeline(trips) {
 }
 
 function createTimelineEntry(trip, index) {
+  let titleLink = null;
   const entry = document.createElement("article");
   entry.className = `tl-entry ${index % 2 === 0 ? "left" : "right"}`;
   entry.setAttribute("data-reveal", index % 2 === 0 ? "left" : "right");
@@ -217,7 +218,12 @@ function createTimelineEntry(trip, index) {
   body.className = "card-body";
 
   const title = document.createElement("h3");
-  title.textContent = indexText(trip?.title, "未命名旅程", 80);
+  titleLink = document.createElement("a");
+  titleLink.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
+  titleLink.textContent = indexText(trip?.title, "未命名旅程", 80);
+  titleLink.style.color = "inherit";
+  titleLink.style.textDecoration = "none";
+  title.appendChild(titleLink);
 
   const meta = document.createElement("div");
   meta.className = "trip-meta";
@@ -256,11 +262,12 @@ function createTimelineEntry(trip, index) {
     ? trip.photos.filter((p) => typeof p === "string" && p.trim()).length
     : 0;
 
+  const tripId = encodeURIComponent(indexText(trip?.id, "", 60));
   const link = document.createElement("a");
   link.className = "trip-link";
-  link.href = "index.html#journeys";
+  link.href = `trip.html?id=${tripId}`;
   link.innerHTML =
-    `查看旅程详情（${photoCount} 张照片） <span class="arr" aria-hidden="true">→</span>`;
+    `查看该旅程全部照片（${photoCount} 张） <span class="arr" aria-hidden="true">→</span>`;
 
   body.appendChild(link);
   card.append(media, body);
