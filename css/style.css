@@ -2233,3 +2233,228 @@ body > main, body > header, body > footer { position: relative; z-index: 1; }
   .gradient-text { animation: none; }
   .bgblob { display: none; }
 }
+
+
+/* ---------- 28. 惊艳特效（Magic UI / Aceternity 招牌） ---------- */
+/* Border Beam：沿边框奔跑的流光（Magic UI Border Beam） */
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.beam {
+  position: relative;
+  overflow: hidden;
+}
+.beam::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0turn 0.72turn,
+    rgba(103, 232, 249, 0.9) 0.82turn,
+    rgba(129, 140, 248, 0.95) 0.9turn,
+    rgba(232, 121, 249, 0.75) 0.96turn,
+    transparent 1turn
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite: exclude;
+  animation: beam-spin 5s linear infinite;
+  pointer-events: none;
+}
+@keyframes beam-spin {
+  to { --beam-angle: 1turn; }
+}
+/* 悬停才亮起的流光边框 */
+.beam-hover::before {
+  animation: beam-spin 2.6s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.beam-hover:hover::before { opacity: 1; animation-duration: 2.6s; }
+
+/* 全页鼠标聚光光晕（Aceternity Spotlight 暗色版） */
+.cursor-glow {
+  position: fixed; z-index: 2;
+  width: 620px; height: 620px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(103, 232, 249, 0.075) 0%,
+    rgba(129, 140, 248, 0.05) 34%,
+    transparent 62%
+  );
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+/* 星尘闪烁（时光气泡场 / Hero） */
+.spark {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #e8f6ff;
+  box-shadow: 0 0 10px 2px rgba(190, 230, 255, 0.9);
+  animation: spark-twinkle var(--sd, 2.6s) ease-in-out infinite;
+  animation-delay: var(--sdelay, 0s);
+  pointer-events: none;
+}
+@keyframes spark-twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(0.6); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+/* 标题流光扫过 */
+.shimmer-line {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-line::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 42%, rgba(190, 230, 255, 0.28) 50%, transparent 58%);
+  transform: translateX(-130%);
+  animation: shimmer-sweep 5.5s var(--ease-out) infinite;
+  pointer-events: none;
+}
+@keyframes shimmer-sweep {
+  0%, 55% { transform: translateX(-130%); }
+  75%, 100% { transform: translateX(130%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam::before { animation: none; background: linear-gradient(120deg, rgba(103,232,249,0.4), rgba(129,140,248,0.4)); -webkit-mask: none; mask: none; }
+  .cursor-glow { display: none; }
+  .spark, .shimmer-line::after { display: none; }
+}
+
+
+/* ---------- 29. 旅程之门（滚动缩放传送门，移植自 21st.dev Scroll Zoom Portal） ---------- */
+.portal-scroll {
+  position: relative;
+  height: 300vh; /* 钉屏滚动长度 */
+}
+.portal-pin {
+  position: sticky; top: 0;
+  height: 100svh;
+  display: grid; place-items: center;
+  overflow: hidden;
+  background: var(--bg-0);
+}
+/* 巨型水印 */
+.portal-watermark {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font: 900 clamp(6rem, 20vw, 20rem)/1 var(--font-display);
+  letter-spacing: -0.04em;
+  color: rgba(255, 255, 255, 0.03);
+  pointer-events: none;
+  user-select: none;
+  text-transform: uppercase;
+}
+/* 四角边框 */
+.portal-corner {
+  position: absolute; z-index: 5;
+  width: 26px; height: 26px;
+  border: 2px solid rgba(103, 232, 249, 0.65);
+  pointer-events: none;
+}
+.portal-corner.tl { top: 20px; left: 20px; border-right: 0; border-bottom: 0; }
+.portal-corner.tr { top: 20px; right: 20px; border-left: 0; border-bottom: 0; }
+.portal-corner.bl { bottom: 20px; left: 20px; border-right: 0; border-top: 0; }
+.portal-corner.br { bottom: 20px; right: 20px; border-left: 0; border-top: 0; }
+
+/* 遮罩门户：圆形 mask 由 --maskW 驱动 */
+.portal-mask {
+  position: relative; z-index: 2;
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 calc(var(--maskW, 300px) / 2 - 1px), transparent calc(var(--maskW, 300px) / 2 + 1px));
+          mask-image: radial-gradient(circle at 50% 50%, #000 calc(var(--maskW, 300px) / 2 - 1px), transparent calc(var(--maskW, 300px) / 2 + 1px));
+}
+.portal-media {
+  position: relative;
+  width: 100%; height: 100%;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.portal-media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* 发光门环 */
+.portal-ring {
+  position: absolute; z-index: 4;
+  left: 50%; top: 50%;
+  width: var(--maskW, 300px); height: var(--maskW, 300px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid rgba(103, 232, 249, 0.8);
+  box-shadow:
+    0 0 34px rgba(103, 232, 249, 0.45),
+    inset 0 0 34px rgba(103, 232, 249, 0.25);
+  pointer-events: none;
+}
+/* 终章文字（进度后段淡入） */
+.portal-outro {
+  position: absolute; z-index: 6;
+  inset: 0;
+  display: grid; place-content: center; justify-items: center; gap: 18px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(3, 6, 18, 0.25), rgba(3, 6, 18, 0.72));
+}
+.portal-outro h3 {
+  font: 700 clamp(2.2rem, 7vw, 5.6rem)/1.05 var(--font-display);
+  letter-spacing: -0.03em;
+  color: var(--text-1);
+  text-transform: uppercase;
+}
+.portal-outro p { color: var(--text-2); font-size: clamp(0.9rem, 1.6vw, 1.1rem); }
+.portal-outro .portal-link {
+  margin-top: 10px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 传送门介绍/尾声排版（超大展示字体） */
+.portal-intro, .portal-outro-title { text-align: center; }
+.portal-kicker {
+  font: 600 0.72rem var(--font-mono);
+  letter-spacing: 0.34em; text-transform: uppercase;
+  color: var(--text-3);
+}
+.portal-title {
+  font: 700 clamp(3rem, 9vw, 8rem)/0.95 var(--font-display);
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  margin: 18px 0 22px;
+}
+.portal-title .grad { text-transform: none; letter-spacing: -0.02em; }
+.portal-sub {
+  max-width: 44rem; margin-inline: auto;
+  color: var(--text-2);
+  font-size: clamp(0.86rem, 1.5vw, 1.02rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 2;
+}
+
+@media (max-width: 640px) {
+  .portal-scroll { height: 240vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portal-scroll { height: auto; }
+  .portal-pin { position: static; height: 72svh; }
+  .portal-mask { -webkit-mask-image: none; mask-image: none; }
+  .portal-outro { display: none; }
+}

@@ -69,7 +69,7 @@ function renderStats(trips, wishes) {
   const fragment = document.createDocumentFragment();
   items.forEach((item, index) => {
     const card = document.createElement("div");
-    card.className = "stat-card";
+    card.className = "stat-card beam";
     card.setAttribute("data-reveal", "zoom");
     card.style.setProperty("--d", `${index * 0.08}s`);
 

@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initSpotlight();
   initMagnetic();
   initAurora();
+  initCursorGlow();
+  initSparkles();
 });
 
 /* ===== 预加载 ===== */
@@ -542,4 +544,52 @@ function initAurora() {
     { passive: true }
   );
   update();
+}
+
+
+/* ===== 全页鼠标聚光光晕（跟随 + 缓动） ===== */
+function initCursorGlow() {
+  if (!FINE_POINTER || REDUCED_MOTION || window.WEBDRIVER_MODE) return;
+
+  const glow = document.createElement("div");
+  glow.className = "cursor-glow";
+  glow.setAttribute("aria-hidden", "true");
+  document.body.appendChild(glow);
+
+  const pos = { x: innerWidth / 2, y: innerHeight / 3 };
+  const cur = { x: pos.x, y: pos.y };
+
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      pos.x = event.clientX;
+      pos.y = event.clientY;
+    },
+    { passive: true }
+  );
+
+  (function follow() {
+    cur.x += (pos.x - cur.x) * 0.08;
+    cur.y += (pos.y - cur.y) * 0.08;
+    glow.style.transform = `translate(${cur.x}px, ${cur.y}px) translate(-50%, -50%)`;
+    window.requestAnimationFrame(follow);
+  })();
+}
+
+/* ===== 星尘闪烁（时光气泡场） ===== */
+function initSparkles() {
+  const field = document.querySelector("#bubble-field") || document.querySelector(".page-hero");
+  if (!field || REDUCED_MOTION) return;
+  field.style.position = field.style.position || "";
+  if (getComputedStyle(field).position === "static") field.style.position = "relative";
+
+  for (let i = 0; i < 16; i += 1) {
+    const spark = document.createElement("span");
+    spark.className = "spark";
+    spark.style.left = `${(Math.sin(i * 12.9898) * 43758.5453 % 1 + 1) % 100 * 1}%`;
+    spark.style.top = `${(Math.sin(i * 78.233) * 12543.123 % 1 + 1) % 100 * 1}%`;
+    spark.style.setProperty("--sd", `${(2 + (i % 5) * 0.7).toFixed(1)}s`);
+    spark.style.setProperty("--sdelay", `${(i % 6) * 0.45}s`);
+    field.appendChild(spark);
+  }
 }

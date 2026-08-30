@@ -96,7 +96,7 @@ function renderRegionHub() {
 
 function createAlbumTile(trip, index) {
   const tile = document.createElement("a");
-  tile.className = "album-tile";
+  tile.className = "album-tile beam-hover";
   tile.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
 
   const url = safeSameOriginURL(String((trip?.photos || [])[0] || ""));

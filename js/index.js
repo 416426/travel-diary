@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     renderTripRail(trips);
     renderBubbles(trips);
+    initPortal();
     renderStats(trips);
     renderTicker(trips);
   } catch {
@@ -205,6 +206,66 @@ function createRailCard(trip, index) {
   card.appendChild(body);
 
   return card;
+}
+
+
+/* ===== 旅程之门：滚动缩放传送门（移植自 21st.dev Scroll Zoom Portal） ===== */
+function initPortal() {
+  const scroller = document.querySelector("#portalScroll");
+  const mask = document.querySelector(".portal-mask");
+  const ring = document.querySelector("#portalRing");
+  const media = document.querySelector("#portalMedia");
+  const outro = document.querySelector("#portalOutro");
+  if (!scroller || !mask) return;
+
+  // 降级：不做滚动动画，直接全屏展示
+  if (REDUCED_MOTION || window.WEBDRIVER_MODE) {
+    mask.style.setProperty("--maskW", "260vmax");
+    if (ring) ring.style.display = "none";
+    if (outro) {
+      outro.style.opacity = "1";
+      outro.style.pointerEvents = "auto";
+    }
+    return;
+  }
+
+  const initialSize = () => (innerWidth < 640 ? 170 : innerWidth < 1024 ? 240 : 300);
+
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+
+    const rect = scroller.getBoundingClientRect();
+    const total = scroller.offsetHeight - innerHeight;
+    const progress = Math.min(1, Math.max(0, -rect.top / (total || 1)));
+
+    const size = initialSize() + Math.pow(progress, 2.3) * 4600;
+    mask.style.setProperty("--maskW", `${size}px`);
+    if (ring) ring.style.width = ring.style.height = `${size + 22}px`;
+
+    if (media) media.style.transform = `scale(${1 + progress * 0.2})`;
+
+    if (outro) {
+      const fade = Math.min(1, Math.max(0, (progress - 0.88) / 0.12));
+      outro.style.opacity = String(fade);
+      outro.style.pointerEvents = fade > 0.6 ? "auto" : "none";
+    }
+  };
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    },
+    { passive: true }
+  );
+  window.addEventListener("resize", update, { passive: true });
+  update();
 }
 
 /* ===== 统计（数字滚动） ===== *//* ===== 统计（数字滚动） ===== */

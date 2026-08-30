@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" />
-  <link rel="stylesheet" href="css/style.css?v=20260906" />
+  <link rel="stylesheet" href="css/style.css?v=20260907" />
 </head>
 <body>
   <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -92,6 +92,7 @@
     <nav class="anchor-nav" aria-label="首页内容导航">
       <a href="#journeys">旅程</a>
       <a href="#bubbles">气泡</a>
+      <a href="#portal">传送门</a>
       <a href="#next-trip">下一站</a>
     </nav>
 
@@ -118,6 +119,45 @@
           <noscript><p class="empty-state">气泡需要启用 JavaScript；全部照片可在「途中光影」浏览。</p></noscript>
         </div>
       </section>
+
+      <section class="section" id="portal" aria-labelledby="portal-title">
+        <header class="section-head" data-reveal style="text-align:center; margin-inline:auto">
+          <p class="eyebrow" style="justify-content:center">THE PORTAL</p>
+          <h2 class="section-title" id="portal-title">旅程之门</h2>
+          <p class="section-sub">滚动穿过这扇门，直达梅里雪山的经幡之下。</p>
+        </header>
+
+        <div class="portal-intro container" data-reveal>
+          <p class="portal-kicker">SCROLL TO ENTER · 继续滚动进入</p>
+          <h3 class="portal-title">INTO THE <span class="grad">FRAME</span></h3>
+          <p class="portal-sub">把页面滚到底，圆形的窗口会彻底打开——那是今年春节，澜沧江峡谷与梅里雪山之间的八天。</p>
+        </div>
+      
+        <div class="portal-scroll" id="portalScroll">
+          <div class="portal-pin">
+            <span class="portal-corner tl" aria-hidden="true"></span>
+            <span class="portal-corner tr" aria-hidden="true"></span>
+            <span class="portal-corner bl" aria-hidden="true"></span>
+            <span class="portal-corner br" aria-hidden="true"></span>
+
+            <div class="portal-watermark" aria-hidden="true">TRAVEL</div>
+
+            <div class="portal-mask">
+              <div class="portal-media" id="portalMedia">
+                <img src="photos/2afb95107fa9fa4caa3e5edc0ed14455.jpg" alt="梅里雪山经幡" loading="lazy" decoding="async" />
+              </div>
+              <div class="portal-outro" id="portalOutro">
+                <h3>THE JOURNEY<br />CONTINUES.</h3>
+                <p>穿过这扇门，故事仍在继续。</p>
+                <a class="button portal-link" href="trip.html?id=yunnan-2026-02">进入梅里相册（55 张） <span aria-hidden="true">→</span></a>
+              </div>
+            </div>
+
+            <span class="portal-ring" id="portalRing" aria-hidden="true"></span>
+          </div>
+        </div>
+
+</section>
 
       <section class="next-cta" id="next-trip" aria-labelledby="next-trip-title" data-reveal>
         <div>
@@ -162,8 +202,8 @@
     <span class="arrow" aria-hidden="true">↑</span>
   </button>
 
-  <script src="js/main.js?v=20260906"></script>
-  <script src="js/effects.js?v=20260906"></script>
-  <script src="js/index.js?v=20260906"></script>
+  <script src="js/main.js?v=20260907"></script>
+  <script src="js/effects.js?v=20260907"></script>
+  <script src="js/index.js?v=20260907"></script>
 </body>
 </html>
