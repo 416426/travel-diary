@@ -350,6 +350,50 @@ function thumbPath(path) {
   return path.replace("photos/", "photos/thumbs/");
 }
 
+
+
+/* ===== JS 瀑布流分列（替代 CSS 多列，规避列断点渲染黑块） ===== */
+function masonryColumnCount(width) {
+  return width >= 1024 ? 3 : width >= 640 ? 2 : 1;
+}
+
+// wall: 容器；nodes: 依次排列的条目元素。返回清理函数。
+function makeMasonry(wall, nodes) {
+  if (!wall || !nodes) return () => {};
+  let count = 0;
+  let resizeTimer = 0;
+
+  function layout() {
+    const n = masonryColumnCount(wall.clientWidth || innerWidth);
+    if (n === count) return;
+    count = n;
+
+    wall.replaceChildren();
+    const cols = [];
+    for (let i = 0; i < n; i += 1) {
+      const col = document.createElement("div");
+      col.className = "masonry-col";
+      wall.appendChild(col);
+      cols.push(col);
+    }
+    nodes.forEach((node, i) => {
+      cols[i % n].appendChild(node);
+    });
+  }
+
+  const onResize = () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(layout, 160);
+  };
+  window.addEventListener("resize", onResize, { passive: true });
+  layout();
+
+  return () => {
+    window.removeEventListener("resize", onResize);
+    window.clearTimeout(resizeTimer);
+  };
+}
+
 /* ===== 横向跑马灯自动滚动（悬停暂停，可手动拖拽） ===== */
 // 内容需复制两份实现无缝循环；方向 dir=1 向左，-1 向右
 function setupAutoMarquee(el, options = {}) {
@@ -449,44 +493,15 @@ function setupAutoMarquee(el, options = {}) {
     true
   );
 }
-/* ===== 拖拽横向滚动（鼠标按住左右拖） ===== */
-function enableDragScroll(el) {
-  if (!el) return;
-  let down = false;
-  let startX = 0;
-  let startLeft = 0;
-  let moved = false;
-
-  el.addEventListener("pointerdown", (event) => {
-    if (event.pointerType !== "mouse") return; // 触屏走原生滚动
-    down = true;
-    moved = false;
-    startX = event.clientX;
-    startLeft = el.scrollLeft;
-  });
-  el.addEventListener("pointermove", (event) => {
-    if (!down) return;
-    const dx = event.clientX - startX;
-    if (Math.abs(dx) > 4) moved = true;
-    if (moved) el.scrollLeft = startLeft - dx;
-  });
-  const end = () => { down = false; };
-  el.addEventListener("pointerup", end);
-  el.addEventListener("pointercancel", end);
-
-  // 拖拽后拦截误触点击（避免拖完直接跳转）
-  el.addEventListener(
-    "click",
-    (event) => {
-      if (moved) {
-        event.preventDefault();
-        event.stopPropagation();
-        moved = false;
-      }
-    },
-    true
-  );
+/* ===== 缩略图路径（小展示位用缩略图，省带宽防黑块） ===== */
+function thumbPath(path) {
+  if (typeof path !== "string" || !path.includes("photos/")) return path;
+  return path.replace("photos/", "photos/thumbs/");
 }
+
+/* ===== 横向跑马灯自动滚动（悬停暂停，可手动拖拽） ===== */
+// 内容需复制两份实现无缝循环；方向 dir=1 向左，-1 向右
+/* ===== 拖拽横向滚动（鼠标按住左右拖） ===== */
 
 
 /* ===== 21ST 风格特效层 ===== */

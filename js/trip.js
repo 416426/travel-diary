@@ -2,6 +2,8 @@
 
 // trip.js — 旅程详情子页：?id=xxx → 大图 Hero + 该旅程全部照片 + 相邻旅程导航
 
+let tripWallCleanup = null;
+
 document.addEventListener("DOMContentLoaded", async () => {
   let trips = [];
   try {
@@ -137,17 +139,18 @@ function renderPhotos(trip) {
     return;
   }
 
-  const fragment = document.createDocumentFragment();
-
+  const nodes = [];
   photos.forEach((photo, index) => {
     const el = photoEl(thumbPath(photo), emoji, `${title} · 第 ${index + 1} 张`, photo);
     el.setAttribute("data-reveal", "zoom");
     el.style.setProperty("--d", `${Math.min(index * 0.04, 0.3)}s`);
     observeReveal(el);
-    fragment.appendChild(el);
+    nodes.push(el);
   });
 
-  wall.replaceChildren(fragment);
+  if (tripWallCleanup) tripWallCleanup();
+  tripWallCleanup = makeMasonry(wall, nodes);
+  nodes.forEach((el) => wall.appendChild(el));
 }
 
 /* ===== 相邻旅程导航 ===== */

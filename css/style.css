@@ -696,12 +696,14 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .trip-link:hover .arr { transform: translateX(6px); }
 
 /* ---------- 12. 照片墙 & Lightbox ---------- */
-.photo-wall { columns: 3 260px; column-gap: 20px; }
-.photo-wall > * {
-  width: 100%;
-  display: inline-block;
-  margin: 0 0 20px;
-  break-inside: avoid;
+.photo-wall {
+  display: flex; gap: 20px;
+  align-items: flex-start;
+}
+.photo-wall .masonry-col {
+  flex: 1 1 0; min-width: 0;
+  display: grid; gap: 20px;
+  align-content: start;
 }
 .ph {
   position: relative;
@@ -2101,8 +2103,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .stat b { font-size: 1.5rem; }
   .hero-actions .button { flex: 1 1 auto; justify-content: center; }
   .trip-grid, .grid-2, .about-wrap { grid-template-columns: 1fr; }
-  .photo-wall { columns: 2 130px; column-gap: 12px; }
-  .photo-wall > * { margin-bottom: 12px; }
   .guide-grid { grid-template-columns: 1fr; }
   .moment-slide { aspect-ratio: 4 / 3; }
   .trip-slide { padding-inline: 46px; }
@@ -2134,7 +2134,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .to-top { right: 16px; bottom: 16px; }
 }
 @media (max-width: 480px) {
-  .photo-wall { columns: 1 auto; }
   .weather-big { grid-template-columns: 1fr; }
   .hero-stats { border: 0; }
   .stat { border: 1px solid var(--stroke); border-radius: 14px; }

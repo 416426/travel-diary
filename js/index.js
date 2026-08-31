@@ -162,7 +162,7 @@ function renderTripRail(trips) {
   });
 
   wrap.appendChild(rail);
-  enableDragScroll(rail);
+  
   setupAutoMarquee(rail, { speed: 0.6, direction: 1 });
 }
 

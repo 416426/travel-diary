@@ -5,6 +5,7 @@
 //   按月份：瀑布流年度回顾，按月分组滚动浏览
 
 let albumTrips = [];
+let monthMasonryCleanup = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
@@ -42,6 +43,7 @@ function setupModeToggle() {
         b.setAttribute("aria-selected", String(active));
       });
       renderMode(button.dataset.mode);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
   });
 }
@@ -84,12 +86,12 @@ function renderRegionHub() {
     (index % 2 === 0 ? row1 : row2).appendChild(tile);
   });
 
-  wrap.append(row1, row2);
+  wrap.replaceChildren(row1, row2); // 替换而非追加：切模式不残留上一模式内容
 
   setupAutoMarquee(row1, { speed: 0.5, direction: 1 });
   setupAutoMarquee(row2, { speed: 0.5, direction: -1 });
-  enableDragScroll(row1);
-  enableDragScroll(row2);
+  
+  
 
   document.title = `途中光影 · 按地区（${trips.length} 段旅程）`;
 }
@@ -188,6 +190,7 @@ function renderMonthReview() {
 
     const wall = document.createElement("div");
     wall.className = "photo-wall";
+    const nodes = [];
     let photoIndex = 0;
     entries.forEach(({ trip, photos }) => {
       const title = indexText(trip?.title, "旅行照片", 60);
@@ -196,10 +199,12 @@ function renderMonthReview() {
         const el = photoEl(thumbPath(photo), emoji, `${title} · ${month} · 第 ${photoIndex + 1} 张`, photo);
         el.setAttribute("data-reveal", "zoom");
         el.style.setProperty("--d", `${Math.min(photoIndex * 0.03, 0.3)}s`);
-        wall.appendChild(el);
+        nodes.push(el);
         photoIndex += 1;
       });
     });
+    if (monthMasonryCleanup) monthMasonryCleanup();
+    monthMasonryCleanup = makeMasonry(wall, nodes);
     body.appendChild(wall);
 
     section.appendChild(body);
