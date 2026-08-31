@@ -1065,12 +1065,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 .album-row .album-tile { flex: 0 0 clamp(220px, 22vw, 280px); }
 .rail-card { flex: 0 0 clamp(230px, 24vw, 300px); }
 
-/* 长照片墙的渲染优化（滚动到附近才完整布局） */
-.trip-page-wall,
-.month-body .photo-wall {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 900px;
-}
 .rail-card {
   position: relative;
   flex: 0 0 clamp(230px, 24vw, 300px);

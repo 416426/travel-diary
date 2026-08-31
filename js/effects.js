@@ -413,12 +413,15 @@ function setupAutoMarquee(el, options = {}) {
     moved = false;
     startX = event.clientX;
     startXPos = x;
-    el.setPointerCapture?.(event.pointerId);
   });
   el.addEventListener("pointermove", (event) => {
     if (!down) return;
     const dx = event.clientX - startX;
-    if (Math.abs(dx) > 4) moved = true;
+    // 超过阈值才捕获指针：普通点击不被重定向到行容器，磁贴可正常跳转
+    if (!moved && Math.abs(dx) > 4) {
+      moved = true;
+      el.setPointerCapture?.(event.pointerId);
+    }
     if (moved) {
       x = startXPos + dx;
       const h = half();
