@@ -386,7 +386,7 @@ function normalizeText(value, fallback = "", maxLength = 240) {
   return text ? text.slice(0, maxLength) : fallback;
 }
 
-function photoEl(path, emoji, caption, thumbPath) {
+function photoEl(path, emoji, caption, fullPath) {
   const photo = document.createElement("div");
   const safeCaption = normalizeText(caption, "旅行照片", 160);
 
@@ -403,8 +403,8 @@ function photoEl(path, emoji, caption, thumbPath) {
   if (!url) return photo;
 
   // 图片立即挂载（懒加载管线依赖文档结构），加载完成后淡入替换占位
-  const displayURL = safeSameOriginURL(String(thumbPath || "")) || url;
-  photo.dataset.src = url.href; // 灯箱始终看原图
+  const fullURL = safeSameOriginURL(String(fullPath || "")) || url;
+  photo.dataset.src = fullURL.href; // 灯箱始终看原图
 
   photo.setAttribute("role", "button");
   photo.setAttribute("tabindex", "0");
@@ -436,7 +436,7 @@ function photoEl(path, emoji, caption, thumbPath) {
     { once: true }
   );
 
-  image.src = displayURL.href;
+  image.src = url.href;
   photo.appendChild(image);
 
   return photo;

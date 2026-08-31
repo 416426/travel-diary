@@ -193,7 +193,7 @@ function renderMonthReview() {
       const title = indexText(trip?.title, "旅行照片", 60);
       const emoji = indexText(trip?.moodEmoji, "📷", 8);
       photos.forEach((photo) => {
-        const el = photoEl(photo, emoji, `${title} · ${month} · 第 ${photoIndex + 1} 张`);
+        const el = photoEl(thumbPath(photo), emoji, `${title} · ${month} · 第 ${photoIndex + 1} 张`, photo);
         el.setAttribute("data-reveal", "zoom");
         el.style.setProperty("--d", `${Math.min(photoIndex * 0.03, 0.3)}s`);
         wall.appendChild(el);
