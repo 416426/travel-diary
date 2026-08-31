@@ -99,7 +99,7 @@ function createAlbumTile(trip, index) {
   tile.className = "album-tile beam-hover";
   tile.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
 
-  const url = safeSameOriginURL(String((trip?.photos || [])[0] || ""));
+  const url = safeSameOriginURL(thumbPath(String((trip?.photos || [])[0] || "")));
   if (url) {
     const image = new Image();
     image.loading = "eager";

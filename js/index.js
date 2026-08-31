@@ -112,7 +112,7 @@ function renderBubbles(trips) {
     bubble.style.animationDelay = `${(i % 5) * -1.3}s`;
     bubble.title = indexText(trip?.title, "旅程照片", 40);
 
-    const url = safeSameOriginURL(item.path);
+    const url = safeSameOriginURL(thumbPath(item.path));
     if (url) {
       const image = new Image();
       image.loading = i < 4 ? "eager" : "lazy";
@@ -172,7 +172,7 @@ function createRailCard(trip, index) {
   card.href = `trip.html?id=${encodeURIComponent(indexText(trip?.id, "", 60))}`;
 
   const url = safeSameOriginURL(
-    Array.isArray(trip?.photos) ? String(trip.photos[0] || "") : ""
+    thumbPath(Array.isArray(trip?.photos) ? String(trip.photos[0] || "") : "")
   );
   if (url) {
     const image = new Image();

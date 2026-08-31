@@ -140,7 +140,7 @@ function renderPhotos(trip) {
   const fragment = document.createDocumentFragment();
 
   photos.forEach((photo, index) => {
-    const el = photoEl(photo, emoji, `${title} · 第 ${index + 1} 张`);
+    const el = photoEl(thumbPath(photo), emoji, `${title} · 第 ${index + 1} 张`, photo);
     el.setAttribute("data-reveal", "zoom");
     el.style.setProperty("--d", `${Math.min(index * 0.04, 0.3)}s`);
     observeReveal(el);

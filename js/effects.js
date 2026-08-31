@@ -344,6 +344,12 @@ function createStarfield(canvas) {
 }
 
 
+/* ===== 缩略图路径（小展示位用缩略图，省带宽防黑块） ===== */
+function thumbPath(path) {
+  if (typeof path !== "string" || !path.includes("photos/")) return path;
+  return path.replace("photos/", "photos/thumbs/");
+}
+
 /* ===== 横向跑马灯自动滚动（悬停暂停，可手动拖拽） ===== */
 // 内容需复制两份实现无缝循环；方向 dir=1 向左，-1 向右
 function setupAutoMarquee(el, options = {}) {

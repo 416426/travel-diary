@@ -606,7 +606,16 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   place-items: center;
   overflow: hidden;
   aspect-ratio: 16 / 10;
-  background: linear-gradient(135deg, #16204a, #0c1228);
+  background: linear-gradient(110deg, #0d1428 30%, #1a2450 50%, #0d1428 70%);
+  background-size: 200% 100%;
+  animation: ph-sheen 2.4s linear infinite;
+}
+@keyframes ph-sheen {
+  0% { background-position: 0% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-media { animation: none; }
 }
 .card-media .media-fallback { font-size: 3rem; }
 .card-media img {
@@ -699,7 +708,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   overflow: hidden;
   border: 1px solid var(--stroke);
   border-radius: 16px;
-  background: var(--bg-1);
+  background: linear-gradient(110deg, #0d1428 30%, #18224a 50%, #0d1428 70%);
   cursor: zoom-in;
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast), border-color var(--dur-fast);
 }
