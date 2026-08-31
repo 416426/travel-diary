@@ -1032,26 +1032,36 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 /* 旅程卡片轨道（首页旅行记录）：紧凑横向 scroll-snap */
 .trip-rail-wrap { position: relative; }
 .trip-rail {
-  display: flex; gap: 20px;
-  overflow-x: auto;
+  position: relative;
+  overflow: hidden;
   padding: 4px 4px 20px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
   cursor: grab;
+  touch-action: pan-y;
 }
 .trip-rail:active { cursor: grabbing; }
-.trip-rail::-webkit-scrollbar { display: none; }
-.album-row {
+.trip-rail .marquee-track,
+.album-row .marquee-track {
   display: flex; gap: 20px;
-  overflow-x: auto;
+  width: max-content;
+  will-change: transform;
+}
+.album-row {
+  position: relative;
+  overflow: hidden;
   padding: 4px 4px 16px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
   cursor: grab;
+  touch-action: pan-y;
 }
 .album-row:active { cursor: grabbing; }
-.album-row::-webkit-scrollbar { display: none; }
 .album-row .album-tile { flex: 0 0 clamp(220px, 22vw, 280px); }
+.rail-card { flex: 0 0 clamp(230px, 24vw, 300px); }
+
+/* 长照片墙的渲染优化（滚动到附近才完整布局） */
+.trip-page-wall,
+.month-body .photo-wall {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
 .rail-card {
   position: relative;
   flex: 0 0 clamp(230px, 24vw, 300px);

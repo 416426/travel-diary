@@ -354,13 +354,21 @@ function setupAutoMarquee(el, options = {}) {
   let offscreen = false;
   let last = performance.now();
 
-  // 反向行从第二份内容起步，向左减到 0 时回绕，避免跳位
-  if (dir < 0) el.scrollLeft = el.scrollWidth / 2;
+  // 把现有子元素包进内层轨道，改用 transform 合成器动画（零重绘）
+  const track = document.createElement("div");
+  track.className = "marquee-track";
+  track.setAttribute("aria-hidden", "false");
+  while (el.firstChild) track.appendChild(el.firstChild);
+  el.appendChild(track);
+  el.classList.add("marquee-ready");
+
+  let x = dir < 0 ? -track.scrollWidth / 2 : 0; // 反向行从中点起步
+  const half = () => track.scrollWidth / 2;
 
   el.addEventListener("pointerenter", () => { paused = true; });
   el.addEventListener("pointerleave", () => { paused = false; });
 
-  // 离屏省电：视口外 600px 之外暂停（接近即恢复，避免"到位不启动"）
+  // 离屏省电：视口外 600px 之外暂停（接近即恢复）
   if ("IntersectionObserver" in window) {
     new IntersectionObserver(
       (entries) => {
@@ -374,18 +382,64 @@ function setupAutoMarquee(el, options = {}) {
     const dt = Math.min(now - last, 64);
     last = now;
     if (!paused && !offscreen && !document.hidden && !REDUCED_MOTION) {
-      el.scrollLeft += dir * speed * (dt / 16.7);
-      const half = el.scrollWidth / 2;
-      if (half > 10) {
-        if (el.scrollLeft >= half) el.scrollLeft -= half;
-        else if (el.scrollLeft <= 0) el.scrollLeft += half;
+      x -= dir * speed * (dt / 16.7);
+      const h = half();
+      if (h > 10) {
+        if (x <= -h) x += h;
+        else if (x >= 0 && dir < 0) x -= h;
+        else if (x > 0 && dir > 0) x -= h;
       }
+      track.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0)`;
     }
     window.requestAnimationFrame(frame);
   }
   window.requestAnimationFrame(frame);
-}
 
+  // 拖拽：直接改 x 偏移
+  let down = false;
+  let startX = 0;
+  let startXPos = 0;
+  let moved = false;
+
+  el.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "mouse") return;
+    down = true;
+    moved = false;
+    startX = event.clientX;
+    startXPos = x;
+    el.setPointerCapture?.(event.pointerId);
+  });
+  el.addEventListener("pointermove", (event) => {
+    if (!down) return;
+    const dx = event.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    if (moved) {
+      x = startXPos + dx;
+      const h = half();
+      if (h > 10) {
+        while (x <= -h) x += h;
+        while (x > 0) x -= h;
+      }
+      track.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0)`;
+    }
+  });
+  const end = () => { down = false; };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+
+  // 拖拽后拦截误触点击
+  el.addEventListener(
+    "click",
+    (event) => {
+      if (moved) {
+        event.preventDefault();
+        event.stopPropagation();
+        moved = false;
+      }
+    },
+    true
+  );
+}
 /* ===== 拖拽横向滚动（鼠标按住左右拖） ===== */
 function enableDragScroll(el) {
   if (!el) return;
