@@ -150,7 +150,7 @@ function renderPhotos(trip) {
 
   if (tripWallCleanup) tripWallCleanup();
   tripWallCleanup = makeMasonry(wall, nodes);
-  nodes.forEach((el) => wall.appendChild(el));
+  // 注意：节点已在 makeMasonry 内分列挂载，此处不能再 append（会破坏分列）
 }
 
 /* ===== 相邻旅程导航 ===== */
