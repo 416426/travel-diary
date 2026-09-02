@@ -248,7 +248,12 @@ function createLightbox() {
     }
   });
 
-  lightbox.append(figure, caption, prevButton, nextButton, closeButton);
+  // 底部控制条：翻页按钮与说明文字同居一行，悬浮在画面之外，不再遮挡照片
+  const bar = document.createElement("div");
+  bar.className = "lb-bar";
+  bar.append(prevButton, caption, nextButton);
+
+  lightbox.append(figure, bar, closeButton);
   document.body.appendChild(lightbox);
 
   return lightbox;
@@ -384,6 +389,173 @@ function normalizeText(value, fallback = "", maxLength = 240) {
   if (typeof value !== "string") return fallback;
   const text = value.trim();
   return text ? text.slice(0, maxLength) : fallback;
+}
+
+/* ===== 共享工具层 =====
+   以下工具原先散落在各页面脚本中重复定义，现统一收敛至此，
+   页面脚本（index/journey/photos/trip/next）直接使用全局版本。 */
+
+// 文本安全截断（indexText 为历史别名，语义与 normalizeText 一致）
+function indexText(value, fallback = "", maxLength = 240) {
+  return normalizeText(value, fallback, maxLength);
+}
+
+// HTML 转义：任何动态拼入 innerHTML 的字符串都必须先过这一层
+function escapeHTML(value) {
+  const element = document.createElement("span");
+  element.textContent = String(value ?? "");
+  return element.innerHTML;
+}
+
+// 按日期倒序排列旅程（新 → 旧）
+function sortedTrips(trips) {
+  return [...(Array.isArray(trips) ? trips : [])].sort((a, b) =>
+    String(b?.date || "").localeCompare(String(a?.date || ""))
+  );
+}
+
+// 从旅程数据中提取城市名（优先显式 city 字段，其次从 location 解析）
+function extractCity(trip) {
+  const explicitCity = indexText(trip?.city, "", 60);
+  if (explicitCity) return explicitCity;
+
+  const location = indexText(trip?.location, "", 120);
+  if (!location) return "";
+
+  const parts = location
+    .replace(/[·、,/，/]+/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (!parts.length) return "";
+
+  const municipalities = new Set(["北京", "上海", "天津", "重庆"]);
+  const countries = new Set(["中国", "日本", "法国"]);
+
+  const countryIndex = countries.has(parts[0]) ? 1 : 0;
+  const candidate = parts[countryIndex] || parts[0];
+
+  if (municipalities.has(candidate)) return candidate;
+
+  return parts[parts.length - 1] || candidate || "";
+}
+
+// 数字滚动动画（index 首页统计 / journey 统计卡共用）
+// rAF 被节流（页面切后台等）时通过 setTimeout 兜底写入最终值
+function animateCount(element, target) {
+  if (!element) return;
+
+  element.setAttribute("data-count", String(target));
+
+  if (REDUCED_MOTION || window.WEBDRIVER_MODE) {
+    element.textContent = String(target);
+    return;
+  }
+
+  const duration = 1300;
+  const start = performance.now();
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    element.textContent = String(target);
+  };
+
+  window.setTimeout(finish, duration + 400); // 兜底
+  const step = (now) => {
+    if (done) return;
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+    element.textContent = String(Math.round(target * eased));
+    if (t < 1) window.requestAnimationFrame(step);
+    else finish();
+  };
+  window.requestAnimationFrame(step);
+}
+
+/* ===== 骨架屏 =====
+   数据接口返回前先渲染占位骨架，避免内容区空白跳变。
+   showSkeleton(container, count) 渲染；clearSkeleton(container) 清除。 */
+function showSkeleton(container, count = 4) {
+  if (!container) return;
+  clearSkeleton(container);
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < count; i += 1) {
+    const block = document.createElement("div");
+    block.className = "skeleton-block";
+    block.setAttribute("aria-hidden", "true");
+    fragment.appendChild(block);
+  }
+  container.appendChild(fragment);
+  container.classList.add("is-skeleton");
+}
+
+function clearSkeleton(container) {
+  if (!container) return;
+  container.classList.remove("is-skeleton");
+  container.querySelectorAll(".skeleton-block").forEach((el) => el.remove());
+}
+
+/* ===== 横向拖拽滚动 =====
+   鼠标按住左右拖动即可滚动横向容器（月份时间轴等）；
+   触摸设备直接使用原生滑动手势，此工具不做干预。 */
+function setupDragScroll(el) {
+  if (!el) return () => {};
+
+  let down = false;
+  let moved = false;
+  let startX = 0;
+  let startLeft = 0;
+
+  const onPointerDown = (event) => {
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    down = true;
+    moved = false;
+    startX = event.clientX;
+    startLeft = el.scrollLeft;
+  };
+
+  const onPointerMove = (event) => {
+    if (!down) return;
+    const dx = event.clientX - startX;
+    // 超过阈值才捕获指针：普通点击仍可正常落在胶囊按钮上
+    if (!moved && Math.abs(dx) > 4) {
+      moved = true;
+      el.classList.add("dragging");
+      el.setPointerCapture?.(event.pointerId);
+    }
+    if (moved) el.scrollLeft = startLeft - dx;
+  };
+
+  const onPointerUp = () => {
+    down = false;
+    el.classList.remove("dragging");
+  };
+
+  el.addEventListener("pointerdown", onPointerDown);
+  el.addEventListener("pointermove", onPointerMove);
+  el.addEventListener("pointerup", onPointerUp);
+  el.addEventListener("pointercancel", onPointerUp);
+
+  // 拖拽结束后拦截误触点击，避免拖动时误选月份
+  el.addEventListener(
+    "click",
+    (event) => {
+      if (moved) {
+        event.preventDefault();
+        event.stopPropagation();
+        moved = false;
+      }
+    },
+    true
+  );
+
+  return () => {
+    el.removeEventListener("pointerdown", onPointerDown);
+    el.removeEventListener("pointermove", onPointerMove);
+    el.removeEventListener("pointerup", onPointerUp);
+    el.removeEventListener("pointercancel", onPointerUp);
+  };
 }
 
 function photoEl(path, emoji, caption, fullPath) {

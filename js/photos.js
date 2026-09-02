@@ -1,13 +1,16 @@
 "use strict";
 
 // photos.js — 途中光影：双模式
-//   按地区：气泡式磁贴 hub，点击直接进入该旅程的相册子页（trip.html?id=xxx）
-//   按月份：瀑布流年度回顾，按月分组滚动浏览
+//   按地区：双排双向跑马灯磁贴，点击直接进入该旅程的相册子页（trip.html?id=xxx）
+//   按月份：横向可滑动月份时间轴，点击月份在其下方展开三列瀑布流
 
 let albumTrips = [];
-let monthMasonryCleanup = null;
+let monthGalleryCleanup = null; // 当前月份瀑布流的清理函数（切换时释放监听）
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // 数据返回前先铺骨架屏
+  showSkeleton(document.querySelector("#photo-groups"), 6);
+
   try {
     const data = await loadJSON("data/trips.json");
     albumTrips = Array.isArray(data?.trips) ? data.trips : [];
@@ -21,6 +24,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const wrap = document.querySelector("#photo-groups");
     if (!wrap) return;
 
+    clearSkeleton(wrap); // 错误时也要撤下骨架，避免微光块永久残留
     const message = document.createElement("p");
     message.className = "empty-state";
     message.style.marginBlock = "80px";
@@ -29,9 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-function sortedTrips(trips) {
-  return [...trips].sort((a, b) => String(b?.date || "").localeCompare(String(a?.date || "")));
-}
+// sortedTrips / indexText / escapeHTML 已统一迁移至 main.js
 
 /* ===== 模式切换 ===== */
 function setupModeToggle() {
@@ -49,6 +51,11 @@ function setupModeToggle() {
 }
 
 function renderMode(mode) {
+  const wrap = document.querySelector("#photo-groups");
+  // 关键：渲染前必须撤下骨架并移除 is-skeleton 类，
+  // 否则容器上的 display:flex 覆盖样式会把双排布局压成一行（回归修复点）
+  if (wrap) clearSkeleton(wrap);
+
   if (mode === "month") renderMonthReview();
   else renderRegionHub();
 }
@@ -90,8 +97,6 @@ function renderRegionHub() {
 
   setupAutoMarquee(row1, { speed: 0.5, direction: 1 });
   setupAutoMarquee(row2, { speed: 0.5, direction: -1 });
-  
-  
 
   document.title = `途中光影 · 按地区（${trips.length} 段旅程）`;
 }
@@ -129,11 +134,12 @@ function createAlbumTile(trip, index) {
   return tile;
 }
 
-/* ===== 模式二：按月份（可折叠的瀑布流年度回顾） ===== */
+/* ===== 模式二：按月份（横向时间轴 + 点击展开三列瀑布流） ===== */
 function renderMonthReview() {
   const wrap = document.querySelector("#photo-groups");
   if (!wrap) return;
 
+  // 按「年-月」分组（新→旧），保留 trip 与照片列表
   const byMonth = new Map();
   sortedTrips(albumTrips).forEach((trip) => {
     const month = String(trip?.date || "").slice(0, 7); // 2026-08
@@ -148,76 +154,8 @@ function renderMonthReview() {
   });
 
   const months = [...byMonth.keys()].sort((a, b) => b.localeCompare(a)); // 新→旧
-  const fragment = document.createDocumentFragment();
 
-  months.forEach((month, monthIndex) => {
-    const entries = byMonth.get(month);
-    const photoTotal = entries.reduce((sum, e) => sum + e.photos.length, 0);
-
-    const section = document.createElement("section");
-    section.className = "month-group";
-    section.setAttribute("data-reveal", "");
-
-    // 折叠头：月份 + 张数 + 旅程 + 箭头
-    const head = document.createElement("button");
-    head.className = "month-head";
-    head.type = "button";
-    head.setAttribute("aria-expanded", "false");
-
-    const title = document.createElement("h2");
-    title.className = "section-title";
-    title.innerHTML =
-      `${escapeHTML(month.replace("-", " · "))} ` +
-      `<span class="count">${photoTotal} 张</span>`;
-
-    const tripsLine = document.createElement("span");
-    tripsLine.className = "trip-meta";
-    tripsLine.innerHTML = entries
-      .map((e) => `<span>${escapeHTML(indexText(e.trip?.title, "旅程", 40))}</span>`)
-      .join("");
-
-    const chev = document.createElement("span");
-    chev.className = "chev";
-    chev.textContent = "▾";
-    chev.setAttribute("aria-hidden", "true");
-
-    head.append(title, tripsLine, chev);
-    section.appendChild(head);
-
-    // 主体：默认收起，点击月份行展开全量瀑布流
-    const body = document.createElement("div");
-    body.className = "month-body";
-
-    const wall = document.createElement("div");
-    wall.className = "photo-wall";
-    const nodes = [];
-    let photoIndex = 0;
-    entries.forEach(({ trip, photos }) => {
-      const title = indexText(trip?.title, "旅行照片", 60);
-      const emoji = indexText(trip?.moodEmoji, "📷", 8);
-      photos.forEach((photo) => {
-        const el = photoEl(thumbPath(photo), emoji, `${title} · ${month} · 第 ${photoIndex + 1} 张`, photo);
-        el.setAttribute("data-reveal", "zoom");
-        el.style.setProperty("--d", `${Math.min(photoIndex * 0.03, 0.3)}s`);
-        nodes.push(el);
-        photoIndex += 1;
-      });
-    });
-    if (monthMasonryCleanup) monthMasonryCleanup();
-    monthMasonryCleanup = makeMasonry(wall, nodes);
-    body.appendChild(wall);
-
-    section.appendChild(body);
-
-    head.addEventListener("click", () => {
-      const open = section.classList.toggle("open");
-      head.setAttribute("aria-expanded", String(open));
-    });
-
-    fragment.appendChild(section);
-  });
-
-  if (!fragment.childNodes.length) {
+  if (!months.length) {
     const empty = document.createElement("p");
     empty.className = "empty-state";
     empty.style.marginBlock = "80px";
@@ -226,19 +164,105 @@ function renderMonthReview() {
     return;
   }
 
-  wrap.replaceChildren(fragment);
-  wrap.querySelectorAll("[data-reveal]").forEach((el) => observeReveal(el));
-  document.title = `途中光影 · 2026 年度回顾`;
+  /* 顶部：横向月份时间轴（鼠标拖拽 / 触摸滑动均可） */
+  const timeline = document.createElement("nav");
+  timeline.className = "month-timeline";
+  timeline.setAttribute("aria-label", "月份时间轴，可左右滑动浏览");
+
+  const track = document.createElement("div");
+  track.className = "month-track";
+  track.setAttribute("role", "tablist");
+  track.setAttribute("aria-label", "选择月份");
+
+  months.forEach((month) => {
+    const entries = byMonth.get(month);
+    const photoTotal = entries.reduce((sum, e) => sum + e.photos.length, 0);
+
+    const pill = document.createElement("button");
+    pill.type = "button";
+    pill.className = "month-pill";
+    pill.setAttribute("role", "tab");
+    pill.setAttribute("aria-selected", "false");
+    pill.dataset.month = month;
+    pill.innerHTML =
+      `<b>${escapeHTML(month.replace("-", " · "))}</b>` +
+      `<small>${photoTotal} 张</small>`;
+    pill.addEventListener("click", () => selectMonth(month));
+    track.appendChild(pill);
+  });
+
+  timeline.appendChild(track);
+
+  /* 下方：当前选中月份的三列瀑布流画廊 */
+  const gallery = document.createElement("section");
+  gallery.className = "month-gallery";
+  gallery.setAttribute("aria-live", "polite");
+
+  function selectMonth(month) {
+    // 高亮当前月份胶囊，并把它滚到可视区中间
+    track.querySelectorAll(".month-pill").forEach((pill) => {
+      const active = pill.dataset.month === month;
+      pill.classList.toggle("active", active);
+      pill.setAttribute("aria-selected", String(active));
+    });
+    const activePill = track.querySelector(".month-pill.active");
+    if (activePill) {
+      activePill.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+    renderMonthGallery(gallery, byMonth.get(month) || [], month);
+  }
+
+  wrap.replaceChildren(timeline, gallery);
+  setupDragScroll(track); // 鼠标按住拖拽滚动；触摸设备走原生滑动
+
+  selectMonth(months[0]); // 默认展示最近一个有照片的月份
+  document.title = "途中光影 · 2026 年度回顾";
 }
 
-function indexText(value, fallback = "", maxLength = 240) {
-  if (typeof value !== "string") return fallback;
-  const text = value.trim();
-  return text ? text.slice(0, maxLength) : fallback;
-}
+/* 渲染某个月份的画廊：标题 + 三列瀑布流（makeMasonry 在 ≥1024px 时分三列） */
+function renderMonthGallery(gallery, entries, month) {
+  const photoTotal = entries.reduce((sum, e) => sum + e.photos.length, 0);
 
-function escapeHTML(value) {
-  const element = document.createElement("span");
-  element.textContent = value;
-  return element.innerHTML;
+  const head = document.createElement("header");
+  head.className = "month-gallery-head";
+  head.innerHTML =
+    `<h2 class="section-title">${escapeHTML(month.replace("-", " · "))} ` +
+    `<span class="count">${photoTotal} 张</span></h2>` +
+    `<p class="trip-meta">${entries
+      .map((e) => `<span>${escapeHTML(indexText(e.trip?.title, "旅程", 40))}</span>`)
+      .join("")}</p>`;
+
+  const wall = document.createElement("div");
+  wall.className = "photo-wall month-photo-wall";
+
+  const nodes = [];
+  let photoIndex = 0;
+  entries.forEach(({ trip, photos }) => {
+    const title = indexText(trip?.title, "旅行照片", 60);
+    const emoji = indexText(trip?.moodEmoji, "📷", 8);
+    photos.forEach((photo) => {
+      const el = photoEl(
+        thumbPath(photo),
+        emoji,
+        `${title} · ${month} · 第 ${photoIndex + 1} 张`,
+        photo
+      );
+      el.setAttribute("data-reveal", "zoom");
+      el.style.setProperty("--d", `${Math.min(photoIndex * 0.03, 0.3)}s`);
+      observeReveal(el); // 先注册入场动画，再交给瀑布流分列
+      nodes.push(el);
+      photoIndex += 1;
+    });
+  });
+
+  // 释放上一次瀑布流的 resize 监听，避免跨月份/跨模式泄漏
+  if (monthGalleryCleanup) monthGalleryCleanup();
+
+  gallery.replaceChildren(head, wall);
+  monthGalleryCleanup = makeMasonry(wall, nodes);
 }
+// indexText / escapeHTML 已统一迁移至 main.js

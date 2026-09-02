@@ -565,20 +565,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 
 /* ---------- 11. 卡片（旅程） ---------- */
-.trip-grid { display: grid; gap: 30px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.trip-grid > :nth-child(even) { transform: translateY(34px); }
-@media (max-width: 767px) { .trip-grid > :nth-child(even) { transform: none; } }
-
-.tilt-card {
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.5s var(--ease-out), box-shadow 0.5s var(--ease-out);
-}
-.tilt-card .card-media img { transition: opacity 0.6s ease, transform 0.7s var(--ease-out); }
-.tilt-card:hover { box-shadow: var(--shadow-2), var(--glow-indigo); }
-.tilt-card:hover .card-media img { transform: scale(1.06); }
-
-.card, .trip-card, .note-card {
+.card, .note-card {
   position: relative;
   overflow: hidden;
   color: var(--text-1);
@@ -626,7 +613,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   transition: opacity 0.6s ease, transform 0.7s var(--ease-out);
 }
 .card-media img.is-loaded { opacity: 1; }
-.tilt-card:hover .card-media img { transform: scale(1.06); }
 .card-index {
   position: absolute; top: 14px; left: 16px; z-index: 2;
   padding: 5px 12px;
@@ -772,16 +758,25 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .lightbox.show .lb-image { transform: scale(1); }
 .lb-caption {
-  display: flex; align-items: center; justify-content: center; gap: 18px;
-  padding: 18px 8px 6px;
+  display: flex; align-items: baseline; justify-content: center; gap: 16px;
+  min-width: 0; max-width: min(66vw, 620px);
   color: var(--text-2);
   font-size: 0.9rem;
   text-align: center;
 }
+.lb-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .lb-count {
+  flex: 0 0 auto;
   font-family: var(--font-mono);
   color: var(--cyan);
   font-size: 0.78rem; letter-spacing: 0.18em;
+}
+/* 底部控制条：翻页按钮与说明同居一行，完全不遮挡照片 */
+.lb-bar {
+  display: flex; align-items: center; justify-content: center; gap: 18px;
+  padding: 16px 8px 4px;
 }
 .lb-btn {
   display: grid; place-items: center;
@@ -795,42 +790,15 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .lb-btn:hover { background: rgba(103, 232, 249, 0.2); border-color: rgba(103, 232, 249, 0.5); transform: scale(1.08); }
 .lb-close { position: absolute; top: 22px; right: 22px; }
-.lb-prev { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); }
-.lb-next { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); }
-.lb-prev:active, .lb-next:active { transform: translateY(-50%) scale(0.94); }
+.lb-prev:active, .lb-next:active { transform: scale(0.94); }
 
-/* ---------- 13. 轮播（高光 / 旅程通用） ---------- */
+/* ---------- 13. 备注与来源 ---------- */
 .rec-note, .rec-source {
   color: var(--text-3);
   font-size: 0.85rem;
 }
 .rec-note { margin-top: 8px; }
 .rec-source { margin-top: 12px; }
-
-.slider {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--stroke);
-  border-radius: calc(var(--radius-card) + 4px);
-  background: var(--bg-1);
-  box-shadow: var(--shadow-1);
-  touch-action: pan-y;
-}
-.slider-track {
-  display: flex;
-  transition: transform 0.55s var(--ease-out);
-}
-.slider-slide {
-  flex: 0 0 100%;
-  min-width: 0;
-}
-/* 缓存过渡兼容：旧标记的类名别名 */
-.moment-slider,
-.moment-track {
-  display: block;
-  overflow: hidden;
-}
-.moment-track { display: flex; }
 /* 时光气泡（首页） */
 .bubble-field {
   position: relative;
@@ -906,11 +874,7 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   100% { margin-top: 12px; }
 }
 
-/* 相册磁贴（按地区） */
-.album-tiles {
-  display: grid; gap: 24px;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-}
+/* 相册磁贴（按地区，双行跑马灯布局） */
 .album-tile {
   position: relative;
   aspect-ratio: 4 / 4.6;
@@ -988,56 +952,75 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .mode-toggle button:not(.active):hover { color: var(--text-1); }
 
-/* 月份分组（年度回顾，可折叠缩放） */
-.month-group { padding-block: clamp(20px, 3vw, 30px); }
-.month-group + .month-group { border-top: 1px solid var(--stroke); }
-.month-head {
-  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-  margin-bottom: 0;
-  width: 100%;
-  background: none; border: 0; text-align: left;
-  color: inherit;
-  cursor: pointer;
-  padding: 6px 2px;
-  border-radius: 12px;
-  transition: background var(--dur-fast);
+/* 月份模式：横向时间轴 + 下方三列瀑布流 */
+.month-timeline {
+  position: sticky; top: var(--header-height); z-index: 900;
+  margin-bottom: clamp(24px, 4vw, 40px);
+  padding: 12px 0 4px;
+  background: linear-gradient(180deg, var(--bg-0) 78%, transparent);
 }
-.month-head:hover { background: rgba(255, 255, 255, 0.03); }
-.month-head h2 {
-  display: flex; align-items: baseline; gap: 14px;
-}
-.month-head .count { color: var(--text-3); font: 600 0.8rem var(--font-mono); letter-spacing: 0.12em; }
-.month-head .chev {
-  margin-left: auto;
-  color: var(--text-3);
-  font-size: 0.9rem;
-  transition: transform 0.3s var(--ease-spring);
-}
-.month-group.open .chev { transform: rotate(180deg); color: var(--cyan); }
-.month-body { display: none; padding-top: 22px; }
-.month-group.open .month-body { display: block; animation: panel-enter var(--dur-mid) var(--ease-out) both; }
-.month-strip {
+.month-track {
   display: flex; gap: 10px;
-  overflow: hidden;
-  height: 86px;
+  overflow-x: auto;
+  padding: 6px 4px 12px;
+  cursor: grab;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y; /* 触摸设备原生滑动 */
+  -webkit-overflow-scrolling: touch;
 }
-.month-strip .strip-thumb {
+.month-track::-webkit-scrollbar { display: none; }
+.month-track.dragging { cursor: grabbing; user-select: none; }
+.month-pill {
+  position: relative;
   flex: 0 0 auto;
-  width: 118px; height: 86px;
-  overflow: hidden;
-  border-radius: 12px;
-  border: 1px solid var(--stroke);
-}
-.month-strip .strip-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.month-strip .strip-more {
-  flex: 0 0 auto;
-  display: grid; place-items: center;
-  width: 118px; height: 86px;
+  display: grid; gap: 3px; justify-items: center;
+  min-width: 96px;
+  padding: 12px 18px;
   color: var(--text-2);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed var(--stroke-strong);
-  border-radius: 12px;
-  font: 600 0.76rem var(--font-mono);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  overflow: hidden; /* 涟漪反馈的裁剪条件 */
+  transition:
+    color var(--dur-fast), background var(--dur-fast),
+    border-color var(--dur-fast), transform var(--dur-fast) var(--ease-spring),
+    box-shadow var(--dur-fast);
+}
+.month-pill b {
+  font: 700 0.98rem var(--font-display);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.month-pill small {
+  font: 600 0.64rem var(--font-mono);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-3);
+}
+.month-pill:hover {
+  color: var(--text-1);
+  border-color: rgba(103, 232, 249, 0.45);
+  transform: translateY(-2px);
+}
+.month-pill.active {
+  color: #05070f;
+  background: linear-gradient(120deg, var(--mint), var(--cyan));
+  border-color: transparent;
+  box-shadow: 0 6px 20px rgba(94, 234, 212, 0.35);
+}
+.month-pill.active small { color: rgba(5, 7, 15, 0.72); }
+
+/* 当前月份画廊 */
+.month-gallery { min-height: 360px; }
+.month-gallery-head { margin-bottom: 24px; }
+.month-gallery-head .count {
+  color: var(--text-3);
+  font: 600 0.8rem var(--font-mono);
+  letter-spacing: 0.12em;
+}
+.month-photo-wall { min-height: 320px; }
+@keyframes panel-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* 旅程卡片轨道（首页旅行记录）：紧凑横向 scroll-snap */
@@ -1065,7 +1048,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .album-row:active { cursor: grabbing; }
 .album-row .album-tile { flex: 0 0 clamp(220px, 22vw, 280px); }
-.rail-card { flex: 0 0 clamp(230px, 24vw, 300px); }
 
 .rail-card {
   position: relative;
@@ -1123,28 +1105,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   display: flex; gap: 10px; flex-wrap: wrap;
 }
 .rail-card .rail-body .rail-count { color: var(--cyan); font-weight: 700; }
-.rail-arrow {
-  position: absolute; top: 50%; z-index: 3;
-  transform: translateY(-50%);
-  display: grid; place-items: center;
-  width: 42px; height: 42px;
-  color: var(--text-1);
-  background: rgba(10, 15, 30, 0.85);
-  border: 1px solid var(--stroke-strong);
-  border-radius: 50%;
-  font-size: 1rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: background var(--dur-fast), transform var(--dur-fast) var(--ease-spring), opacity var(--dur-fast);
-}
-.rail-arrow:hover { background: rgba(103, 232, 249, 0.25); transform: translateY(-50%) scale(1.08); }
-.rail-arrow.prev { left: -8px; }
-.rail-arrow.next { right: -8px; }
-.rail-arrow[disabled] { opacity: 0.25; pointer-events: none; }
-@media (max-width: 767px) {
-  .rail-arrow.prev { left: 4px; }
-  .rail-arrow.next { right: 4px; }
-}
 
 /* 旅程日志：固定高度时间线面板，滚动条即时间轴 */
 .tl-panel-wrap { position: relative; }
@@ -1237,67 +1197,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .heat-cell { position: relative; }
 .heat-cell:hover .heat-tip { opacity: 1; transform: translateX(-50%) scale(1); }
-
-/* ---------- 13b. 途中光影相册页 ---------- */
-.region-nav {
-  position: sticky; top: var(--header-height); z-index: 900;
-  display: flex; gap: 6px;
-  padding: 10px 24px;
-  overflow-x: auto;
-  background: rgba(5, 7, 15, 0.78);
-  border-bottom: 1px solid var(--stroke);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  scrollbar-width: none;
-}
-.region-nav::-webkit-scrollbar { display: none; }
-.region-nav a,
-.region-nav button {
-  flex: 0 0 auto;
-  display: inline-flex; align-items: center; gap: 8px;
-  min-height: 38px;
-  padding: 7px 15px;
-  color: var(--text-2);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius-pill);
-  font-weight: 600; font-size: 0.84rem;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color var(--dur-fast), background var(--dur-fast), border-color var(--dur-fast);
-}
-.region-nav a:hover,
-.region-nav button:hover { color: var(--text-1); border-color: rgba(103, 232, 249, 0.45); }
-.region-nav a.active,
-.region-nav button.active {
-  color: #05070f;
-  background: linear-gradient(120deg, var(--mint), var(--cyan));
-  border-color: transparent;
-  box-shadow: 0 4px 18px rgba(94, 234, 212, 0.35);
-}
-.region-nav a.active .n,
-.region-nav button.active .n { color: rgba(5, 7, 15, 0.7); }
-.album-pager {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  margin-top: 40px;
-}
-.album-pager .chip { cursor: pointer; }
-.region-nav a .n {
-  color: var(--cyan);
-  font: 600 0.72rem var(--font-mono);
-}
-.photo-group { padding-block: clamp(44px, 6vw, 72px); }
-.photo-group + .photo-group { border-top: 1px solid var(--stroke); }
-.photo-group-head { margin-bottom: 26px; }
-.photo-group-head h2 {
-  display: flex; align-items: baseline; gap: 14px;
-  flex-wrap: wrap;
-}
-.photo-group-head .count {
-  color: var(--text-3);
-  font: 600 0.8rem var(--font-mono);
-  letter-spacing: 0.12em;
-}
 
 /* ---------- 13c. 旅程详情页 ---------- */
 .trip-hero {
@@ -1545,60 +1444,12 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .countdown-done { color: var(--amber); font-weight: 700; }
 
-/* ---------- 18. Tabs ---------- */
+/* ---------- 18. 内页主体 ---------- */
 .next-body { padding-block: var(--space-section); }
-.tab-nav {
-  position: relative;
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  max-width: 560px;
-  margin-bottom: 26px;
-  padding: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius-pill);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-.tab-btn {
-  position: relative; z-index: 1;
-  min-height: 46px;
-  padding: 10px 14px;
-  color: var(--text-2);
-  background: transparent;
-  border: 0;
-  border-radius: var(--radius-pill);
-  font-weight: 700; font-size: 0.92rem;
-  transition: color var(--dur-fast);
-}
-.tab-btn.active { color: #05070f; }
-.tab-btn:not(.active):hover { color: var(--text-1); }
-.tab-indicator {
-  position: absolute; top: 6px; bottom: 6px; left: 6px; z-index: 0;
-  border-radius: var(--radius-pill);
-  background: linear-gradient(120deg, #fcd34d, #fb923c);
-  box-shadow: 0 4px 20px rgba(251, 146, 60, 0.4);
-  transition: left 300ms var(--ease-spring), width 300ms var(--ease-spring);
-}
-.tab-panel {
-  display: none;
-  overflow: hidden;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-1);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-.tab-panel.active { display: block; animation: panel-enter var(--dur-mid) var(--ease-out) both; }
-.tab-panel[hidden] { display: none; }
 @keyframes panel-enter {
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: none; }
 }
-.panel-grid { display: grid; grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.5fr); }
-.panel-main, .panel-side { min-width: 0; padding: clamp(24px, 4vw, 42px); }
-.panel-side { background: rgba(255, 255, 255, 0.03); border-right: 1px solid var(--stroke); }
-.panel-sub { margin-bottom: 22px; font-size: 1.4rem; }
 
 .weather-big { display: grid; align-content: center; gap: 16px; grid-template-columns: 1fr; }
 .weather-temp {
@@ -1720,13 +1571,11 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
 }
 .search-box input::placeholder { color: var(--text-3); }
 
-.grid, .notes-grid { display: grid; gap: 26px; }
+.grid { display: grid; gap: 26px; }
 .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .note-card { padding: 4px; transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast), border-color var(--dur-fast), opacity 0.35s var(--ease-out); }
 .note-card:hover { transform: translateY(-5px); border-color: rgba(129, 140, 248, 0.4); box-shadow: var(--shadow-2); }
-.note-card.hide { display: none; }
-.note-card .card-body { padding: 24px; }
-.note-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.note-card .card-body { padding: 24px; }.note-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .note-cat {
   padding: 4px 12px;
   color: var(--mint);
@@ -2075,8 +1924,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   :root { --container: 1280px; }
 }
 @media (max-width: 1023px) {
-  .panel-grid { grid-template-columns: 1fr; }
-  .panel-side { border-right: 0; border-bottom: 1px solid var(--stroke); }
   .about-wrap { grid-template-columns: minmax(230px, 0.8fr) minmax(0, 1.4fr); }
 }
 @media (max-width: 767px) {
@@ -2104,12 +1951,6 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .hero-actions .button { flex: 1 1 auto; justify-content: center; }
   .trip-grid, .grid-2, .about-wrap { grid-template-columns: 1fr; }
   .guide-grid { grid-template-columns: 1fr; }
-  .moment-slide { aspect-ratio: 4 / 3; }
-  .trip-slide { padding-inline: 46px; }
-  .moment-caption { padding: 28px 16px 14px; flex-direction: column; align-items: flex-start; gap: 4px; }
-  .moment-arrow { width: 38px; height: 38px; font-size: 0.9rem; }
-  .moment-arrow.prev { left: 10px; }
-  .moment-arrow.next { right: 10px; }
   .checklist { grid-template-columns: 1fr; }
   .next-cta, .contact-card { flex-direction: column; align-items: flex-start; }
   .contact-links { justify-content: flex-start; }
@@ -2123,14 +1964,11 @@ body.loaded .hero-title .line:nth-child(2) > span { transition-delay: 0.12s; }
   .countdown { width: 100%; }
   .countdown .unit { min-width: 0; flex: 1; padding: 15px 6px; }
   .countdown .num { font-size: clamp(1.3rem, 6.6vw, 1.9rem); }
-  .tab-btn { padding-inline: 6px; font-size: 0.85rem; }
   .weather-grid { grid-template-columns: 1fr; }
   .weather-big { grid-template-columns: 1fr 1fr; }
   .profile-card { position: static; }
   .search-box { margin-left: 0; width: 100%; }
   .search-box input { width: 100%; }
-  .lb-prev { left: 8px; }
-  .lb-next { right: 8px; }
   .to-top { right: 16px; bottom: 16px; }
 }
 @media (max-width: 480px) {
@@ -2442,4 +2280,99 @@ body > main, body > header, body > footer { position: relative; z-index: 1; }
   .portal-pin { position: static; height: 72svh; }
   .portal-mask { -webkit-mask-image: none; mask-image: none; }
   .portal-outro { display: none; }
+}
+
+/* ---------- 30. 本次优化新增：涟漪 / 光标跟随 / 骨架屏 / 模糊渐进加载 / 逐字发光 ---------- */
+
+/* 点击涟漪反馈（effects.js initRipple 动态注入 .ripple）
+   为涟漪宿主补齐裁剪条件：定位 + overflow:hidden */
+.button, .chip, .mode-toggle button, .nav-links a, .to-top, .lb-btn, .month-head {
+  position: relative;
+  overflow: hidden;
+}
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.18) 45%, transparent 70%);
+  transform: scale(0);
+  animation: ripple-spread 0.55s var(--ease-out) forwards;
+  z-index: 3;
+}
+@keyframes ripple-spread {
+  to { transform: scale(1); opacity: 0; }
+}
+
+/* 简约鼠标跟随光晕（effects.js initCursorGlow 注入，仅桌面精确指针） */
+.cursor-glow {
+  position: fixed;
+  left: 0; top: 0;
+  width: 340px; height: 340px;
+  z-index: 2;
+  margin: -170px 0 0 -170px; /* 让元素中心对齐指针坐标 */
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(circle, rgba(103, 232, 249, 0.07), rgba(129, 140, 248, 0.045) 38%, transparent 68%);
+  will-change: transform;
+}
+.cursor-glow.on { opacity: 1; }
+
+/* 骨架屏：数据加载前的占位微光块（main.js showSkeleton 注入） */
+.is-skeleton { min-height: 120px; }
+.skeleton-block {
+  border-radius: var(--radius-card);
+  background: linear-gradient(110deg, rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 70%);
+  background-size: 200% 100%;
+  animation: ph-sheen 1.8s linear infinite;
+  min-height: 88px;
+}
+/* 跟随宿主布局形态：轨道卡片 / 网格卡片 / 气泡场 */
+#trip-slider.is-skeleton { display: flex; gap: 20px; overflow: hidden; }
+#trip-slider.is-skeleton .skeleton-block { flex: 0 0 clamp(230px, 24vw, 300px); aspect-ratio: 3 / 4; }
+#stats-grid.is-skeleton .skeleton-block,
+#wish-grid.is-skeleton .skeleton-block,
+#travel-notes.is-skeleton .skeleton-block,
+#study-notes.is-skeleton .skeleton-block { aspect-ratio: 4 / 3; }
+#trip-photos.is-skeleton { display: flex; gap: 20px; }
+#trip-photos.is-skeleton .skeleton-block { flex: 1 1 0; height: 240px; }
+#bubble-field.is-skeleton .skeleton-block,
+#page-timeline.is-skeleton .skeleton-block { width: 100%; }
+#photo-groups.is-skeleton { display: flex; gap: 20px; overflow: hidden; }
+#photo-groups.is-skeleton .skeleton-block { flex: 0 0 clamp(220px, 22vw, 280px); aspect-ratio: 4 / 4.6; }
+
+/* 图片模糊渐进加载：占位态放大轻微模糊，加载完成后淡入 + 去模糊（blur-up） */
+.ph img,
+.card-media img,
+.bubble img {
+  filter: blur(14px);
+  transform: scale(1.04);
+  transition:
+    opacity 0.6s ease,
+    filter 0.7s var(--ease-out),
+    transform 0.9s var(--ease-out);
+}
+.ph img.is-loaded,
+.card-media img.is-loaded,
+.bubble img.is-loaded {
+  filter: blur(0);
+  transform: none;
+}
+/* hover 缩放与 blur-up 的 transform 共存：加载完成后交还给 hover 规则 */
+.ph:hover img.is-loaded { transform: scale(1.05); }
+.bubble:hover img.is-loaded { transform: scale(1.08); }
+
+/* 逐字标题入场瞬间带柔和发光，随后随文字清晰一同收敛 */
+.split-words .w {
+  text-shadow: 0 0 26px rgba(139, 180, 255, 0.75);
+}
+.split-words.in .w {
+  text-shadow: 0 0 0 rgba(139, 180, 255, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block { animation: none; }
+  .cursor-glow, .ripple { display: none; }
+  .ph img, .card-media img, .bubble img { filter: none; transform: none; }
 }

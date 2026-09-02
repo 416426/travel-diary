@@ -3,6 +3,11 @@
 // journey.js — 旅程日志页：统计概览、旅程时间线、目的地心愿清单
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // 数据返回前先铺骨架屏
+  showSkeleton(document.querySelector("#stats-grid"), 5);
+  showSkeleton(document.querySelector("#page-timeline"), 4);
+  showSkeleton(document.querySelector("#wish-grid"), 6);
+
   try {
     const [tripsData, wishData] = await Promise.all([
       loadJSON("data/trips.json"),
@@ -20,6 +25,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("旅程日志数据加载失败", err);
     showDataHint();
 
+    // 错误时撤下骨架，避免微光占位永久残留
+    ["#stats-grid", "#page-timeline", "#wish-grid"].forEach((selector) => {
+      clearSkeleton(document.querySelector(selector));
+    });
+
     const wrap = document.querySelector("#journey-wrap");
     if (!wrap) return;
 
@@ -35,6 +45,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 function renderStats(trips, wishes) {
   const grid = document.querySelector("#stats-grid");
   if (!grid) return;
+
+  clearSkeleton(grid);
 
   const photoCount = trips.reduce(
     (total, trip) =>
@@ -97,39 +109,12 @@ function renderStats(trips, wishes) {
     .forEach((el) => animateCount(el, Number(el.dataset.count) || 0));
 }
 
-function animateCount(element, target) {
-  if (!element) return;
-
-  if (REDUCED_MOTION || window.WEBDRIVER_MODE) {
-    element.textContent = String(target);
-    return;
-  }
-
-  const duration = 1300;
-  const start = performance.now();
-  let done = false;
-  const finish = () => {
-    if (done) return;
-    done = true;
-    element.textContent = String(target);
-  };
-  // rAF 被节流（如页面不可见）时兜底写入最终值
-  window.setTimeout(finish, duration + 400);
-  const step = (now) => {
-    if (done) return;
-    const t = Math.min((now - start) / duration, 1);
-    const eased = 1 - Math.pow(1 - t, 3);
-    element.textContent = String(Math.round(target * eased));
-    if (t < 1) window.requestAnimationFrame(step);
-    else finish();
-  };
-  window.requestAnimationFrame(step);
-}
-
 /* ===== 旅程时间线 ===== */
 function renderTimeline(trips) {
   const wrap = document.querySelector("#page-timeline");
   if (!wrap) return;
+
+  clearSkeleton(wrap);
 
   if (!trips.length) {
     const empty = document.createElement("p");
@@ -291,6 +276,8 @@ function renderWishlist(wishes) {
   const grid = document.querySelector("#wish-grid");
   if (!grid) return;
 
+  clearSkeleton(grid);
+
   const sorted = [...wishes].sort((a, b) => {
     const rank = (w) => (w?.status === "planned" ? 0 : 1);
     return rank(a) - rank(b);
@@ -371,46 +358,8 @@ function updateWishProgress(wishes) {
   const percent = total ? Math.round((unlocked / total) * 100) : 0;
 
   progress.setAttribute("aria-valuenow", String(percent));
-  bar.style.width = `${percent}%`;
-  text.textContent = `${unlocked} / ${total} 已解锁`;
-}
-
-/* ===== 工具 ===== */
-function extractCity(trip) {
-  const explicitCity = indexText(trip?.city, "", 60);
-  if (explicitCity) return explicitCity;
-
-  const location = indexText(trip?.location, "", 120);
-  if (!location) return "";
-
-  const parts = location
-    .replace(/[·、,/，/]+/g, " ")
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!parts.length) return "";
-
-  const municipalities = new Set(["北京", "上海", "天津", "重庆"]);
-  const countries = new Set(["中国", "日本", "法国"]);
-
-  const countryIndex = countries.has(parts[0]) ? 1 : 0;
-  const candidate = parts[countryIndex] || parts[0];
-
-  if (municipalities.has(candidate)) return candidate;
-
-  return parts[parts.length - 1] || candidate || "";
-}
-
-function indexText(value, fallback = "", maxLength = 240) {
-  if (typeof value !== "string") return fallback;
-  const text = value.trim();
-  return text ? text.slice(0, maxLength) : fallback;
-}
-
-function escapeHTML(value) {
-  const element = document.createElement("span");
-  element.textContent = value;
-  return element.innerHTML;
+  bar.style.width = percent + "%";
+  text.textContent = unlocked + " / " + total + " 已解锁";
 }
 
 /* ===== 年度旅行节奏（月度热力条） ===== */

@@ -5,6 +5,9 @@
 let tripWallCleanup = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // 数据返回前先铺骨架屏
+  showSkeleton(document.querySelector("#trip-photos"), 8);
+
   let trips = [];
   try {
     const data = await loadJSON("data/trips.json");
@@ -36,9 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.title = `${indexText(trip?.title, "旅程相册", 60)} · 旅行日记`;
 });
 
-function sortedTrips(trips) {
-  return [...trips].sort((a, b) => String(b?.date || "").localeCompare(String(a?.date || "")));
-}
+// sortedTrips / indexText / escapeHTML 已统一迁移至 main.js
 
 function renderError(message) {
   const wrap = document.querySelector("#trip-wrap");
@@ -126,6 +127,8 @@ function renderPhotos(trip) {
   const wall = document.querySelector("#trip-photos");
   if (!wall) return;
 
+  clearSkeleton(wall);
+
   const photos = (Array.isArray(trip?.photos) ? trip.photos : [])
     .filter((p) => typeof p === "string" && p.trim());
   const emoji = indexText(trip?.moodEmoji, "📷", 8);
@@ -176,15 +179,4 @@ function renderNeighbors(prev, next) {
     }
   }
 }
-
-function indexText(value, fallback = "", maxLength = 240) {
-  if (typeof value !== "string") return fallback;
-  const text = value.trim();
-  return text ? text.slice(0, maxLength) : fallback;
-}
-
-function escapeHTML(value) {
-  const element = document.createElement("span");
-  element.textContent = value;
-  return element.innerHTML;
-}
+// indexText / escapeHTML 已统一迁移至 main.js 共享工具层

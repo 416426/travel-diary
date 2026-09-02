@@ -6,6 +6,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   createStarfield(document.querySelector("#starfield"));
   initSectionSpy(".section, .next-cta", ".anchor-nav a");
 
+  // 数据返回前先铺骨架屏，避免内容区空白跳变
+  const sliderWrap = document.querySelector("#trip-slider");
+  const bubbleWrap = document.querySelector("#bubble-field");
+  showSkeleton(sliderWrap, 4);
+  showSkeleton(bubbleWrap, 6);
+
   try {
     const data = await loadJSON("data/trips.json");
     const trips = Array.isArray(data?.trips) ? data.trips : [];
@@ -73,6 +79,8 @@ const BUBBLE_SLOTS = [
 function renderBubbles(trips) {
   const field = document.querySelector("#bubble-field");
   if (!field) return;
+
+  clearSkeleton(field);
 
   const pool = [];
   trips.forEach((trip) => {
@@ -147,7 +155,7 @@ function renderTripRail(trips) {
   }
 
   wrap.className = "trip-rail-wrap";
-  wrap.innerHTML = "";
+  wrap.replaceChildren();
 
   const rail = document.createElement("div");
   rail.className = "trip-rail";
@@ -268,7 +276,7 @@ function initPortal() {
   update();
 }
 
-/* ===== 统计（数字滚动） ===== *//* ===== 统计（数字滚动） ===== */
+/* ===== 统计（数字滚动，animateCount 为 main.js 共享实现） ===== */
 function renderStats(trips) {
   const tripElement = document.querySelector("#stat-trips");
   const photoElement = document.querySelector("#stat-photos");
@@ -293,87 +301,26 @@ function renderStats(trips) {
   animateCount(cityElement, cities.size);
 }
 
-function animateCount(element, target) {
-  if (!element) return;
-
-  element.setAttribute("data-count", String(target));
-
-  if (REDUCED_MOTION || window.WEBDRIVER_MODE) {
-    element.textContent = String(target);
-    return;
-  }
-
-  element.textContent = "0";
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (!entries[0]?.isIntersecting) return;
-      observer.disconnect();
-
-      const duration = 1300;
-      const start = performance.now();
-      const step = (now) => {
-        const t = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - t, 3);
-        element.textContent = String(Math.round(target * eased));
-        if (t < 1) window.requestAnimationFrame(step);
-      };
-      window.requestAnimationFrame(step);
-    },
-    { threshold: 0.5 }
-  );
-
-  observer.observe(element);
-}
-
-function extractCity(trip) {
-  const explicitCity = indexText(trip?.city, "", 60);
-  if (explicitCity) return explicitCity;
-
-  const location = indexText(trip?.location, "", 120);
-  if (!location) return "";
-
-  const parts = location
-    .replace(/[·、,/，/]+/g, " ")
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!parts.length) return "";
-
-  const municipalities = new Set(["北京", "上海", "天津", "重庆"]);
-  const countries = new Set(["中国", "日本", "法国"]);
-
-  const countryIndex = countries.has(parts[0]) ? 1 : 0;
-  const candidate = parts[countryIndex] || parts[0];
-
-  if (municipalities.has(candidate)) return candidate;
-
-  return parts[parts.length - 1] || candidate || "";
-}
-
 /* ===== 错误状态 ===== */
 function showIndexError() {
   const slider = document.querySelector("#trip-slider");
-  const moments = document.querySelector("#moment-slider");
+  const bubbleField = document.querySelector("#bubble-field");
 
-  if (slider) slider.textContent = "旅行记录暂时无法加载。";
-  if (moments) moments.textContent = "高光时刻暂时无法加载。";
+  // 错误时撤下骨架与 is-skeleton 类，避免微光占位永久残留
+  if (slider) {
+    clearSkeleton(slider);
+    slider.textContent = "旅行记录暂时无法加载。";
+  }
+  if (bubbleField) {
+    clearSkeleton(bubbleField);
+    const message = document.createElement("p");
+    message.className = "empty-state";
+    message.textContent = "气泡需要启用 JavaScript；全部照片可在「途中光影」浏览。";
+    bubbleField.replaceChildren(message);
+  }
 
   ["#stat-trips", "#stat-photos", "#stat-cities"].forEach((selector) => {
     const element = document.querySelector(selector);
     if (element) element.textContent = "--";
   });
-}
-
-/* ===== 数据校验与文本工具 ===== */
-function indexText(value, fallback = "", maxLength = 240) {
-  if (typeof value !== "string") return fallback;
-  const text = value.trim();
-  return text ? text.slice(0, maxLength) : fallback;
-}
-
-function escapeHTML(value) {
-  const element = document.createElement("span");
-  element.textContent = value;
-  return element.innerHTML;
 }

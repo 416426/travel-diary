@@ -1,7 +1,7 @@
 "use strict";
 
-// effects.js — 全站交互动效：预加载 / 自定义光标 / 滚动进度 / 回到顶部 /
-// reveal 入场 / 3D tilt / 数字滚动 / 光泽跟随 / 星空画布
+// effects.js — 全站交互动效：预加载 / 滚动进度 / 回到顶部 / reveal 入场 /
+// 数字滚动 / 逐字标题 / 追光 / 磁吸 / 极光视差 / 星空画布 / 涟漪 / 光标跟随
 
 const REDUCED_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const FINE_POINTER = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -14,13 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
   initReveal();
   initScrollProgress();
   initBackToTop();
-  initTiltCards();
   initCountUp();
   initTextGenerate();
   initSpotlight();
   initMagnetic();
   initAurora();
   initSparkles();
+  initRipple();
+  initCursorGlow();
+  initHeroParallax();
 });
 
 /* ===== 预加载 ===== */
@@ -139,31 +141,6 @@ function initBackToTop() {
   });
 
   update();
-}
-
-/* ===== 3D tilt 卡片 + 光泽跟随 ===== */
-function initTiltCards() {
-  if (!FINE_POINTER || REDUCED_MOTION) return;
-
-  document.querySelectorAll("[data-tilt]").forEach((card) => {
-    const maxTilt = 7;
-
-    card.addEventListener("pointermove", (event) => {
-      const rect = card.getBoundingClientRect();
-      const px = (event.clientX - rect.left) / rect.width;
-      const py = (event.clientY - rect.top) / rect.height;
-
-      card.style.setProperty("--mx", `${px * 100}%`);
-      card.style.setProperty("--my", `${py * 100}%`);
-      card.style.transform =
-        `perspective(900px) rotateX(${(0.5 - py) * maxTilt}deg) ` +
-        `rotateY(${(px - 0.5) * maxTilt}deg) translateY(-6px)`;
-    });
-
-    card.addEventListener("pointerleave", () => {
-      card.style.transform = "";
-    });
-  });
 }
 
 /* ===== 数字滚动（data-count） ===== */
@@ -493,17 +470,6 @@ function setupAutoMarquee(el, options = {}) {
     true
   );
 }
-/* ===== 缩略图路径（小展示位用缩略图，省带宽防黑块） ===== */
-function thumbPath(path) {
-  if (typeof path !== "string" || !path.includes("photos/")) return path;
-  return path.replace("photos/", "photos/thumbs/");
-}
-
-/* ===== 横向跑马灯自动滚动（悬停暂停，可手动拖拽） ===== */
-// 内容需复制两份实现无缝循环；方向 dir=1 向左，-1 向右
-/* ===== 拖拽横向滚动（鼠标按住左右拖） ===== */
-
-
 /* ===== 21ST 风格特效层 ===== */
 
 /* 逐字文字生成（纯文本标题自动拆字，blur→清晰 错峰入场） */
@@ -571,15 +537,20 @@ function initSpotlight() {
 }
 
 /* 磁吸按钮（光标靠近时轻微吸附） */
+// 元素列表只在初始化与异步渲染后各收集一次，避免 pointermove 高频查询 DOM
 function initMagnetic() {
   if (!FINE_POINTER || REDUCED_MOTION || window.WEBDRIVER_MODE) return;
 
   const selector = ".hero-actions .button, .next-cta .button, .contact-links a";
+  let magneticEls = [];
+  const collect = () => { magneticEls = Array.from(document.querySelectorAll(selector)); };
+  collect();
+  window.__collectMagnetic = collect; // 异步渲染后可手动触发重收集
 
   document.addEventListener(
     "pointermove",
     (event) => {
-      document.querySelectorAll(selector).forEach((el) => {
+      magneticEls.forEach((el) => {
         const rect = el.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
@@ -651,4 +622,110 @@ function initSparkles() {
     spark.style.setProperty("--sdelay", `${(i % 6) * 0.45}s`);
     field.appendChild(spark);
   }
+}
+
+/* ===== 点击涟漪反馈 =====
+   事件委托：点击按钮类元素时在指针位置生成一圈扩散涟漪。
+   目标元素需要有 overflow:hidden 裁剪（.button 已自带，其余见 CSS）。 */
+function initRipple() {
+  if (REDUCED_MOTION || WEBDRIVER) return;
+
+  const HOST_SELECTOR =
+    ".button, .chip, .mode-toggle button, .nav-links a, .to-top, .lb-btn, .month-pill";
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (!(event.target instanceof Element)) return;
+      const host = event.target.closest(HOST_SELECTOR);
+      if (!host) return;
+
+      // 涟漪依赖 overflow 裁剪；溢出可见的容器跳过，防止涟漪扩散出边界
+      const hostStyle = getComputedStyle(host);
+      if (hostStyle.overflow === "visible") return;
+
+      const rect = host.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 2.2;
+
+      const ripple = document.createElement("span");
+      ripple.className = "ripple";
+      ripple.setAttribute("aria-hidden", "true");
+      ripple.style.width = ripple.style.height = size + "px";
+      ripple.style.left = event.clientX - rect.left - size / 2 + "px";
+      ripple.style.top = event.clientY - rect.top - size / 2 + "px";
+
+      host.appendChild(ripple);
+      ripple.addEventListener("animationend", () => ripple.remove(), { once: true });
+    },
+    { passive: true }
+  );
+}
+
+/* ===== 简约鼠标跟随光晕 =====
+   一枚柔和光斑以 lerp 缓动跟随指针（每帧向目标位置靠近 18%），
+   仅桌面精确指针启用；纯装饰，pointer-events:none 不阻挡任何交互。 */
+function initCursorGlow() {
+  if (!FINE_POINTER || REDUCED_MOTION || WEBDRIVER) return;
+
+  const glow = document.createElement("div");
+  glow.className = "cursor-glow";
+  glow.setAttribute("aria-hidden", "true");
+  document.body.appendChild(glow);
+
+  let targetX = window.innerWidth / 2;
+  let targetY = window.innerHeight / 3;
+  let x = targetX;
+  let y = targetY;
+  let rafId = 0;
+
+  const frame = () => {
+    x += (targetX - x) * 0.18;
+    y += (targetY - y) * 0.18;
+    glow.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0)";
+    rafId = window.requestAnimationFrame(frame);
+  };
+
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      const firstShow = !glow.classList.contains("on");
+      targetX = event.clientX;
+      targetY = event.clientY;
+      if (firstShow) {
+        glow.classList.add("on");
+        x = targetX; // 首次出现直接到位，避免从原点飘移
+        y = targetY;
+      }
+      if (!rafId) rafId = window.requestAnimationFrame(frame);
+    },
+    { passive: true }
+  );
+}
+
+/* ===== Hero 视差 =====
+   首页 hero 内容随滚动轻微上移并淡出，制造层次纵深；
+   只写 transform/opacity（合成器属性），不触发布局重排。 */
+function initHeroParallax() {
+  const heroContent = document.querySelector(".hero .hero-content");
+  if (!heroContent || REDUCED_MOTION || WEBDRIVER) return;
+
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const y = window.scrollY;
+    if (y > window.innerHeight) return; // 滚出首屏后不再计算
+    heroContent.style.transform = "translate3d(0," + (y * 0.16).toFixed(1) + "px,0)";
+    heroContent.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.85)));
+  };
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    },
+    { passive: true }
+  );
+  update();
 }

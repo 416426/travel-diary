@@ -339,9 +339,4 @@ function startCountdown(dateString) {
   tick();
   timerId = window.setInterval(tick, 1000);
 }
-
-function escapeHTML(value) {
-  const element = document.createElement("span");
-  element.textContent = value;
-  return element.innerHTML;
-}
+// escapeHTML 已统一迁移至 main.js 共享工具层
