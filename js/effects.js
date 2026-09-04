@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initRipple();
   initCursorGlow();
   initHeroParallax();
+  initMeteors();
+  initTiltLite();
 });
 
 /* ===== 预加载 ===== */
@@ -505,7 +507,7 @@ function initSpotlight() {
   if (!FINE_POINTER || REDUCED_MOTION || window.WEBDRIVER_MODE) return;
 
   const SPOT_SELECTOR =
-    ".card, .album-tile, .rail-card, .stat-card, .note-card, .guide-card, .wish-card";
+    ".card, .album-tile, .rail-card, .stat-card, .note-card, .guide-card, .wish-card, .ph";
 
   document.addEventListener(
     "pointerover",
@@ -728,4 +730,68 @@ function initHeroParallax() {
     { passive: true }
   );
   update();
+}
+
+/* ===== 流星雨（学习 21st.dev / Magic UI Meteors） =====
+   内页 Hero 与 CTA 区块注入若干斜向划过的流星细线；
+   纯 CSS 动画（transform/opacity），不参与布局、不阻挡交互。 */
+function initMeteors() {
+  if (REDUCED_MOTION || WEBDRIVER) return;
+
+  document.querySelectorAll(".page-hero, .next-cta").forEach((host) => {
+    if (host.dataset.meteorsBound) return; // 防重复注入
+    host.dataset.meteorsBound = "1";
+
+    // 每个宿主 5 颗流星：水平位置与节奏用确定性伪随机错开，避免整齐划一
+    const field = document.createElement("div");
+    field.className = "meteor-field";
+    field.setAttribute("aria-hidden", "true");
+
+    for (let i = 0; i < 5; i += 1) {
+      const meteor = document.createElement("span");
+      meteor.className = "meteor";
+      meteor.style.setProperty("--meteor-x", `${(i * 21 + 7) % 88}%`);
+      meteor.style.setProperty("--meteor-delay", `${(i * 1.9).toFixed(1)}s`);
+      meteor.style.setProperty("--meteor-dur", `${(5.2 + (i % 3) * 1.6).toFixed(1)}s`);
+      field.appendChild(meteor);
+    }
+
+    host.appendChild(field);
+  });
+}
+
+/* ===== 轻量 3D Tilt（照片磁贴 / 气泡 / 轨道卡） =====
+   指针悬停时卡片朝光标方向轻微倾斜（±5°），离开即回弹；
+   事件委托 + 每元素只绑定一次，动态渲染的内容自动覆盖。 */
+function initTiltLite() {
+  if (!FINE_POINTER || REDUCED_MOTION || WEBDRIVER) return;
+
+  const TILT_SELECTOR = ".album-tile, .rail-card, .bubble";
+  const MAX_TILT = 5; // 度数上限：轻微倾斜，不抢主体
+
+  // 委托 pointerover 完成首次绑定；元素自身挂 pointerleave 复位
+  document.addEventListener(
+    "pointerover",
+    (event) => {
+      const el = event.target instanceof Element ? event.target.closest(TILT_SELECTOR) : null;
+      if (!el || el.dataset.tiltBound) return;
+      el.dataset.tiltBound = "1";
+
+      el.addEventListener("pointermove", (e) => {
+        const rect = el.getBoundingClientRect();
+        const px = (e.clientX - rect.left) / rect.width;
+        const py = (e.clientY - rect.top) / rect.height;
+        // 气泡靠 translate(-50%,-50%) 定位，倾斜时必须保留该偏移
+        const base = el.classList.contains("bubble") ? " translate(-50%, -50%)" : "";
+        el.style.transform =
+          `perspective(900px) rotateX(${((0.5 - py) * MAX_TILT).toFixed(2)}deg) ` +
+          `rotateY(${((px - 0.5) * MAX_TILT).toFixed(2)}deg) translateY(-6px)` + base;
+      });
+
+      el.addEventListener("pointerleave", () => {
+        el.style.transform = "";
+      });
+    },
+    { passive: true }
+  );
 }

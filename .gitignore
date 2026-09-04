@@ -1,2 +1,5 @@
 .DS_Store
 .shots/
+
+# workbuddy 内部状态
+.workbuddy/

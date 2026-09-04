@@ -2376,3 +2376,73 @@ body > main, body > header, body > footer { position: relative; z-index: 1; }
   .cursor-glow, .ripple { display: none; }
   .ph img, .card-media img, .bubble img { filter: none; transform: none; }
 }
+
+/* ---------- 31. 21ST 风格新增特效：流星雨 / 琥珀流光边框 / 标题下划线生长 ---------- */
+
+/* 流星雨（Magic UI Meteors 风格）：斜向划过的细光轨 */
+.meteor-field {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.meteor {
+  position: absolute;
+  top: 0;
+  left: var(--meteor-x, 50%);
+  width: max(130px, 15vw);
+  height: 1.6px;
+  border-radius: 999px;
+  /* 亮头在前进方向（右端），暗尾拖在身后 */
+  background: linear-gradient(90deg, rgba(103, 232, 249, 0) 0%, rgba(103, 232, 249, 0.85) 100%);
+  transform: rotate(145deg);
+  opacity: 0;
+  animation: meteor-fall var(--meteor-dur, 6s) linear infinite;
+  animation-delay: var(--meteor-delay, 0s);
+}
+.meteor::after {
+  content: "";
+  position: absolute; inset: 0 auto 0 100%;
+  width: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(190, 235, 255, 0.95), transparent 72%);
+  filter: blur(1.5px);
+}
+@keyframes meteor-fall {
+  0%   { transform: rotate(145deg) translateX(0); opacity: 0; }
+  8%   { opacity: 0.9; }
+  62%  { opacity: 0.8; }
+  100% { transform: rotate(145deg) translateX(52vw); opacity: 0; }
+}
+
+/* 琥珀流光边框（Border Beam 的暖色变体，用于倒计时等 dusk 主题区块） */
+.beam-amber::before {
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0turn 0.72turn,
+    rgba(251, 191, 36, 0.9) 0.82turn,
+    rgba(251, 146, 60, 0.95) 0.9turn,
+    rgba(244, 114, 182, 0.6) 0.96turn,
+    transparent 1turn
+  );
+}
+
+/* 小节标题渐变下划线：随区块入场从左向右生长 */
+.section-title { position: relative; }
+.section-title::after {
+  content: "";
+  position: absolute; left: 0; bottom: -6px;
+  width: 96px; height: 2px;
+  border-radius: 2px;
+  background: var(--aurora);
+  opacity: 0.85;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 0.9s var(--ease-out) 0.15s;
+}
+.section-head.in .section-title::after { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .meteor { display: none; }
+  .section-title::after { transition: none; }
+}
